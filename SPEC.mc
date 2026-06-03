@@ -135,3 +135,27 @@ Opções embaralhadas no momento de servir; `correct` nunca enviado antes da res
 
 ## 10. Decisões fechadas
 Ver `00-captura-inicial.md` (histórico completo das decisões e conflitos resolvidos).
+
+
+
+---
+
+## Atualização (2026-06-03 #3) — Feature: casa Presídio
+
+Tempero de variância (estilo "cadeia"). Aceito com guardrails: máx. 2 casas e dispara só por dado, para não reintroduzir punição por sorte como protagonista nem punir acerto.
+
+### Novos requisitos
+- **RF-17** Tipo de casa `prison`, mutuamente exclusivo com casa-pergunta e com início (0) / fim (N).
+- **RF-18** Contagem por partida, escalando com o tamanho: N ∈ [20,24] → 1 presídio; N ∈ [25,30] → 2.
+- **RF-19** Presídio dispara **somente** ao aterrissar via rolagem de dado. Avanço por acerto e recuo por erro NÃO prendem (consistente com RF-08).
+- **RF-20** Efeito: jogador perde a próxima jogada (`skipTurns += 1`). No turno dele, se `skipTurns > 0`, decrementa, emite `turnSkipped{playerId, remaining}` e passa a vez sem rolar.
+
+### Emendas
+- **RF-07 (densidade):** a % de casas-pergunta incide sobre `(casas não-terminais − casas de presídio)`. Ordem de geração: reservar 0 e N → alocar presídios (1–2) → alocar casas-pergunta por densidade no pool restante.
+- **§4 (nudge):** avanços de acerto passam a evitar casas-pergunta **e** presídios (mesma P≈0.7). Como presídio não dispara em avanço, isso só reduz o caso visual de "parado na cadeia sem efeito".
+- **Modelo de dados (player):** adicionar `skipTurns: number`. Preservar na reconexão. `board.tileTypeBySquare` passa a distinguir `normal | question | prison`.
+- **Evento WS:** novo `turnSkipped{playerId, remaining}`.
+- **Sprint 2:** adicionar tarefa "geração e alocação de casas de presídio + lógica de perda de turno + UI de status preso".
+
+### Knob de balanceamento (não implementar agora, só mapeado)
+Perder turno pesa muito em jogo curto (10–15% das jogadas). Se playtest acusar injustiça: reduzir para 1 presídio fixo, ou trocar "pula 1 turno" por "anda metade do próximo dado".
