@@ -1,0 +1,26 @@
+# Sobe backend + Redis localmente (e na VPS na Sprint 4) com `docker compose up`.
+# Nginx/TLS/wss ficam para a Sprint 4 — aqui o foco é o backend conectado ao Redis.
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: .
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - '3000:3000'
+    depends_on:
+      redis:
+        condition: service_healthy
