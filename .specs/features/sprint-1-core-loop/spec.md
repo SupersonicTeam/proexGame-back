@@ -221,24 +221,25 @@ Explicitamente excluído para evitar scope creep. Cada item aponta o destino cor
 
 IDs locais da Sprint 1 (`S1-*`), com o RF de origem da SPEC.mc.
 
-| Requirement ID | RF origem | Story                                   | Phase | Status  |
-| -------------- | --------- | --------------------------------------- | ----- | ------- |
-| S1-01          | —         | Fundação: Gateway Socket.IO + Redis     | Tasks | Pending |
-| S1-02          | —         | Fundação: persistência de SessionState  | Tasks | Pending |
-| S1-03          | RF-01     | Criar sessão + código único             | Tasks | Pending |
-| S1-04          | RF-02     | Entrar em sessão (máx 4 / mín 2)        | Tasks | Pending |
-| S1-05          | RF-03     | Host inicia partida                     | Tasks | Pending |
-| S1-06          | RF-04     | Rolagem de ordem + desempate            | Tasks | Pending |
-| S1-07          | RF-05     | Rolar d6 e mover                        | Tasks | Pending |
-| S1-08          | RF-12     | Vitória chega-ou-passa + ranking        | Tasks | Pending |
-| S1-09          | RF-16     | Autoridade do servidor (RNG no back)    | Tasks | Pending |
-| S1-10          | RF-14*    | Desconexão básica + skip de turno       | Tasks | Pending |
-| S1-11          | —         | Contrato WS documentado                 | Tasks | Pending |
-| S1-12          | —         | Containerização Docker (backend+Redis)  | Tasks | Pending |
+| Requirement ID | RF origem | Story                                   | Tasks   | Status     |
+| -------------- | --------- | --------------------------------------- | ------- | ---------- |
+| S1-01          | —         | Fundação: Gateway Socket.IO + Redis     | T1,T5,T10 | ✅ Verified |
+| S1-02          | —         | Fundação: persistência de SessionState  | T6      | ✅ Verified |
+| S1-03          | RF-01     | Criar sessão + código único             | T7,T8   | ✅ Verified |
+| S1-04          | RF-02     | Entrar em sessão (máx 4 / mín 2)        | T8      | ✅ Verified |
+| S1-05          | RF-03     | Host inicia partida                     | T8      | ✅ Verified |
+| S1-06          | RF-04     | Rolagem de ordem + desempate            | T4,T9   | ✅ Verified |
+| S1-07          | RF-05     | Rolar d6 e mover                        | T4,T9   | ✅ Verified |
+| S1-08          | RF-12     | Vitória chega-ou-passa + ranking        | T4,T9   | ✅ Verified |
+| S1-09          | RF-16     | Autoridade do servidor (RNG no back)    | T3      | ✅ Verified |
+| S1-10          | RF-14*    | Desconexão básica + skip de turno       | T9,T10  | ✅ Verified |
+| S1-11          | —         | Contrato WS documentado                 | T12     | ✅ Verified |
+| S1-12          | —         | Containerização Docker (backend+Redis)  | T11     | ⏳ Build pendente (daemon) |
 
 \* Apenas detecção de desconexão; restauração com grace period é Sprint 2.
 
-**Coverage:** 12 requisitos. Mapeamento para tasks ocorre na fase Tasks.
+**Coverage:** 12 requisitos — 11 verificados por testes (47 unit + 3 e2e), 1 pendente
+(`docker build` aguardando daemon; `compose config` validado).
 
 ---
 

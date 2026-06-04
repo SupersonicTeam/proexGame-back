@@ -318,17 +318,19 @@ Nenhuma violação. `Tests: none` só onde a matriz permite (config/tipos/infra/
 ---
 
 ## Status de execução
-| Task | Status |
-| ---- | ------ |
-| T1 | Pending |
-| T2 | Pending |
-| T3 | Pending |
-| T4 | Pending |
-| T5 | Pending |
-| T6 | Pending |
-| T7 | Pending |
-| T8 | Pending |
-| T9 | Pending |
-| T10 | Pending |
-| T11 | Pending |
-| T12 | Pending |
+| Task | Status | Verificação |
+| ---- | ------ | ----------- |
+| T1 | ✅ Done | build + lint limpos |
+| T2 | ✅ Done | build limpo |
+| T3 | ✅ Done | 4 testes unit |
+| T4 | ✅ Done | 13 testes unit |
+| T5 | ✅ Done | build limpo |
+| T6 | ✅ Done | 5 testes unit (ioredis-mock) |
+| T7 | ✅ Done | 3 testes unit |
+| T8 | ✅ Done | 12 testes unit |
+| T9 | ✅ Done | 10 testes unit |
+| T10 | ✅ Done | 3 e2e (loop até gameOver) + gate full |
+| T11 | ⏳ Pendente verificação de `docker build` (daemon) | `docker compose config` OK |
+| T12 | ✅ Done | CONTRACT-S1.md |
+
+**Totais:** 47 testes unitários + 3 e2e passando. Build e lint limpos.

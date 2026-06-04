@@ -19,10 +19,22 @@ Memória persistente: decisões, blockers, lições, todos.
 
 - (nenhum)
 
+## Progresso Sprint 1 (backend)
+
+- **2026-06-03 — Sprint 1 backend implementada.** Design + Tasks (12 tasks) + Execute concluídos
+  via TDD. 47 testes unitários + 3 e2e verdes; build e lint limpos. Critério de aceite oficial
+  cumprido (2 jogadores completam partida até `gameOver` por e2e com `socket.io-client`).
+  Stack: NestJS 11 + `@nestjs/platform-socket.io` + ioredis 5. Estrutura: `common/` (RandomSource,
+  GameError), `redis/`, `session/` (repo, service, code), `game/` (rules puras + service),
+  `gateway/`. Contrato congelado em `CONTRACT-S1.md`.
+- Pendência única: validar `docker build` com o daemon ativo (Docker Desktop estava offline na
+  sessão; `docker compose config` validado). Dockerfile multi-stage + compose backend+redis prontos.
+
 ## Todos
 
-- Próximo passo do fluxo SDD: **Design** da Sprint 1 (módulos `session`/`game`/`gateway`/`redis`)
-  → depois **Tasks** (quebra atômica com rastreabilidade dos IDs S1-01..S1-11) → **Execute**.
+- Verificar `docker build -t proexgame-back:s1 .` e `docker compose up` com o daemon ativo.
+- Entregar `CONTRACT-S1.md` para a pessoa do frontend integrar.
+- Próximas sprints (2-4) ainda não detalhadas — manter como na SPEC.mc até pedido explícito.
 
 ## Preferências
 
