@@ -51,7 +51,11 @@ function makePlayer(over: Partial<Player> & { id: string }): Player {
   };
 }
 
-function seedState(repo: InMemoryRepo, players: Player[], over: Partial<SessionState> = {}) {
+function seedState(
+  repo: InMemoryRepo,
+  players: Player[],
+  over: Partial<SessionState> = {},
+) {
   const state: SessionState = {
     code: '12345',
     status: 'playing',
@@ -163,5 +167,28 @@ describe('GameService.applyDiceRoll', () => {
     const out = await service.applyDiceRoll('12345', 'a');
     expect(out.nextPlayerId).toBe('c');
     expect(out.state.currentTurnIndex).toBe(2);
+  });
+});
+
+describe('GameService.passTurnIfDisconnected', () => {
+  it('passa a vez quando o jogador atual está desconectado', async () => {
+    const { repo, service } = build([]);
+    seedState(
+      repo,
+      [makePlayer({ id: 'a', connected: false }), makePlayer({ id: 'b' })],
+      { currentTurnIndex: 0 },
+    );
+    const result = await service.passTurnIfDisconnected('12345');
+    expect(result).not.toBeNull();
+    expect(result!.nextPlayerId).toBe('b');
+    expect(result!.state.currentTurnIndex).toBe(1);
+  });
+
+  it('não faz nada quando o jogador atual está conectado', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      currentTurnIndex: 0,
+    });
+    expect(await service.passTurnIfDisconnected('12345')).toBeNull();
   });
 });

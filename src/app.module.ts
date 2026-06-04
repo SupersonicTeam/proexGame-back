@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
+import { RedisModule } from './redis/redis.module';
+import { SessionModule } from './session/session.module';
+import { GameModule } from './game/game.module';
+import { GatewayModule } from './gateway/gateway.module';
 
-// Os módulos de feature (redis, session, game, gateway) são registrados
-// nas tasks seguintes (T5, T8, T9, T10).
 @Module({
-  imports: [],
-  controllers: [],
-  providers: [],
+  imports: [RedisModule, SessionModule, GameModule, GatewayModule],
 })
 export class AppModule {}

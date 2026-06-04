@@ -35,7 +35,10 @@ function makePlayer(over: Partial<Player> & { id: string }): Player {
   };
 }
 
-function makeState(players: Player[], over: Partial<SessionState> = {}): SessionState {
+function makeState(
+  players: Player[],
+  over: Partial<SessionState> = {},
+): SessionState {
   return {
     code: '12345',
     status: 'playing',
@@ -118,7 +121,11 @@ describe('resolveOrder', () => {
 describe('nextConnectedTurnIndex', () => {
   it('avança para o próximo jogador conectado', () => {
     const state = makeState(
-      [makePlayer({ id: 'a' }), makePlayer({ id: 'b' }), makePlayer({ id: 'c' })],
+      [
+        makePlayer({ id: 'a' }),
+        makePlayer({ id: 'b' }),
+        makePlayer({ id: 'c' }),
+      ],
       { currentTurnIndex: 0 },
     );
     expect(nextConnectedTurnIndex(state)).toBe(1);
@@ -146,10 +153,7 @@ describe('nextConnectedTurnIndex', () => {
 
   it('retorna o índice atual quando ninguém mais está conectado', () => {
     const state = makeState(
-      [
-        makePlayer({ id: 'a' }),
-        makePlayer({ id: 'b', connected: false }),
-      ],
+      [makePlayer({ id: 'a' }), makePlayer({ id: 'b', connected: false })],
       { currentTurnIndex: 0 },
     );
     expect(nextConnectedTurnIndex(state)).toBe(0);

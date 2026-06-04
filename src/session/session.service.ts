@@ -4,7 +4,13 @@ import { ErrorCode, GameError } from '../common/errors/game-error';
 import { RANDOM_SOURCE, RandomSource } from '../common/random/random.source';
 import { generateUniqueCode } from './session.code';
 import { SessionRepository } from './session.repository';
-import { Board, BOARD_SIZE, Difficulty, Player, SessionState } from './session.types';
+import {
+  Board,
+  BOARD_SIZE,
+  Difficulty,
+  Player,
+  SessionState,
+} from './session.types';
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
@@ -63,7 +69,10 @@ export class SessionService {
     return { state, playerId };
   }
 
-  async startGame(code: string, requesterPlayerId: string): Promise<SessionState> {
+  async startGame(
+    code: string,
+    requesterPlayerId: string,
+  ): Promise<SessionState> {
     const state = await this.requireSession(code);
     if (state.status !== 'lobby') {
       throw new GameError(ErrorCode.SESSION_ALREADY_STARTED);
@@ -82,7 +91,10 @@ export class SessionService {
     return state;
   }
 
-  async leaveSession(code: string, playerId: string): Promise<SessionState | null> {
+  async leaveSession(
+    code: string,
+    playerId: string,
+  ): Promise<SessionState | null> {
     const state = await this.repo.findByCode(code);
     if (!state) return null;
     state.players = state.players.filter((p) => p.id !== playerId);
@@ -91,7 +103,10 @@ export class SessionService {
   }
 
   // Marca o jogador como desconectado, preservando-o no estado para reconexão (Sprint 2).
-  async markDisconnected(code: string, playerId: string): Promise<SessionState | null> {
+  async markDisconnected(
+    code: string,
+    playerId: string,
+  ): Promise<SessionState | null> {
     const state = await this.repo.findByCode(code);
     if (!state) return null;
     const player = state.players.find((p) => p.id === playerId);

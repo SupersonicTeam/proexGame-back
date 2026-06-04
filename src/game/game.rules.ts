@@ -48,7 +48,10 @@ export interface OrderResult {
 
 // Resolve a ordem de turnos: ordena por maior valor; empates são desfeitos
 // re-rolando recursivamente apenas entre os empatados (RF-04).
-export function resolveOrder(playerIds: string[], rng: RandomSource): OrderResult {
+export function resolveOrder(
+  playerIds: string[],
+  rng: RandomSource,
+): OrderResult {
   const rolls: Roll[] = playerIds.map((playerId) => ({
     playerId,
     value: rollDie(rng),
@@ -95,7 +98,10 @@ export function nextConnectedTurnIndex(state: SessionState): number {
 }
 
 // Ranking final: vencedor em 1º; demais por casa (square) desc.
-export function buildRanking(state: SessionState, winnerId: string): RankingEntry[] {
+export function buildRanking(
+  state: SessionState,
+  winnerId: string,
+): RankingEntry[] {
   const winner = state.players.find((p) => p.id === winnerId);
   const others = state.players
     .filter((p) => p.id !== winnerId)

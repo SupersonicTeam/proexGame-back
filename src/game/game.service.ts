@@ -50,7 +50,10 @@ export class GameService {
   }
 
   // Aplica a rolagem do jogador da vez: move, detecta vitória ou passa o turno.
-  async applyDiceRoll(code: string, playerId: string): Promise<ApplyDiceResult> {
+  async applyDiceRoll(
+    code: string,
+    playerId: string,
+  ): Promise<ApplyDiceResult> {
     const state = await this.requireSession(code);
     if (state.status !== 'playing') {
       throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
@@ -61,7 +64,11 @@ export class GameService {
     }
 
     const value = rollDie(this.rng);
-    const { fromSquare, toSquare, isWin } = resolveMovement(state, playerId, value);
+    const { fromSquare, toSquare, isWin } = resolveMovement(
+      state,
+      playerId,
+      value,
+    );
 
     const player = state.players.find((p) => p.id === playerId)!;
     player.square = toSquare;
@@ -95,6 +102,21 @@ export class GameService {
       nextPlayerId: state.turnOrder[state.currentTurnIndex],
       ranking: null,
     };
+  }
+
+  // Se o jogador da vez está desconectado, passa o turno para o próximo
+  // conectado (evita partida travada — S1-10). Retorna null se nada a fazer.
+  async passTurnIfDisconnected(
+    code: string,
+  ): Promise<{ state: SessionState; nextPlayerId: string } | null> {
+    const state = await this.repo.findByCode(code);
+    if (!state || state.status !== 'playing') return null;
+    const currentId = state.turnOrder[state.currentTurnIndex];
+    const current = state.players.find((p) => p.id === currentId);
+    if (current?.connected) return null; // ainda é a vez de alguém conectado
+    state.currentTurnIndex = nextConnectedTurnIndex(state);
+    await this.repo.save(state);
+    return { state, nextPlayerId: state.turnOrder[state.currentTurnIndex] };
   }
 
   private async requireSession(code: string): Promise<SessionState> {
