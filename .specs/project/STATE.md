@@ -36,20 +36,16 @@ Memória persistente: decisões, blockers, lições, todos.
 - Entregar `CONTRACT-S1.md` para a pessoa do frontend integrar.
 - Próximas sprints (2-4) ainda não detalhadas — manter como na SPEC.mc até pedido explícito.
 
-## HANDOFF — retomada (pausado em 2026-06-03)
+## SPRINT 1 — CONCLUÍDA ✅ (2026-06-04)
 
-Sprint 1 backend **completa e commitada** (13 commits atômicos, branch `claude/busy-fermi-51fee9`,
-worktree). Árvore limpa. Estado dos gates: build ✅, lint ✅, 47 unit ✅, 3 e2e ✅.
+Sprint 1 backend **100% completa**. Todos os 12 requisitos (S1-01..S1-12) verificados.
+Gates: build ✅, lint ✅, 47 unit ✅, 3 e2e ✅. Docker: imagem `proexgame-back:s1` construída;
+`docker compose up` sobe backend + redis (redis interno, não exposto no host); smoke test
+`socket.io-client` externo criou sessão com sucesso (`createSession` → `sessionCreated`).
 
-**Única pendência:** verificar o `docker build` (Docker Desktop não terminou de subir nesta
-sessão — daemon ficou offline). Ao retomar, com o Docker Desktop aberto e rodando:
-
-```bash
-docker build -t proexgame-back:s1 .      # deve compilar e gerar a imagem
-docker compose up --build                # sobe backend + redis; conectar um socket.io-client
-```
-
-Se o build passar, marcar S1-12 como ✅ Verified em spec.md e tasks.md.
+Melhoria aplicada no `docker-compose.yml`: Redis não é mais exposto no host (segurança + evita
+conflito de porta); porta do backend configurável via `BACKEND_PORT` (default 3000). Para subir
+local quando a 3000 estiver ocupada: `BACKEND_PORT=3010 docker compose up`.
 
 **Comandos de verificação rápida do que já existe:**
 ```bash

@@ -4,8 +4,11 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    ports:
-      - '6379:6379'
+    # Redis NÃO é exposto no host: o backend o acessa pela rede interna (redis:6379).
+    # Isso evita conflito de porta e mantém o Redis fora da internet na VPS.
+    # Para inspecionar via redis-cli no host, descomente (ajuste a porta se 6379 estiver em uso):
+    # ports:
+    #   - '6379:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -19,8 +22,9 @@ services:
       - PORT=3000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    # Porta do host configurável (BACKEND_PORT) para evitar conflito com outros serviços.
     ports:
-      - '3000:3000'
+      - '${BACKEND_PORT:-3000}:3000'
     depends_on:
       redis:
         condition: service_healthy

@@ -330,7 +330,8 @@ Nenhuma violação. `Tests: none` só onde a matriz permite (config/tipos/infra/
 | T8 | ✅ Done | 12 testes unit |
 | T9 | ✅ Done | 10 testes unit |
 | T10 | ✅ Done | 3 e2e (loop até gameOver) + gate full |
-| T11 | ⏳ Pendente verificação de `docker build` (daemon) | `docker compose config` OK |
+| T11 | ✅ Done | `docker build` + `compose up` OK; smoke test socket.io externo |
 | T12 | ✅ Done | CONTRACT-S1.md |
 
-**Totais:** 47 testes unitários + 3 e2e passando. Build e lint limpos.
+**Totais:** 47 testes unitários + 3 e2e passando. Build e lint limpos. Imagem Docker
+`proexgame-back:s1` construída; stack `backend + redis` validado de ponta a ponta.

@@ -234,12 +234,13 @@ IDs locais da Sprint 1 (`S1-*`), com o RF de origem da SPEC.mc.
 | S1-09          | RF-16     | Autoridade do servidor (RNG no back)    | T3      | ✅ Verified |
 | S1-10          | RF-14*    | Desconexão básica + skip de turno       | T9,T10  | ✅ Verified |
 | S1-11          | —         | Contrato WS documentado                 | T12     | ✅ Verified |
-| S1-12          | —         | Containerização Docker (backend+Redis)  | T11     | ⏳ Build pendente (daemon) |
+| S1-12          | —         | Containerização Docker (backend+Redis)  | T11     | ✅ Verified |
 
 \* Apenas detecção de desconexão; restauração com grace period é Sprint 2.
 
-**Coverage:** 12 requisitos — 11 verificados por testes (47 unit + 3 e2e), 1 pendente
-(`docker build` aguardando daemon; `compose config` validado).
+**Coverage:** 12 requisitos — **todos verificados**. 11 por testes (47 unit + 3 e2e) e o S1-12
+por `docker build` + `docker compose up` (backend conecta no Redis e aceita conexão
+`socket.io-client` externa — smoke test `createSession` OK).
 
 ---
 
