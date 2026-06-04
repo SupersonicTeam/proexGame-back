@@ -145,6 +145,16 @@ describe('GameService.applyDiceRoll', () => {
     });
   });
 
+  it('rejeita rolagem quando a ordem ainda não foi resolvida (turnOrder vazio)', async () => {
+    const { repo, service } = build([3]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      turnOrder: [],
+    });
+    await expect(service.applyDiceRoll('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.GAME_NOT_ACTIVE,
+    });
+  });
+
   it('rejeita novas rolagens após a partida terminar', async () => {
     const { repo, service } = build([5, 3]);
     seedState(repo, [
@@ -189,6 +199,16 @@ describe('GameService.passTurnIfDisconnected', () => {
     seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
       currentTurnIndex: 0,
     });
+    expect(await service.passTurnIfDisconnected('12345')).toBeNull();
+  });
+
+  it('retorna null quando a ordem ainda não foi resolvida (turnOrder vazio)', async () => {
+    const { repo, service } = build([]);
+    seedState(
+      repo,
+      [makePlayer({ id: 'a', connected: false }), makePlayer({ id: 'b' })],
+      { turnOrder: [] },
+    );
     expect(await service.passTurnIfDisconnected('12345')).toBeNull();
   });
 });

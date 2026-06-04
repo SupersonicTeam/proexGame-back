@@ -11,6 +11,11 @@ class InMemoryRepo {
     this.store.set(s.code, structuredClone(s));
     return Promise.resolve();
   }
+  createIfAbsent(s: SessionState) {
+    if (this.store.has(s.code)) return Promise.resolve(false);
+    this.store.set(s.code, structuredClone(s));
+    return Promise.resolve(true);
+  }
   findByCode(c: string) {
     const s = this.store.get(c);
     return Promise.resolve(s ? structuredClone(s) : null);
@@ -66,6 +71,14 @@ describe('SessionService.createSession', () => {
     expect(host.isHost).toBe(true);
     expect(host.name).toBe('Ana');
     expect(host.square).toBe(0);
+  });
+
+  it('re-gera o código quando colide com uma sessão existente', async () => {
+    // Primeiro código 12345 (ocupado); segundo 67890 (livre) → re-gera.
+    const { repo, service } = build([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    repo.store.set('12345', {} as SessionState); // ocupa o primeiro código
+    const { state } = await service.createSession('Ana', 'normal', 'sock-1');
+    expect(state.code).toBe('67890');
   });
 
   it('rejeita nome vazio com INVALID_NAME', async () => {

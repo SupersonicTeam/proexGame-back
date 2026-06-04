@@ -18,6 +18,18 @@ export class SessionRepository {
     await this.redis.set(this.key(state.code), JSON.stringify(state));
   }
 
+  // Cria a sessão de forma ATÔMICA: só grava se a chave ainda não existir (SET NX).
+  // Retorna false em colisão de código, sem sobrescrever a sessão existente.
+  // Elimina a corrida entre verificar-e-criar sob `createSession` concorrentes.
+  async createIfAbsent(state: SessionState): Promise<boolean> {
+    const result = await this.redis.set(
+      this.key(state.code),
+      JSON.stringify(state),
+      'NX',
+    );
+    return result === 'OK';
+  }
+
   async findByCode(code: string): Promise<SessionState | null> {
     const raw = await this.redis.get(this.key(code));
     if (!raw) return null;

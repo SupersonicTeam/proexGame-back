@@ -10,6 +10,9 @@
 - Não há login. A identidade do jogador é o `playerId` (UUID) gerado pelo servidor.
 - O cliente deve **guardar** o `playerId` recebido — será usado para reconexão (Sprint 2).
 - A sala é o `code` da sessão; todos os eventos de jogo são emitidos para a sala.
+- **Formato do `code`:** o valor é sempre os **5 dígitos** (ex.: `"12345"`). A notação `#NNNNN`
+  vista na spec é **apenas apresentação na UI** — o `#` NÃO faz parte do valor trafegado nos
+  eventos nem da chave no Redis. Ao enviar `joinSession`, use só os dígitos.
 
 ---
 

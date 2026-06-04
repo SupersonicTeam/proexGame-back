@@ -55,7 +55,8 @@ export class GameService {
     playerId: string,
   ): Promise<ApplyDiceResult> {
     const state = await this.requireSession(code);
-    if (state.status !== 'playing') {
+    // Não-ativo OU ordem ainda não resolvida → não há rolagem válida.
+    if (state.status !== 'playing' || state.turnOrder.length === 0) {
       throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
     }
     const currentPlayerId = state.turnOrder[state.currentTurnIndex];
@@ -110,7 +111,10 @@ export class GameService {
     code: string,
   ): Promise<{ state: SessionState; nextPlayerId: string } | null> {
     const state = await this.repo.findByCode(code);
-    if (!state || state.status !== 'playing') return null;
+    // Sem partida ativa ou sem ordem definida → nada a passar (evita turnChanged{undefined}).
+    if (!state || state.status !== 'playing' || state.turnOrder.length === 0) {
+      return null;
+    }
     const currentId = state.turnOrder[state.currentTurnIndex];
     const current = state.players.find((p) => p.id === currentId);
     if (current?.connected) return null; // ainda é a vez de alguém conectado

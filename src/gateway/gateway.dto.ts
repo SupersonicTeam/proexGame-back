@@ -1,4 +1,4 @@
-import { Difficulty, SessionState } from '../session/session.types';
+import { Difficulty, Player, SessionState } from '../session/session.types';
 
 // Payloads client → server (Sprint 1).
 export interface CreateSessionDto {
@@ -17,6 +17,17 @@ export interface SocketData {
   playerId?: string;
 }
 
+// Visão pública de um jogador no contrato WS — NUNCA expõe `socketId`
+// nem outros campos internos do estado.
+export function toPlayerView(player: Player) {
+  return {
+    id: player.id,
+    name: player.name,
+    connected: player.connected,
+    isHost: player.isHost,
+  };
+}
+
 // Projeção do estado para o lobby (não vaza socketId nem dados internos).
 export function toLobbyState(state: SessionState) {
   const host = state.players.find((p) => p.isHost);
@@ -24,11 +35,6 @@ export function toLobbyState(state: SessionState) {
     code: state.code,
     status: state.status,
     hostId: host?.id ?? null,
-    players: state.players.map((p) => ({
-      id: p.id,
-      name: p.name,
-      connected: p.connected,
-      isHost: p.isHost,
-    })),
+    players: state.players.map(toPlayerView),
   };
 }

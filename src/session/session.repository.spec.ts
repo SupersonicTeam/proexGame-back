@@ -61,4 +61,26 @@ describe('SessionRepository', () => {
     await repo.delete('12345');
     expect(await repo.findByCode('12345')).toBeNull();
   });
+
+  describe('createIfAbsent (atômico)', () => {
+    it('grava e retorna true quando o código está livre', async () => {
+      const ok = await repo.createIfAbsent(makeState());
+      expect(ok).toBe(true);
+      expect(await repo.findByCode('12345')).not.toBeNull();
+    });
+
+    it('retorna false e não sobrescreve quando o código já existe', async () => {
+      const first = makeState();
+      first.difficulty = 'easy';
+      await repo.createIfAbsent(first);
+
+      const second = makeState();
+      second.difficulty = 'hard';
+      const ok = await repo.createIfAbsent(second);
+
+      expect(ok).toBe(false);
+      const stored = await repo.findByCode('12345');
+      expect(stored!.difficulty).toBe('easy'); // sessão original preservada
+    });
+  });
 });

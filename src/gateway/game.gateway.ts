@@ -15,6 +15,7 @@ import {
   JoinSessionDto,
   SocketData,
   toLobbyState,
+  toPlayerView,
 } from './gateway.dto';
 
 // Única camada que toca sockets. Traduz eventos client→server em chamadas de
@@ -63,7 +64,9 @@ export class GameGateway implements OnGatewayDisconnect {
       );
       this.bindSocket(client, state.code, playerId);
       const player = state.players.find((p) => p.id === playerId);
-      this.server.to(state.code).emit('playerJoined', { player });
+      this.server
+        .to(state.code)
+        .emit('playerJoined', { player: player ? toPlayerView(player) : null });
       this.server.to(state.code).emit('lobbyState', toLobbyState(state));
       return { code: state.code, playerId };
     } catch (err) {
@@ -164,7 +167,10 @@ export class GameGateway implements OnGatewayDisconnect {
     if (err instanceof GameError) {
       client.emit('error', { code: err.code, message: err.message });
     } else {
-      client.emit('error', { code: 'INTERNAL', message: 'Erro interno.' });
+      client.emit('error', {
+        code: ErrorCode.INTERNAL,
+        message: 'Erro interno.',
+      });
     }
     return null;
   }

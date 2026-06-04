@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { RANDOM_SOURCE, RandomSource } from '../common/random/random.source';
-import { generateUniqueCode } from './session.code';
+import { generateCode } from './session.code';
 import { SessionRepository } from './session.repository';
 import {
   Board,
@@ -30,24 +30,29 @@ export class SessionService {
     socketId: string,
   ): Promise<{ state: SessionState; playerId: string }> {
     const cleanName = this.validateName(name);
-    const code = await generateUniqueCode(this.repo, this.rng);
     const playerId = randomUUID();
-    const now = new Date().toISOString();
 
-    const state: SessionState = {
-      code,
-      status: 'lobby',
-      difficulty,
-      board: this.makeBoard(),
-      players: [this.makePlayer(playerId, cleanName, socketId, true)],
-      turnOrder: [],
-      currentTurnIndex: 0,
-      winner: null,
-      createdAt: now,
-      lastActivityAt: now,
-    };
-    await this.repo.create(state);
-    return { state, playerId };
+    // Gera um código e tenta gravar atomicamente; em colisão (SET NX falha),
+    // re-gera. O teto evita laço infinito teórico (espaço de 100k códigos).
+    for (let attempt = 0; attempt < 1000; attempt++) {
+      const now = new Date().toISOString();
+      const state: SessionState = {
+        code: generateCode(this.rng),
+        status: 'lobby',
+        difficulty,
+        board: this.makeBoard(),
+        players: [this.makePlayer(playerId, cleanName, socketId, true)],
+        turnOrder: [],
+        currentTurnIndex: 0,
+        winner: null,
+        createdAt: now,
+        lastActivityAt: now,
+      };
+      if (await this.repo.createIfAbsent(state)) {
+        return { state, playerId };
+      }
+    }
+    throw new Error('Não foi possível gerar um código de sessão único');
   }
 
   async joinSession(

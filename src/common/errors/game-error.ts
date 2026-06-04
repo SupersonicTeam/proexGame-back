@@ -10,6 +10,8 @@ export enum ErrorCode {
   NOT_YOUR_TURN = 'NOT_YOUR_TURN',
   GAME_NOT_ACTIVE = 'GAME_NOT_ACTIVE',
   NOT_IN_SESSION = 'NOT_IN_SESSION',
+  // Erro inesperado/não-domínio. Mantido no enum para o payload `error` ser sempre tipado.
+  INTERNAL = 'INTERNAL',
 }
 
 // Mensagens padrão (PT-BR) por código. O front pode sobrescrever pela UI.
@@ -23,6 +25,7 @@ const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.NOT_YOUR_TURN]: 'Não é a sua vez.',
   [ErrorCode.GAME_NOT_ACTIVE]: 'A partida não está em andamento.',
   [ErrorCode.NOT_IN_SESSION]: 'Você não faz parte desta sessão.',
+  [ErrorCode.INTERNAL]: 'Erro interno.',
 };
 
 // Erro de regra de jogo. Carrega um ErrorCode estável para o contrato WS.
