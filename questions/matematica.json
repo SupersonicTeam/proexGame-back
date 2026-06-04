@@ -1,0 +1,42 @@
+[
+  {
+    "id": "mat-0001",
+    "subject": "matematica",
+    "statement": "Quanto é 2 + 2?",
+    "correct": "4",
+    "proximal": "3",
+    "wrong": ["5", "6"]
+  },
+  {
+    "id": "mat-0002",
+    "subject": "matematica",
+    "statement": "Quanto é 3 × 3?",
+    "correct": "9",
+    "proximal": "6",
+    "wrong": ["12", "8"]
+  },
+  {
+    "id": "mat-0003",
+    "subject": "matematica",
+    "statement": "Qual é a raiz quadrada de 16?",
+    "correct": "4",
+    "proximal": "8",
+    "wrong": ["2", "6"]
+  },
+  {
+    "id": "mat-0004",
+    "subject": "matematica",
+    "statement": "Qual é o resultado de 10 ÷ 2?",
+    "correct": "5",
+    "proximal": "4",
+    "wrong": ["3", "8"]
+  },
+  {
+    "id": "mat-0005",
+    "subject": "matematica",
+    "statement": "Quanto é 7 × 8?",
+    "correct": "56",
+    "proximal": "54",
+    "wrong": ["48", "63"]
+  }
+]
