@@ -86,16 +86,22 @@ jobs:
       - name: Deploy na VPS via SSH
         uses: appleboy/ssh-action@v1
         env:
-          IMAGE_TAG: ${{ needs.release.outputs.new_tag }}
+          # MESMA tag publicada no build (new_version, sem o "v") — evita mismatch.
+          IMAGE_TAG: ${{ needs.release.outputs.new_version }}
+          # Login no ghcr feito na VPS com o GITHUB_TOKEN efêmero do job (tem acesso
+          # ao package do próprio repo). Mantém o package privado sem depender de PAT.
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          envs: IMAGE_TAG
+          envs: IMAGE_TAG,GHCR_USER,GHCR_TOKEN
           script: |
             set -e
             cd "${{ secrets.VPS_DEPLOY_DIR }}"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             if grep -q '^IMAGE_TAG=' .env 2>/dev/null; then
               sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
             else
