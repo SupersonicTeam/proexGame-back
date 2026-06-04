@@ -1,0 +1,64 @@
+import Redis from 'ioredis';
+import RedisMock from 'ioredis-mock';
+import { SessionRepository } from './session.repository';
+import { SessionState } from './session.types';
+
+function makeState(code = '12345'): SessionState {
+  return {
+    code,
+    status: 'lobby',
+    difficulty: 'normal',
+    board: { size: 25, tileTypeBySquare: { 0: 'start', 25: 'finish' } },
+    players: [],
+    turnOrder: [],
+    currentTurnIndex: 0,
+    winner: null,
+    createdAt: '2026-06-03T00:00:00.000Z',
+    lastActivityAt: '2026-06-03T00:00:00.000Z',
+  };
+}
+
+describe('SessionRepository', () => {
+  let repo: SessionRepository;
+
+  let client: Redis;
+
+  beforeEach(async () => {
+    client = new RedisMock() as unknown as Redis;
+    // ioredis-mock compartilha o store entre instâncias — limpamos para isolar cada teste.
+    await client.flushall();
+    repo = new SessionRepository(client);
+  });
+
+  it('create + findByCode retorna o estado salvo', async () => {
+    const state = makeState();
+    await repo.create(state);
+    const found = await repo.findByCode('12345');
+    expect(found).toEqual(state);
+  });
+
+  it('findByCode retorna null para código inexistente', async () => {
+    expect(await repo.findByCode('00000')).toBeNull();
+  });
+
+  it('exists reflete a presença da sessão', async () => {
+    expect(await repo.exists('12345')).toBe(false);
+    await repo.create(makeState());
+    expect(await repo.exists('12345')).toBe(true);
+  });
+
+  it('save atualiza lastActivityAt', async () => {
+    const state = makeState();
+    await repo.create(state);
+    await repo.save(state);
+    const found = await repo.findByCode('12345');
+    expect(found).not.toBeNull();
+    expect(found!.lastActivityAt).not.toBe('2026-06-03T00:00:00.000Z');
+  });
+
+  it('delete remove a sessão', async () => {
+    await repo.create(makeState());
+    await repo.delete('12345');
+    expect(await repo.findByCode('12345')).toBeNull();
+  });
+});
