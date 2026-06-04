@@ -36,6 +36,34 @@ Memória persistente: decisões, blockers, lições, todos.
 - Entregar `CONTRACT-S1.md` para a pessoa do frontend integrar.
 - Próximas sprints (2-4) ainda não detalhadas — manter como na SPEC.mc até pedido explícito.
 
+## HANDOFF — retomada (pausado em 2026-06-03)
+
+Sprint 1 backend **completa e commitada** (13 commits atômicos, branch `claude/busy-fermi-51fee9`,
+worktree). Árvore limpa. Estado dos gates: build ✅, lint ✅, 47 unit ✅, 3 e2e ✅.
+
+**Única pendência:** verificar o `docker build` (Docker Desktop não terminou de subir nesta
+sessão — daemon ficou offline). Ao retomar, com o Docker Desktop aberto e rodando:
+
+```bash
+docker build -t proexgame-back:s1 .      # deve compilar e gerar a imagem
+docker compose up --build                # sobe backend + redis; conectar um socket.io-client
+```
+
+Se o build passar, marcar S1-12 como ✅ Verified em spec.md e tasks.md.
+
+**Comandos de verificação rápida do que já existe:**
+```bash
+npm install        # se node_modules não estiver presente
+npm run test       # 47 unit
+npm run test:e2e   # 3 e2e (loop até gameOver)
+npm run build && npm run lint
+```
+
+**Próximo trabalho natural (quando pedido):** Sprint 2 — reconexão c/ grace period (RF-14/15),
+geração procedural do tabuleiro 20–30 (RF-06/07), casas de presídio (RF-17–20), banco de
+perguntas JSON + fluxo de pergunta (RF-08/09). Pontos de extensão já preparados no código:
+`computeAdvance` (game.rules) e `makeBoard` (session.service).
+
 ## Preferências
 
 - Validações, updates de estado e handoffs de sessão rodam bem em modelos mais rápidos/baratos.
