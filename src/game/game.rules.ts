@@ -1,5 +1,10 @@
 import { RandomSource } from '../common/random/random.source';
-import { RankingEntry, Roll, SessionState } from '../session/session.types';
+import {
+  Difficulty,
+  RankingEntry,
+  Roll,
+  SessionState,
+} from '../session/session.types';
 
 // ---------------------------------------------------------------------------
 // Regras de jogo puras (sem I/O, sem Redis, sem sockets). Toda decisão
@@ -114,4 +119,98 @@ export function buildRanking(
     square: player.square,
     position: index + 1,
   }));
+}
+
+// ---------------------------------------------------------------------------
+// S2-04 — Tiers de balanceamento (RF-10/13, §4 do CLAUDE.md)
+// ---------------------------------------------------------------------------
+
+/**
+ * Posição relativa do jogador no ranking de casas, recalculada a cada turno.
+ *
+ * Decisão de empate total (todos na mesma casa):
+ *   → todos são tratados como 'leader' (tier mais favorável).
+ *   Justificativa: o empate total é transitório; penalizar todos com 'last'
+ *   congelaria o progresso coletivo sem diferenciar ninguém. 'leader' vence
+ *   o empate por convenção documentada aqui.
+ */
+export type Tier = 'leader' | 'middle' | 'last';
+
+/**
+ * Determina o tier de um jogador com base nas casas (square) atuais.
+ *
+ * Regras:
+ *  - leader: square === máximo de todos os jogadores.
+ *  - last:   square === mínimo de todos os jogadores (e square < máximo).
+ *  - middle: demais casos.
+ *  - Em partida de 2 jogadores não existe middle — só leader e last.
+ *  - Empate total (max === min) → leader para todos.
+ */
+export function computeTier(state: SessionState, playerId: string): Tier {
+  const player = state.players.find((p) => p.id === playerId);
+  if (!player) {
+    throw new Error(`Jogador ${playerId} não encontrado na sessão`);
+  }
+
+  const squares = state.players.map((p) => p.square);
+  const maxSquare = Math.max(...squares);
+  const minSquare = Math.min(...squares);
+
+  // Empate total → todos leader (ver decisão acima).
+  if (maxSquare === minSquare) return 'leader';
+
+  if (player.square === maxSquare) return 'leader';
+  if (player.square === minSquare) return 'last';
+  return 'middle';
+}
+
+// Tabela §4 — avanço base por dificuldade (C_d).
+const BASE_ADVANCE: Record<Difficulty, number> = {
+  easy: 3,
+  normal: 2,
+  hard: 1,
+};
+
+// Tabela §4 — bônus de avanço por tier (T_p).
+const TIER_BONUS: Record<Tier, number> = {
+  leader: 0,
+  middle: 1,
+  last: 2,
+};
+
+/**
+ * Casas a avançar após acerto = C_d + T_p (§4).
+ *
+ * | Dificuldade | leader | middle | last |
+ * |-------------|--------|--------|------|
+ * | easy        |   3    |   4    |  5   |
+ * | normal      |   2    |   3    |  4   |
+ * | hard        |   1    |   2    |  3   |
+ */
+export function advanceFor(difficulty: Difficulty, tier: Tier): number {
+  return BASE_ADVANCE[difficulty] + TIER_BONUS[tier];
+}
+
+// Tabela §4 — recuo por tipo de erro: proximal (distrator próximo) e
+// wrong/total (resposta totalmente errada).
+const RECOIL: Record<Difficulty, Record<'proximal' | 'wrong', number>> = {
+  //              proximal  wrong(total)
+  easy: { proximal: 1, wrong: 2 },
+  normal: { proximal: 2, wrong: 3 },
+  hard: { proximal: 3, wrong: 4 },
+};
+
+/**
+ * Casas a recuar após erro (§4).
+ *
+ * | Tipo     | easy | normal | hard |
+ * |----------|------|--------|------|
+ * | proximal |  1   |   2    |  3   |
+ * | wrong    |  2   |   3    |  4   |
+ */
+export function recoilFor(
+  difficulty: Difficulty,
+  errorType: 'proximal' | 'wrong',
+): number {
+  return RECOIL[difficulty][errorType];
 }
