@@ -10,7 +10,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 
 ---
 
-## S2-01 ⬜ — Tipos de domínio da Sprint 2
+## S2-01 ✅ — Tipos de domínio da Sprint 2
 - **What:** Estender tipos: `TileType` += `'question'|'prison'`; `Subject`; `Question`;
   `PendingQuestion` (com `statement`, `correctIndex`, `proximalIndex`); `Player` += `usedQuestionIds`,
   `skipTurns`, `pendingQuestion`; `Board` += `subjectBySquare`; `SessionState` += `servedQuestionIds`.
@@ -22,7 +22,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** type-level (compilação). Sem spec dedicado.
 - **Gate:** build
 
-## S2-02 [P] ⬜ — Banco de perguntas: schema + fixtures + loader
+## S2-02 [P] ✅ — Banco de perguntas: schema + fixtures + loader
 - **What:** `QuestionBankService` com `OnModuleInit` que lê `/questions/*.json`, valida schema
   (fail-fast), e expõe `subjects()`, `pickQuestion(subject, excludedIds, rng)`, `getById(id)`.
   Criar fixtures mínimas (≥6 perguntas em ≥2 matérias) suficientes para testes e para não esgotar
@@ -35,7 +35,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `question-bank.service.spec.ts` — carga válida, schema inválido, exclusão, esgotamento.
 - **Gate:** full
 
-## S2-03 [P] ⬜ — Geração procedural do tabuleiro (RF-06/07/17/18)
+## S2-03 [P] ✅ — Geração procedural do tabuleiro (RF-06/07/17/18)
 - **What:** `board.rules.ts` puro: `generateBoard(difficulty, subjects, rng)`, `DENSITY`,
   `prisonCount(N)`. Ordem obrigatória da §3.1. Atribui `subject` a cada casa-pergunta.
 - **Where:** `src/game/board.rules.ts`.
@@ -47,7 +47,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
   dificuldade, reserva 0/N, exclusividade, subjects.
 - **Gate:** full
 
-## S2-04 [P] ⬜ — Tiers + tabela de avanço/recuo (RF-10/13)
+## S2-04 [P] ✅ — Tiers + tabela de avanço/recuo (RF-10/13)
 - **What:** Em `game.rules.ts`: `computeTier`, `advanceFor`, `recoilFor`. Substituir o
   `computeAdvance` placeholder da S1.
 - **Where:** `src/game/game.rules.ts`.
