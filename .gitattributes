@@ -1,0 +1,9 @@
+# Normaliza fins de linha: o repositório guarda LF e o checkout entrega LF em
+# qualquer SO. Evita ruído de CRLF no prettier/eslint em máquinas Windows
+# (onde core.autocrlf=true converteria para CRLF na árvore de trabalho).
+* text=auto eol=lf
+
+# Binários: nunca normalizar.
+*.png binary
+*.jpg binary
+*.ico binary

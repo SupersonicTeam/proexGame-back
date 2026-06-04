@@ -28,6 +28,27 @@ Memória persistente: decisões, blockers, lições, todos.
   permissions → "Read and write permissions".
 - Recomendado: ativar branch protection na main exigindo o check de CI verde antes do merge.
 
+## Sprint 2 — PLANEJADA (2026-06-04, backend-only)
+
+Specify + Design + Tasks gerados em `.specs/features/sprint-2-sessions-questions/`
+(spec.md, context.md, design.md, tasks.md — 13 tasks S2-01..S2-13). Execute ainda não iniciado.
+
+**Decisões do usuário (context.md):**
+- **D1 — tabela §4 puxada para a S2.** Balanceamento completo (avanço C_d+T_p, recuo proximal/total,
+  tiers, nudge, encadeamento, clamp — RF-10/11/13) entra no backend agora; S3 fica só com frontend.
+  Consome o ponto de extensão `computeAdvance` (substitui, não estende).
+- **D2 — reconexão por timer in-process (setTimeout 5 min) + TTL Redis deslizante** como backstop.
+  Sem `notify-keyspace-events`. Adequado a single-node.
+- **D3 — não-repetição de perguntas global por sessão** (`servedQuestionIds`). Satisfaz RF-09
+  ("mesma casa, perguntas diferentes") de graça. `usedQuestionIds` por jogador vira auditoria.
+
+**Diretriz transversal:** segurança (pedido explícito). RF-16 vira critério de aceite bloqueante:
+`correct`/`correctIndex` só no `PendingQuestion` no Redis; projeção única `toQuestionPrompt` impede
+vazamento; validação estrita de DTO; `playerId` UUID como portador de reconexão; TTL limita memória.
+
+**Novos eventos WS:** `submitAnswer`, `reconnect` (c→s); `questionPrompt`, `answerResult`,
+`turnSkipped`, `playerReconnected`, `sessionClosed` (s→c). Contrato será congelado em `CONTRACT-S2.md` (S2-13).
+
 ## Blockers
 
 - (nenhum)

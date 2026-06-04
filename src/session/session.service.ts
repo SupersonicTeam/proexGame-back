@@ -47,6 +47,7 @@ export class SessionService {
         winner: null,
         createdAt: now,
         lastActivityAt: now,
+        servedQuestionIds: [],
       };
       if (await this.repo.createIfAbsent(state)) {
         return { state, playerId };
@@ -142,14 +143,27 @@ export class SessionService {
     socketId: string,
     isHost: boolean,
   ): Player {
-    return { id, name, socketId, square: 0, connected: true, isHost };
+    return {
+      id,
+      name,
+      socketId,
+      square: 0,
+      connected: true,
+      isHost,
+      usedQuestionIds: [],
+      skipTurns: 0,
+      pendingQuestion: null,
+    };
   }
 
-  // Tabuleiro fixo da Sprint 1: casa 0 = início, casa N = chegada, demais 'normal'.
+  // Tabuleiro fixo: casa 0 = início, casa N = chegada, demais 'normal'.
+  // @deprecated Sprint 2 substitui por board.rules.generateBoard (procedural) no
+  // início da partida (S2-07). Mantido para o lobby ter um board válido.
   private makeBoard(): Board {
     return {
       size: BOARD_SIZE,
       tileTypeBySquare: { 0: 'start', [BOARD_SIZE]: 'finish' },
+      subjectBySquare: {},
     };
   }
 }

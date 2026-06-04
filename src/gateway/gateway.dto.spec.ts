@@ -8,6 +8,9 @@ function makePlayer(over: Partial<Player> & { id: string }): Player {
     square: 0,
     connected: true,
     isHost: false,
+    usedQuestionIds: [],
+    skipTurns: 0,
+    pendingQuestion: null,
     ...over,
   };
 }

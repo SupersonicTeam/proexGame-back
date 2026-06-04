@@ -1,13 +1,17 @@
-// Tipos de domínio da sessão de jogo (Sprint 1 — núcleo jogável).
-// Campos de sprints futuras (usedQuestionIds, skipTurns) são omitidos aqui de propósito.
+// Tipos de domínio da sessão de jogo.
+// Sprint 1: núcleo jogável. Sprint 2: perguntas, presídio, tabuleiro procedural,
+// reconexão. Os campos da S2 (usedQuestionIds, skipTurns, pendingQuestion,
+// subjectBySquare, servedQuestionIds) entram aqui como obrigatórios.
+
+import { PendingQuestion, Subject } from '../questions/question.types';
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
 export type SessionStatus = 'lobby' | 'playing' | 'finished';
 
-// Na Sprint 1 só existem 'start', 'finish' e o implícito 'normal'.
-// 'question' e 'prison' entram nas Sprints 2/3.
-export type TileType = 'start' | 'normal' | 'finish';
+// Tipos de casa, mutuamente exclusivos (RF-17). 'start' = casa 0, 'finish' = casa N.
+// 'question' e 'prison' entram na Sprint 2.
+export type TileType = 'start' | 'normal' | 'question' | 'prison' | 'finish';
 
 export interface Player {
   id: string;
@@ -16,18 +20,29 @@ export interface Player {
   square: number; // 0 = início
   connected: boolean;
   isHost: boolean;
+  // --- Sprint 2 ---
+  // Perguntas já servidas a ESTE jogador (auditoria). A checagem de não-repetição
+  // efetiva é global na sessão (servedQuestionIds) — ver decisão D3.
+  usedQuestionIds: string[];
+  // Turnos a pular por efeito de presídio (RF-20).
+  skipTurns: number;
+  // Pergunta pendente de resposta (estado autoritativo do servidor). null quando
+  // não há pergunta aberta para o jogador.
+  pendingQuestion: PendingQuestion | null;
 }
 
 export interface Board {
-  size: number; // N (FIXO na Sprint 1)
+  size: number; // N — sorteado em [20,30] na Sprint 2 (procedural)
   // Mapeia apenas as casas especiais; demais são 'normal' por padrão.
   tileTypeBySquare: Record<number, TileType>;
+  // Matéria de cada casa-pergunta (só chaves de casas 'question').
+  subjectBySquare: Record<number, Subject>;
 }
 
 export interface SessionState {
   code: string;
   status: SessionStatus;
-  difficulty: Difficulty; // persistida, sem efeito de cálculo na Sprint 1
+  difficulty: Difficulty;
   board: Board;
   players: Player[];
   turnOrder: string[]; // playerId[]
@@ -35,6 +50,9 @@ export interface SessionState {
   winner: string | null; // playerId
   createdAt: string; // ISO
   lastActivityAt: string; // ISO
+  // --- Sprint 2 ---
+  // União global das perguntas servidas na sessão (não-repetição global — D3 / RF-09).
+  servedQuestionIds: string[];
 }
 
 export interface Roll {
@@ -58,5 +76,7 @@ export interface DiceOutcome {
   isWin: boolean;
 }
 
-// Tamanho fixo do tabuleiro na Sprint 1 (procedural variável entra na Sprint 2).
+// @deprecated Sprint 1 usava tamanho fixo. Na Sprint 2 o tamanho é sorteado em
+// [20,30] por board.rules.generateBoard. Mantido como fallback temporário até a
+// geração procedural ser ligada no fluxo de início (S2-07).
 export const BOARD_SIZE = 25;

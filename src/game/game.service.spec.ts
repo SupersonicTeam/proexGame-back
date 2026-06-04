@@ -47,6 +47,9 @@ function makePlayer(over: Partial<Player> & { id: string }): Player {
     square: 0,
     connected: true,
     isHost: false,
+    usedQuestionIds: [],
+    skipTurns: 0,
+    pendingQuestion: null,
     ...over,
   };
 }
@@ -60,13 +63,18 @@ function seedState(
     code: '12345',
     status: 'playing',
     difficulty: 'normal',
-    board: { size: 25, tileTypeBySquare: { 0: 'start', 25: 'finish' } },
+    board: {
+      size: 25,
+      tileTypeBySquare: { 0: 'start', 25: 'finish' },
+      subjectBySquare: {},
+    },
     players,
     turnOrder: players.map((p) => p.id),
     currentTurnIndex: 0,
     winner: null,
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
+    servedQuestionIds: [],
     ...over,
   };
   repo.store.set(state.code, structuredClone(state));

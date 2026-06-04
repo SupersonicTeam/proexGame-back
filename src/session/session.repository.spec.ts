@@ -8,13 +8,18 @@ function makeState(code = '12345'): SessionState {
     code,
     status: 'lobby',
     difficulty: 'normal',
-    board: { size: 25, tileTypeBySquare: { 0: 'start', 25: 'finish' } },
+    board: {
+      size: 25,
+      tileTypeBySquare: { 0: 'start', 25: 'finish' },
+      subjectBySquare: {},
+    },
     players: [],
     turnOrder: [],
     currentTurnIndex: 0,
     winner: null,
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
+    servedQuestionIds: [],
   };
 }
 
