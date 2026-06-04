@@ -2,15 +2,20 @@ import { RandomSource } from '../common/random/random.source';
 import { Player, SessionState } from '../session/session.types';
 import {
   advanceFor,
+  applyNudge,
   buildRanking,
   computeAdvance,
   computeTier,
   nextConnectedTurnIndex,
   recoilFor,
+  resolveCorrectMovement,
+  resolveErrorMovement,
   resolveMovement,
   resolveOrder,
   rollDie,
+  tileTypeAt,
 } from './game.rules';
+import { Board } from '../session/session.types';
 
 // Fonte de aleatoriedade determinística: consome valores de uma fila.
 class FakeRandomSource implements RandomSource {
@@ -312,5 +317,186 @@ describe('recoilFor', () => {
     ['wrong/hard', ['hard', 'wrong'], 4],
   ])('%s → %i', (_label, [diff, type], expected) => {
     expect(recoilFor(diff, type)).toBe(expected);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// S2-05 — tileTypeAt, nudge e resolução de movimento de acerto/erro
+// ---------------------------------------------------------------------------
+
+// Tabuleiro de teste: 0=start, 25=finish, 5=question, 10=prison; demais normal.
+function makeBoard(over: Partial<Board> = {}): Board {
+  return {
+    size: 25,
+    tileTypeBySquare: { 0: 'start', 25: 'finish', 5: 'question', 10: 'prison' },
+    subjectBySquare: { 5: 'mat' },
+    ...over,
+  };
+}
+
+describe('tileTypeAt', () => {
+  const board = makeBoard();
+  it('casa 0 é start e casa N é finish', () => {
+    expect(tileTypeAt(board, 0)).toBe('start');
+    expect(tileTypeAt(board, 25)).toBe('finish');
+  });
+  it('casas além de N contam como finish; ≤0 como start', () => {
+    expect(tileTypeAt(board, 30)).toBe('finish');
+    expect(tileTypeAt(board, -1)).toBe('start');
+  });
+  it('reflete o tipo especial marcado e cai em normal por padrão', () => {
+    expect(tileTypeAt(board, 5)).toBe('question');
+    expect(tileTypeAt(board, 10)).toBe('prison');
+    expect(tileTypeAt(board, 3)).toBe('normal');
+  });
+});
+
+describe('applyNudge', () => {
+  it('não desloca quando a casa-alvo não é especial (não consome rng)', () => {
+    const rng = new FakeRandomSource([]); // estoura se consumir
+    expect(applyNudge(makeBoard(), 3, rng)).toBe(3);
+  });
+
+  it('com P satisfeita (int<=7), desloca casa-pergunta para +1 normal', () => {
+    // 5=question, 6=normal → prefere +1.
+    expect(applyNudge(makeBoard(), 5, new FakeRandomSource([7]))).toBe(6);
+  });
+
+  it('com P não satisfeita (int>7), permanece na casa especial', () => {
+    expect(applyNudge(makeBoard(), 5, new FakeRandomSource([8]))).toBe(5);
+  });
+
+  it('desloca presídio também (anti "parado na cadeia sem efeito")', () => {
+    // 10=prison, 11=normal.
+    expect(applyNudge(makeBoard(), 10, new FakeRandomSource([1]))).toBe(11);
+  });
+
+  it('cai para -1 quando +1 também é especial', () => {
+    // 5=question, 6=prison, 4=normal → +1 inviável, usa -1.
+    const board = makeBoard({
+      tileTypeBySquare: {
+        0: 'start',
+        25: 'finish',
+        5: 'question',
+        6: 'prison',
+      },
+    });
+    expect(applyNudge(board, 5, new FakeRandomSource([7]))).toBe(4);
+  });
+
+  it('permanece quando ambos os vizinhos são inviáveis', () => {
+    const board = makeBoard({
+      tileTypeBySquare: {
+        0: 'start',
+        25: 'finish',
+        4: 'prison',
+        5: 'question',
+        6: 'prison',
+      },
+    });
+    expect(applyNudge(board, 5, new FakeRandomSource([7]))).toBe(5);
+  });
+
+  it('não desloca para a chegada (finish não é "não-especial")', () => {
+    // 24=question, 25=finish → +1 inviável; 23=normal → usa -1.
+    const board = makeBoard({
+      tileTypeBySquare: { 0: 'start', 25: 'finish', 24: 'question' },
+    });
+    expect(applyNudge(board, 24, new FakeRandomSource([7]))).toBe(23);
+  });
+});
+
+describe('resolveCorrectMovement', () => {
+  it('avança por tier/dificuldade sem nudge quando o alvo é normal', () => {
+    // 2 jogadores: A em 3 (leader), B em 0. normal/leader = +2 → 5? 5 é question.
+    // Para isolar o caso normal, coloco A em 1 → alvo 3 (normal).
+    const state = makeState(
+      [makePlayer({ id: 'a', square: 1 }), makePlayer({ id: 'b', square: 0 })],
+      { difficulty: 'normal', board: makeBoard() },
+    );
+    const rng = new FakeRandomSource([]); // alvo normal → sem consumo
+    const r = resolveCorrectMovement(state, 'a', rng);
+    expect(r).toEqual({
+      fromSquare: 1,
+      toSquare: 3,
+      isWin: false,
+      tileType: 'normal',
+    });
+  });
+
+  it('aplica nudge quando o avanço cai em casa-pergunta', () => {
+    // A em 3 (leader), normal → +2 → 5 (question) → nudge +1 → 6 (normal).
+    const state = makeState(
+      [makePlayer({ id: 'a', square: 3 }), makePlayer({ id: 'b', square: 0 })],
+      { difficulty: 'normal', board: makeBoard() },
+    );
+    const r = resolveCorrectMovement(state, 'a', new FakeRandomSource([7]));
+    expect(r.toSquare).toBe(6);
+    expect(r.tileType).toBe('normal');
+    expect(r.isWin).toBe(false);
+  });
+
+  it('last avança mais (catch-up) que leader', () => {
+    // A em 0 (last), B em 8 (leader). normal/last = +4 → casa 4 (normal).
+    const state = makeState(
+      [makePlayer({ id: 'a', square: 0 }), makePlayer({ id: 'b', square: 8 })],
+      { difficulty: 'normal', board: makeBoard() },
+    );
+    const r = resolveCorrectMovement(state, 'a', new FakeRandomSource([]));
+    expect(r.toSquare).toBe(4);
+  });
+
+  it('vitória quando o avanço alcança/ultrapassa N (clamp em N)', () => {
+    const state = makeState(
+      [makePlayer({ id: 'a', square: 24 }), makePlayer({ id: 'b', square: 0 })],
+      { difficulty: 'normal', board: makeBoard() },
+    );
+    const r = resolveCorrectMovement(state, 'a', new FakeRandomSource([]));
+    expect(r.isWin).toBe(true);
+    expect(r.toSquare).toBe(25);
+    expect(r.tileType).toBe('finish');
+  });
+});
+
+describe('resolveErrorMovement', () => {
+  it('recua por erro proximal sem disparar nada', () => {
+    const state = makeState([makePlayer({ id: 'a', square: 5 })], {
+      difficulty: 'normal',
+      board: makeBoard(),
+    });
+    const r = resolveErrorMovement(state, 'a', 'proximal'); // normal proximal = 2
+    expect(r).toEqual({
+      fromSquare: 5,
+      toSquare: 3,
+      isWin: false,
+      tileType: 'normal',
+    });
+  });
+
+  it('recuo total é maior que proximal', () => {
+    const state = makeState([makePlayer({ id: 'a', square: 5 })], {
+      difficulty: 'normal',
+      board: makeBoard(),
+    });
+    expect(resolveErrorMovement(state, 'a', 'wrong').toSquare).toBe(2); // 5-3
+  });
+
+  it('clampa na casa 1 (nunca abaixo)', () => {
+    const state = makeState([makePlayer({ id: 'a', square: 2 })], {
+      difficulty: 'hard',
+      board: makeBoard(),
+    });
+    expect(resolveErrorMovement(state, 'a', 'wrong').toSquare).toBe(1); // 2-4 → 1
+  });
+});
+
+describe('resolveMovement (dado) — agora devolve tileType de destino', () => {
+  it('inclui o tileType da casa de aterrissagem', () => {
+    const state = makeState([makePlayer({ id: 'a', square: 3 })], {
+      board: makeBoard(),
+    });
+    const r = resolveMovement(state, 'a', 2); // 3+2 = 5 = question
+    expect(r.toSquare).toBe(5);
+    expect(r.tileType).toBe('question');
   });
 });
