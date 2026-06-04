@@ -1,0 +1,28 @@
+# Compose de PRODUÇÃO (VPS). Não builda nada — puxa a imagem já publicada no ghcr.io.
+# A tag a subir vem de IMAGE_TAG no .env (o CI atualiza isso a cada deploy).
+#
+# Convive com outros apps da VPS:
+#   - Redis sem porta exposta (rede interna do projeto).
+#   - Backend exposto só em 127.0.0.1:${BACKEND_PORT} → o Nginx do host faz o proxy/TLS.
+services:
+  backend:
+    image: ghcr.io/supersonicteam/proexgame-back:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - '127.0.0.1:${BACKEND_PORT:-3003}:3000'
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
