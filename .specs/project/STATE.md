@@ -15,6 +15,19 @@ Memória persistente: decisões, blockers, lições, todos.
 - **2026-06-03 — Movimento na S1 = valor do dado** (sem tiers/nudge/dificuldade). Avanço fica
   isolado em `computeAdvance` para a Sprint 3 injetar a regra completa sem refator estrutural.
 
+## Versionamento / CI (2026-06-04)
+
+- **GitHub Actions** configurado em `.github/workflows/`:
+  - `ci.yml` — roda lint + build + 47 unit + 3 e2e em cada PR e push na main (sem Redis real; usa ioredis-mock).
+  - `release.yml` — no merge para main, deriva a versão por **Conventional Commits** (`feat`→minor,
+    `fix`→patch, `BREAKING CHANGE`→major), cria a tag `vX.Y.Z` e publica um GitHub Release com changelog.
+    Action: `mathieudutour/github-tag-action@v6.2` + `softprops/action-gh-release@v2`.
+- **Primeira tag esperada:** `v0.1.0` (base 0.0.0 + os `feat:` da Sprint 1 = minor bump), alinhada ao `package.json`.
+- **Permissão:** `release.yml` usa `permissions: contents: write` (menor privilégio). O default do repo
+  é read-only; se o Release falhar por permissão, marcar Settings → Actions → General → Workflow
+  permissions → "Read and write permissions".
+- Recomendado: ativar branch protection na main exigindo o check de CI verde antes do merge.
+
 ## Blockers
 
 - (nenhum)

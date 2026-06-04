@@ -1,0 +1,44 @@
+# CI — roda em cada PR e no push para main.
+# Garante que só código verde (lint + build + 47 unit + 3 e2e) chega na main
+# antes de o workflow de Release gerar a nova versão.
+# Os testes não precisam de um Redis real: unit e e2e usam ioredis-mock.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancela execuções antigas do mesmo ref para economizar minutos.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint, build e testes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Testes unitários
+        run: npm test
+
+      - name: Testes e2e
+        run: npm run test:e2e

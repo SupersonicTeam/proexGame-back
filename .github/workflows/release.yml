@@ -1,0 +1,49 @@
+# Release — dispara quando algo entra na main (ou seja, quando um PR é mergeado).
+# Deriva a nova versão dos Conventional Commits desde a última tag:
+#   feat:            -> minor   (0.1.0 -> 0.2.0)
+#   fix:             -> patch   (0.1.0 -> 0.1.1)
+#   BREAKING CHANGE: -> major   (0.1.0 -> 1.0.0)
+# Cria a tag vX.Y.Z e publica um GitHub Release com o changelog gerado.
+# A primeira execução, sem tags anteriores, parte de 0.0.0; como há commits `feat:`,
+# o primeiro bump é minor -> v0.1.0 (alinhado ao package.json).
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Necessário para o GITHUB_TOKEN poder criar a tag e o Release.
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Versionar e publicar release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (histórico completo p/ ler os commits)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calcular versão e criar a tag
+        id: tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Bump padrão quando nenhum commit convencional é detectado no PR.
+          default_bump: patch
+          release_branches: main
+          tag_prefix: 'v'
+
+      - name: Publicar GitHub Release com changelog
+        if: ${{ steps.tag.outputs.new_tag != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.new_tag }}
+          name: ${{ steps.tag.outputs.new_tag }}
+          body: ${{ steps.tag.outputs.changelog }}
