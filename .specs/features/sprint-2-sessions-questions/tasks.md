@@ -58,7 +58,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `game.rules.spec.ts` (estender) — tiers, avanço, recuo.
 - **Gate:** full
 
-## S2-05 ⬜ — Nudge + resolução de movimento (RF-11)
+## S2-05 ✅ — Nudge + resolução de movimento (RF-11)
 - **What:** `applyNudge(board, target, rng)`, `resolveCorrectMovement`, `resolveErrorMovement`;
   ajustar `resolveMovement` (dado) a devolver o `tileType` de destino. Clamp (≥1; ≥N→vitória).
 - **Where:** `src/game/game.rules.ts`.
@@ -69,7 +69,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `game.rules.spec.ts` — nudge nos dois ramos de P (RNG fixo), encadeamento, clamp.
 - **Gate:** full
 
-## S2-06 ⬜ — Seleção de pergunta + PendingQuestion (RF-09/16)
+## S2-06 ✅ — Seleção de pergunta + PendingQuestion (RF-09/16)
 - **What:** `question.rules.ts`: `buildPendingQuestion(q, rng)` (shuffle + índices),
   `classifyAnswer(pending, optionIndex)`, `toQuestionPrompt(pending)` (projeção segura).
   Decidir o fallback de esgotamento por matéria (tratar casa como `normal` no pouso — ver design).
