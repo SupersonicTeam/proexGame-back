@@ -158,10 +158,23 @@ export class SessionService {
     if (!player || player.connected) {
       return { state, removed: false, sessionDeleted: false };
     }
+    const removedIdx = state.turnOrder.indexOf(playerId);
     state.players = state.players.filter((p) => p.id !== playerId);
     if (state.players.length === 0) {
       await this.repo.delete(code);
       return { state: null, removed: true, sessionDeleted: true };
+    }
+    // Remove também da ordem de turnos e reajusta currentTurnIndex para não
+    // apontar para um jogador inexistente (evita turnChanged/rotação inconsistentes
+    // numa partida em andamento).
+    state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
+    if (state.turnOrder.length > 0) {
+      // Se removemos alguém antes do índice atual, recua um para preservar o alvo.
+      if (removedIdx !== -1 && removedIdx < state.currentTurnIndex) {
+        state.currentTurnIndex -= 1;
+      }
+      // Mantém o índice dentro dos limites (wrap quando o removido era o último).
+      state.currentTurnIndex %= state.turnOrder.length;
     }
     await this.repo.save(state);
     return { state, removed: true, sessionDeleted: false };

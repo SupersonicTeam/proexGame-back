@@ -25,7 +25,9 @@ export class ReconnectService {
     this.cancel(code, playerId);
     const timer = setTimeout(() => {
       this.timers.delete(this.key(code, playerId));
-      void onExpire();
+      // Chama onExpire já (síncrono) e só trata a rejeição: uma Promise rejeitada
+      // do callback (ex.: erro de Redis na expiração) não vira unhandled rejection.
+      Promise.resolve(onExpire()).catch(() => undefined);
     }, GRACE_PERIOD_MS);
     // Não segura o event loop (permite shutdown limpo e não trava testes).
     if (typeof timer.unref === 'function') timer.unref();

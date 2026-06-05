@@ -37,9 +37,9 @@ export function prisonCount(n: number): number {
  * Sorteia `count` elementos distintos do array `pool` sem repetição.
  * Utiliza partial Fisher-Yates: para cada posição i de 0 a count-1,
  * escolhe um índice aleatório j em [i, pool.length-1] e troca pool[i]
- * com pool[j]. O custo é O(count) chamadas ao rng e não exige cópia extra.
+ * com pool[j]. O custo é O(count) chamadas ao rng.
  *
- * O array `pool` é mutado in-place (é sempre uma cópia interna).
+ * O array `pool` recebido NÃO é mutado: trabalha-se sobre uma cópia interna.
  */
 function sampleWithoutReplacement(
   pool: number[],

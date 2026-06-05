@@ -322,4 +322,32 @@ describe('SessionService.expireDisconnectedPlayer', () => {
     const out = await service.expireDisconnectedPlayer('00000', 'x');
     expect(out).toEqual({ state: null, removed: false, sessionDeleted: false });
   });
+
+  it('remove o jogador da ordem de turnos e mantém currentTurnIndex válido', async () => {
+    const { repo, service } = build();
+    const { state, playerId: a } = await service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await service.joinSession(state.code, 'Bia', 's');
+    const { playerId: c } = await service.joinSession(state.code, 'Caio', 's');
+
+    // Coloca a partida em andamento com ordem [a,b,c] e a vez de 'a' (índice 0).
+    const seeded = (await repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b, c];
+    seeded.currentTurnIndex = 0;
+    await repo.save(seeded);
+    await service.markDisconnected(state.code, a);
+
+    const out = await service.expireDisconnectedPlayer(state.code, a);
+    expect(out.removed).toBe(true);
+    expect(out.state!.turnOrder).toEqual([b, c]);
+    // O índice continua apontando para um jogador existente, dentro dos limites.
+    expect(out.state!.currentTurnIndex).toBeLessThan(
+      out.state!.turnOrder.length,
+    );
+    expect([b, c]).toContain(out.state!.turnOrder[out.state!.currentTurnIndex]);
+  });
 });

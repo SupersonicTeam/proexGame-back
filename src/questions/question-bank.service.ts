@@ -22,7 +22,12 @@ export class QuestionBankService implements OnModuleInit {
   // Falha com erro explícito se qualquer item violar o schema (fail-fast).
   async onModuleInit(): Promise<void> {
     const dir = this.resolveQuestionsDir();
-    const entries = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
+    // Ordena os arquivos: a ordem de readdirSync não é garantida pelo SO/FS, e o
+    // determinismo do carregamento (e de subjects()) importa para testes e RNG.
+    const entries = fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.json'))
+      .sort();
 
     if (entries.length === 0) {
       throw new Error(
@@ -48,9 +53,10 @@ export class QuestionBankService implements OnModuleInit {
     }
   }
 
-  // Retorna a lista de matérias carregadas.
+  // Retorna a lista de matérias carregadas, ordenada para ser estável entre
+  // execuções e sistemas operacionais (importante com RNG roteirizado).
   subjects(): Subject[] {
-    return Array.from(this.bank.keys());
+    return Array.from(this.bank.keys()).sort();
   }
 
   // Sorteia uma pergunta da matéria que NÃO esteja em excludedIds.
