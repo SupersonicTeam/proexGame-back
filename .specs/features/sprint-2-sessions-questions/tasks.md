@@ -81,7 +81,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `question.rules.spec.ts` — shuffle determinístico, classificação, **asserção de segurança**.
 - **Gate:** full
 
-## S2-07 ⬜ — Aterrissagem no dado: dispara pergunta / presídio (RF-08/19/20)
+## S2-07 ✅ — Aterrissagem no dado: dispara pergunta / presídio (RF-08/19/20)
 - **What:** Em `GameService.applyDiceRoll`: classificar a casa de destino; `question`→criar
   `pendingQuestion` (QuestionBank + question.rules, exclusão global via `servedQuestionIds`),
   não passar turno, sinalizar prompt; `prison`→`skipTurns++`, passar turno; else→fluxo S1.
@@ -93,7 +93,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `game.service.spec.ts` — pouso em normal/question/prison/finish (repo fake + RNG fake).
 - **Gate:** full
 
-## S2-08 ⬜ — submitAnswer: classificação, movimento, encadeamento (RF-08/10/11/16)
+## S2-08 ✅ — submitAnswer: classificação, movimento, encadeamento (RF-08/10/11/16)
 - **What:** `GameService.submitAnswer(code, playerId, questionId, optionIndex)`: valida turno/pendência/
   `questionId`/`optionIndex∈[0,3]`; classifica; acerto→`resolveCorrectMovement`(+encadeamento re-armando
   pendência sem trocar turno); erro→`resolveErrorMovement` (sem trigger) e passa turno; limpa
@@ -107,7 +107,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
   e os 3 erros (`NO_PENDING_QUESTION`, `INVALID_OPTION`, `QUESTION_MISMATCH`).
 - **Gate:** full
 
-## S2-09 ⬜ — Turno de presídio: perda de jogada (RF-20)
+## S2-09 ✅ — Turno de presídio: perda de jogada (RF-20)
 - **What:** `GameService.startTurnSkipIfNeeded(code)`: se o jogador da vez tem `skipTurns>0`,
   decrementa, passa turno, retorna sinal de `turnSkipped{playerId, remaining}`.
 - **Where:** `src/game/game.service.ts`.
