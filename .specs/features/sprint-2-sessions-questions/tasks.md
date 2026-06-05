@@ -117,7 +117,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `game.service.spec.ts` — skip único, múltiplos presos em sequência, sem skip.
 - **Gate:** full
 
-## S2-10 ⬜ — Reconexão (grace 5 min) + expiração + TTL (RF-14/15)
+## S2-10 ✅ — Reconexão (grace 5 min) + expiração + TTL (RF-14/15)
 - **What:** `ReconnectService` (timers in-process): `armDisconnect`, `cancel`, `reconnect`,
   expiração→remove jogador/sessão→`sessionClosed`. `SessionRepository.save/create` com TTL
   deslizante (`SESSION_TTL_SECONDS`). `SessionService.reconnect(code, playerId, socketId)`.
@@ -131,7 +131,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
   reconexão dentro/fora da janela, expiração apaga, TTL setado (repo fake registra args do `set`).
 - **Gate:** full
 
-## S2-11 ⬜ — Gateway: novos eventos + DTOs validados + ErrorCodes
+## S2-11 ✅ — Gateway: novos eventos + DTOs validados + ErrorCodes
 - **What:** `@SubscribeMessage('submitAnswer')`, `('reconnect')`; `handleDisconnect` arma o grace;
   emitir `questionPrompt` (via `toQuestionPrompt`), `answerResult`, `turnSkipped`, `playerReconnected`,
   `sessionClosed`; após `turnChanged`, drenar `startTurnSkipIfNeeded` em laço. DTOs `SubmitAnswerDto`,
@@ -144,7 +144,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** `gateway.dto.spec.ts` — validação dos novos DTOs (bounds/tipos).
 - **Gate:** full
 
-## S2-12 ⬜ — E2E: pergunta + presídio + reconexão + segurança
+## S2-12 ✅ — E2E: pergunta + presídio + reconexão + segurança
 - **What:** Três specs e2e com `socket.io-client` e app real: (a) partida com `questionPrompt`→
   `submitAnswer`→`answerResult`→`gameOver` **+ asserção de que nenhum payload contém `correct`/
   `correctIndex`/`proximal`**; (b) presídio com RNG forçado (perde 1 turno); (c) reconexão na janela
@@ -156,7 +156,7 @@ Legenda de status: ⬜ pendente · 🟦 em andamento · ✅ concluído
 - **Tests:** os próprios e2e.
 - **Gate:** full
 
-## S2-13 ⬜ — Contrato congelado S2 + STATE
+## S2-13 ✅ — Contrato congelado S2 + STATE
 - **What:** `CONTRACT-S2.md` (estende o S1 com os novos eventos, payloads, ErrorCodes e regra de
   reconexão para a pessoa do frontend). Atualizar `STATE.md` (progresso, decisões D1–D3, pontos de
   extensão restantes para S3/S4).
