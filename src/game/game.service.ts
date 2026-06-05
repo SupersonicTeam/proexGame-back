@@ -12,12 +12,15 @@ import {
 import {
   buildRanking,
   nextConnectedTurnIndex,
+  resolveCorrectMovement,
+  resolveErrorMovement,
   resolveMovement,
   resolveOrder,
   rollDie,
 } from './game.rules';
 import {
   buildPendingQuestion,
+  classifyAnswer,
   QuestionPromptView,
   toQuestionPrompt,
 } from './question.rules';
@@ -39,6 +42,20 @@ export interface ApplyDiceResult {
   // Pergunta disparada pela aterrissagem (RF-08). Quando != null, o turno NÃO
   // passa: o jogador deve responder via submitAnswer antes de prosseguir.
   prompt: QuestionPromptView | null;
+}
+
+export interface SubmitAnswerResult {
+  state: SessionState;
+  playerId: string;
+  correct: boolean;
+  errorType: 'none' | 'proximal' | 'wrong';
+  fromSquare: number;
+  toSquare: number;
+  movement: number; // delta de casas (negativo no recuo)
+  isWin: boolean;
+  nextPlayerId: string | null; // null quando encadeou nova pergunta ou venceu
+  ranking: RankingEntry[] | null;
+  prompt: QuestionPromptView | null; // nova pergunta quando há encadeamento (RF-11)
 }
 
 // Orquestra as regras puras (game.rules) com a persistência para os eventos
@@ -132,6 +149,127 @@ export class GameService {
       ranking: null,
       prompt: null,
     });
+  }
+
+  // Processa a resposta do jogador à pergunta pendente (RF-08/10/11/16).
+  // Valida pendência/identidade/limites, classifica, aplica movimento e —
+  // no acerto — encadeia nova pergunta se cair em casa-pergunta (sem trocar turno).
+  async submitAnswer(
+    code: string,
+    playerId: string,
+    questionId: string,
+    optionIndex: number,
+  ): Promise<SubmitAnswerResult> {
+    const state = await this.requireSession(code);
+    if (state.status !== 'playing' || state.turnOrder.length === 0) {
+      throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
+    }
+    const player = state.players.find((p) => p.id === playerId);
+    if (!player || !player.pendingQuestion) {
+      throw new GameError(ErrorCode.NO_PENDING_QUESTION);
+    }
+    const pending = player.pendingQuestion;
+    if (pending.questionId !== questionId) {
+      throw new GameError(ErrorCode.QUESTION_MISMATCH);
+    }
+    if (
+      !Number.isInteger(optionIndex) ||
+      optionIndex < 0 ||
+      optionIndex >= pending.options.length
+    ) {
+      throw new GameError(ErrorCode.INVALID_OPTION);
+    }
+
+    const errorType = classifyAnswer(pending, optionIndex);
+    // Anti double-submit: limpa a pendência antes de aplicar o efeito.
+    player.pendingQuestion = null;
+
+    return errorType === 'none'
+      ? this.applyCorrect(state, player)
+      : this.applyError(state, player, errorType);
+  }
+
+  // Acerto: avança (tier/dificuldade + nudge), vence, encadeia ou passa o turno.
+  private async applyCorrect(
+    state: SessionState,
+    player: Player,
+  ): Promise<SubmitAnswerResult> {
+    const movement = resolveCorrectMovement(state, player.id, this.rng);
+    player.square = movement.toSquare;
+    const base = {
+      state,
+      playerId: player.id,
+      correct: true,
+      errorType: 'none' as const,
+      fromSquare: movement.fromSquare,
+      toSquare: movement.toSquare,
+      movement: movement.toSquare - movement.fromSquare,
+    };
+
+    if (movement.isWin) {
+      state.status = 'finished';
+      state.winner = player.id;
+      const ranking = buildRanking(state, player.id);
+      await this.repo.save(state);
+      return {
+        ...base,
+        isWin: true,
+        nextPlayerId: null,
+        ranking,
+        prompt: null,
+      };
+    }
+
+    // Encadeamento (RF-11): se o avanço cair em casa-pergunta, dispara nova
+    // pergunta sem trocar o turno. Avanço em presídio NÃO prende (RF-19).
+    if (movement.tileType === 'question') {
+      const prompt = this.tryStartQuestion(state, player, movement.toSquare);
+      if (prompt) {
+        await this.repo.save(state);
+        return {
+          ...base,
+          isWin: false,
+          nextPlayerId: null,
+          ranking: null,
+          prompt,
+        };
+      }
+    }
+
+    const nextPlayerId = this.passTurn(state);
+    await this.repo.save(state);
+    return { ...base, isWin: false, nextPlayerId, ranking: null, prompt: null };
+  }
+
+  // Erro: recua (clamp ≥1) e passa o turno. Recuo NÃO dispara nada (RF-08/19).
+  private async applyError(
+    state: SessionState,
+    player: Player,
+    errorType: 'proximal' | 'wrong',
+  ): Promise<SubmitAnswerResult> {
+    const movement = resolveErrorMovement(state, player.id, errorType);
+    player.square = movement.toSquare;
+    const nextPlayerId = this.passTurn(state);
+    await this.repo.save(state);
+    return {
+      state,
+      playerId: player.id,
+      correct: false,
+      errorType,
+      fromSquare: movement.fromSquare,
+      toSquare: movement.toSquare,
+      movement: movement.toSquare - movement.fromSquare,
+      isWin: false,
+      nextPlayerId,
+      ranking: null,
+      prompt: null,
+    };
+  }
+
+  // Avança o índice de turno para o próximo conectado e retorna seu playerId.
+  private passTurn(state: SessionState): string {
+    state.currentTurnIndex = nextConnectedTurnIndex(state);
+    return state.turnOrder[state.currentTurnIndex];
   }
 
   // Tenta selecionar uma pergunta para a casa de aterrissagem e arma a pendência
