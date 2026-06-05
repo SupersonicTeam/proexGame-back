@@ -313,6 +313,31 @@ export class GameService {
     return { state, playerId, value, fromSquare, toSquare, ...rest };
   }
 
+  // Turno de presídio (RF-20): se o jogador da vez tem turnos a pular, decrementa
+  // um, passa a vez SEM rolar e sinaliza turnSkipped{playerId, remaining}. O
+  // gateway chama isto em laço após cada troca de turno (cobre presos em sequência).
+  // Retorna null quando não há nada a pular.
+  async startTurnSkipIfNeeded(code: string): Promise<{
+    state: SessionState;
+    playerId: string;
+    remaining: number;
+    nextPlayerId: string;
+  } | null> {
+    const state = await this.repo.findByCode(code);
+    if (!state || state.status !== 'playing' || state.turnOrder.length === 0) {
+      return null;
+    }
+    const currentId = state.turnOrder[state.currentTurnIndex];
+    const current = state.players.find((p) => p.id === currentId);
+    if (!current || current.skipTurns <= 0) return null;
+
+    current.skipTurns -= 1;
+    const remaining = current.skipTurns;
+    const nextPlayerId = this.passTurn(state);
+    await this.repo.save(state);
+    return { state, playerId: currentId, remaining, nextPlayerId };
+  }
+
   // Se o jogador da vez está desconectado, passa o turno para o próximo
   // conectado (evita partida travada — S1-10). Retorna null se nada a fazer.
   async passTurnIfDisconnected(

@@ -483,3 +483,49 @@ describe('GameService.submitAnswer', () => {
     ).rejects.toMatchObject({ code: ErrorCode.INVALID_OPTION });
   });
 });
+
+describe('GameService.startTurnSkipIfNeeded', () => {
+  it('decrementa skipTurns, passa o turno e sinaliza turnSkipped', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', skipTurns: 1 }),
+      makePlayer({ id: 'b' }),
+    ]);
+    const out = await service.startTurnSkipIfNeeded('12345');
+    expect(out).not.toBeNull();
+    expect(out!.playerId).toBe('a');
+    expect(out!.remaining).toBe(0);
+    expect(out!.nextPlayerId).toBe('b');
+    expect(out!.state.players.find((p) => p.id === 'a')!.skipTurns).toBe(0);
+    expect(out!.state.currentTurnIndex).toBe(1);
+  });
+
+  it('com múltiplos turnos presos, decrementa de 1 em 1 (remaining > 0)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', skipTurns: 2 }),
+      makePlayer({ id: 'b' }),
+    ]);
+    const out = await service.startTurnSkipIfNeeded('12345');
+    expect(out!.remaining).toBe(1);
+  });
+
+  it('retorna null quando o jogador da vez não está preso', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
+    expect(await service.startTurnSkipIfNeeded('12345')).toBeNull();
+  });
+
+  it('retorna null quando a partida não está ativa', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a', skipTurns: 1 })], {
+      status: 'finished',
+    });
+    expect(await service.startTurnSkipIfNeeded('12345')).toBeNull();
+  });
+
+  it('retorna null para sessão inexistente', async () => {
+    const { service } = build([]);
+    expect(await service.startTurnSkipIfNeeded('00000')).toBeNull();
+  });
+});
