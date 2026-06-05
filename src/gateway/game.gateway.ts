@@ -83,8 +83,10 @@ export class GameGateway implements OnGatewayDisconnect {
     const { code, playerId } = this.dataOf(client);
     try {
       if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
-      const started = await this.sessions.startGame(code, playerId);
-      this.server.to(code).emit('gameStarted', { board: started.board });
+      await this.sessions.startGame(code, playerId);
+      // Gera o tabuleiro procedural (RF-06/07/17/18) e emite com gameStarted.
+      const withBoard = await this.games.setupBoard(code);
+      this.server.to(code).emit('gameStarted', { board: withBoard.board });
 
       const { state, rolls } = await this.games.resolveTurnOrder(code);
       this.server

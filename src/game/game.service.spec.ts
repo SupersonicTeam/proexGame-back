@@ -160,6 +160,24 @@ describe('GameService.resolveTurnOrder', () => {
   });
 });
 
+describe('GameService.setupBoard', () => {
+  it('gera tabuleiro procedural (20-30, com presídio e pergunta) e persiste', async () => {
+    // Fake int devolve o valor da fila: N=20, depois 0s → presídio na casa 1 e
+    // perguntas nas casas seguintes (suficiente p/ haver 'prison' e 'question').
+    const { repo, service } = build([20, ...Array<number>(60).fill(0)]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      difficulty: 'normal',
+    });
+    const state = await service.setupBoard('12345');
+    expect(state.board.size).toBeGreaterThanOrEqual(20);
+    expect(state.board.size).toBeLessThanOrEqual(30);
+    const types = Object.values(state.board.tileTypeBySquare);
+    expect(types).toContain('prison');
+    expect(types).toContain('question');
+    expect((await repo.findByCode('12345'))!.board.size).toBe(state.board.size);
+  });
+});
+
 describe('GameService.applyDiceRoll', () => {
   it('move o jogador da vez e passa o turno (sem vitória)', async () => {
     const { repo, service } = build([3]);

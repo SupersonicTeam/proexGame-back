@@ -9,6 +9,7 @@ import {
   Roll,
   SessionState,
 } from '../session/session.types';
+import { generateBoard } from './board.rules';
 import {
   buildRanking,
   nextConnectedTurnIndex,
@@ -67,6 +68,21 @@ export class GameService {
     @Inject(RANDOM_SOURCE) private readonly rng: RandomSource,
     private readonly questionBank: QuestionBankService,
   ) {}
+
+  // Gera o tabuleiro procedural da partida (RF-06/07/17/18) e persiste. Roda no
+  // início da partida, antes de resolver a ordem. Usa as matérias disponíveis no
+  // banco para as casas-pergunta. Fica aqui (e não no SessionService) porque o
+  // GameService já possui rng + QuestionBank — evita dependência circular.
+  async setupBoard(code: string): Promise<SessionState> {
+    const state = await this.requireSession(code);
+    state.board = generateBoard(
+      state.difficulty,
+      this.questionBank.subjects(),
+      this.rng,
+    );
+    await this.repo.save(state);
+    return state;
+  }
 
   // Resolve a ordem de turnos (RF-04) e posiciona o índice no primeiro jogador.
   async resolveTurnOrder(code: string): Promise<TurnOrderResult> {
