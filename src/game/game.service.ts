@@ -1,8 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { RANDOM_SOURCE, RandomSource } from '../common/random/random.source';
+import { QuestionBankService } from '../questions/question-bank.service';
 import { SessionRepository } from '../session/session.repository';
-import { RankingEntry, Roll, SessionState } from '../session/session.types';
+import {
+  Player,
+  RankingEntry,
+  Roll,
+  SessionState,
+} from '../session/session.types';
 import {
   buildRanking,
   nextConnectedTurnIndex,
@@ -10,6 +16,11 @@ import {
   resolveOrder,
   rollDie,
 } from './game.rules';
+import {
+  buildPendingQuestion,
+  QuestionPromptView,
+  toQuestionPrompt,
+} from './question.rules';
 
 export interface TurnOrderResult {
   state: SessionState;
@@ -23,8 +34,11 @@ export interface ApplyDiceResult {
   fromSquare: number;
   toSquare: number;
   isWin: boolean;
-  nextPlayerId: string | null; // próximo a jogar (null quando há vitória)
+  nextPlayerId: string | null; // próximo a jogar (null quando há vitória OU pergunta pendente)
   ranking: RankingEntry[] | null; // preenchido apenas na vitória
+  // Pergunta disparada pela aterrissagem (RF-08). Quando != null, o turno NÃO
+  // passa: o jogador deve responder via submitAnswer antes de prosseguir.
+  prompt: QuestionPromptView | null;
 }
 
 // Orquestra as regras puras (game.rules) com a persistência para os eventos
@@ -34,6 +48,7 @@ export class GameService {
   constructor(
     private readonly repo: SessionRepository,
     @Inject(RANDOM_SOURCE) private readonly rng: RandomSource,
+    private readonly questionBank: QuestionBankService,
   ) {}
 
   // Resolve a ordem de turnos (RF-04) e posiciona o índice no primeiro jogador.
@@ -65,7 +80,7 @@ export class GameService {
     }
 
     const value = rollDie(this.rng);
-    const { fromSquare, toSquare, isWin } = resolveMovement(
+    const { fromSquare, toSquare, isWin, tileType } = resolveMovement(
       state,
       playerId,
       value,
@@ -74,35 +89,90 @@ export class GameService {
     const player = state.players.find((p) => p.id === playerId)!;
     player.square = toSquare;
 
+    // Vitória (chega-ou-passa): encerra a partida imediatamente (RF-12).
     if (isWin) {
       state.status = 'finished';
       state.winner = playerId;
       const ranking = buildRanking(state, playerId);
       await this.repo.save(state);
-      return {
-        state,
-        playerId,
-        value,
-        fromSquare,
-        toSquare,
+      return this.diceResult(state, playerId, value, fromSquare, toSquare, {
         isWin: true,
         nextPlayerId: null,
         ranking,
-      };
+        prompt: null,
+      });
     }
 
+    // Aterrissagem em casa-pergunta: dispara pergunta e NÃO passa o turno (RF-08).
+    if (tileType === 'question') {
+      const prompt = this.tryStartQuestion(state, player, toSquare);
+      if (prompt) {
+        await this.repo.save(state);
+        return this.diceResult(state, playerId, value, fromSquare, toSquare, {
+          isWin: false,
+          nextPlayerId: null, // aguarda submitAnswer
+          ranking: null,
+          prompt,
+        });
+      }
+      // Banco esgotado para a matéria: trata como casa normal (não trava o jogo).
+    }
+
+    // Aterrissagem em presídio via dado: perde a próxima jogada (RF-19/20).
+    if (tileType === 'prison') {
+      player.skipTurns += 1;
+    }
+
+    // Casa normal (ou fallbacks acima): passa o turno.
     state.currentTurnIndex = nextConnectedTurnIndex(state);
     await this.repo.save(state);
-    return {
-      state,
-      playerId,
-      value,
-      fromSquare,
-      toSquare,
+    return this.diceResult(state, playerId, value, fromSquare, toSquare, {
       isWin: false,
       nextPlayerId: state.turnOrder[state.currentTurnIndex],
       ranking: null,
-    };
+      prompt: null,
+    });
+  }
+
+  // Tenta selecionar uma pergunta para a casa de aterrissagem e arma a pendência
+  // no jogador. Não-repetição GLOBAL na sessão (servedQuestionIds — RF-09/D3).
+  // Retorna o prompt seguro (sem a resposta correta — RF-16) ou null se não há
+  // matéria/pergunta disponível.
+  private tryStartQuestion(
+    state: SessionState,
+    player: Player,
+    square: number,
+  ): QuestionPromptView | null {
+    const subject = state.board.subjectBySquare[square];
+    if (!subject) return null;
+    const excluded = new Set(state.servedQuestionIds);
+    const question = this.questionBank.pickQuestion(
+      subject,
+      excluded,
+      this.rng,
+    );
+    if (!question) return null;
+
+    const pending = buildPendingQuestion(question, this.rng);
+    player.pendingQuestion = pending;
+    state.servedQuestionIds.push(question.id);
+    player.usedQuestionIds.push(question.id);
+    return toQuestionPrompt(pending);
+  }
+
+  // Monta o ApplyDiceResult com os campos comuns + os específicos do caminho.
+  private diceResult(
+    state: SessionState,
+    playerId: string,
+    value: number,
+    fromSquare: number,
+    toSquare: number,
+    rest: Pick<
+      ApplyDiceResult,
+      'isWin' | 'nextPlayerId' | 'ranking' | 'prompt'
+    >,
+  ): ApplyDiceResult {
+    return { state, playerId, value, fromSquare, toSquare, ...rest };
   }
 
   // Se o jogador da vez está desconectado, passa o turno para o próximo

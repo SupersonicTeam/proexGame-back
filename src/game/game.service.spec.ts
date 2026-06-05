@@ -1,5 +1,7 @@
 import { ErrorCode } from '../common/errors/game-error';
 import { RandomSource } from '../common/random/random.source';
+import { QuestionBankService } from '../questions/question-bank.service';
+import { Question } from '../questions/question.types';
 import { SessionRepository } from '../session/session.repository';
 import { Player, SessionState } from '../session/session.types';
 import { GameService } from './game.service';
@@ -39,6 +41,39 @@ class FakeRandomSource implements RandomSource {
     return this.int();
   }
 }
+
+// Banco de perguntas fake: implementa só o que o GameService consome.
+class FakeQuestionBank {
+  constructor(private readonly questions: Question[] = []) {}
+  pickQuestion(
+    subject: string,
+    excludedIds: Set<string>,
+    rng: RandomSource,
+  ): Question | null {
+    const available = this.questions.filter(
+      (q) => q.subject === subject && !excludedIds.has(q.id),
+    );
+    if (available.length === 0) return null;
+    return available[rng.int(0, available.length - 1)];
+  }
+  getById(id: string): Question | undefined {
+    return this.questions.find((q) => q.id === id);
+  }
+  subjects(): string[] {
+    return [...new Set(this.questions.map((q) => q.subject))];
+  }
+}
+
+const SAMPLE_QUESTIONS: Question[] = [
+  {
+    id: 'mat-0001',
+    subject: 'matematica',
+    statement: '2 + 2?',
+    correct: '4',
+    proximal: '3',
+    wrong: ['5', '22'],
+  },
+];
 
 function makePlayer(over: Partial<Player> & { id: string }): Player {
   return {
@@ -81,11 +116,16 @@ function seedState(
   return state;
 }
 
-function build(rngValues: number[]) {
+function build(rngValues: number[], questions: Question[] = SAMPLE_QUESTIONS) {
   const repo = new InMemoryRepo();
   const rng = new FakeRandomSource(rngValues);
-  const service = new GameService(repo as unknown as SessionRepository, rng);
-  return { repo, service };
+  const bank = new FakeQuestionBank(questions);
+  const service = new GameService(
+    repo as unknown as SessionRepository,
+    rng,
+    bank as unknown as QuestionBankService,
+  );
+  return { repo, service, bank };
 }
 
 describe('GameService.resolveTurnOrder', () => {
@@ -185,6 +225,71 @@ describe('GameService.applyDiceRoll', () => {
     const out = await service.applyDiceRoll('12345', 'a');
     expect(out.nextPlayerId).toBe('c');
     expect(out.state.currentTurnIndex).toBe(2);
+  });
+
+  // --- S2-07: aterrissagem em casas especiais ---
+
+  it('dispara pergunta ao cair em casa-pergunta e NÃO passa o turno', async () => {
+    // dado=3 → casa 3 (question, materia matematica).
+    // rng: [dado, pickQuestion idx, fy1, fy2, fy3]
+    const { repo, service } = build([3, 0, 3, 2, 1]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      board: {
+        size: 25,
+        tileTypeBySquare: { 0: 'start', 25: 'finish', 3: 'question' },
+        subjectBySquare: { 3: 'matematica' },
+      },
+    });
+    const out = await service.applyDiceRoll('12345', 'a');
+    expect(out.toSquare).toBe(3);
+    expect(out.isWin).toBe(false);
+    expect(out.nextPlayerId).toBeNull(); // turno NÃO passa
+    expect(out.prompt).not.toBeNull();
+    expect(out.prompt!.questionId).toBe('mat-0001');
+    expect(out.prompt!.options).toHaveLength(4);
+    // SEGURANÇA: o prompt não carrega a resposta correta.
+    expect(JSON.stringify(out.prompt)).not.toContain('correctIndex');
+    // Estado: pendência armada e id registrado globalmente + por jogador.
+    const a = out.state.players.find((p) => p.id === 'a')!;
+    expect(a.pendingQuestion).not.toBeNull();
+    expect(out.state.servedQuestionIds).toContain('mat-0001');
+    expect(a.usedQuestionIds).toContain('mat-0001');
+    expect(out.state.currentTurnIndex).toBe(0); // não avançou
+  });
+
+  it('prende ao cair em presídio (skipTurns++) e passa o turno', async () => {
+    const { repo, service } = build([3]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      board: {
+        size: 25,
+        tileTypeBySquare: { 0: 'start', 25: 'finish', 3: 'prison' },
+        subjectBySquare: {},
+      },
+    });
+    const out = await service.applyDiceRoll('12345', 'a');
+    expect(out.toSquare).toBe(3);
+    expect(out.prompt).toBeNull();
+    expect(out.nextPlayerId).toBe('b'); // turno passa
+    expect(out.state.players.find((p) => p.id === 'a')!.skipTurns).toBe(1);
+    expect(out.state.currentTurnIndex).toBe(1);
+  });
+
+  it('trata casa-pergunta esgotada como normal (passa o turno, sem prompt)', async () => {
+    // Banco vazio → pickQuestion retorna null → fallback para casa normal.
+    const { repo, service } = build([3], []);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      board: {
+        size: 25,
+        tileTypeBySquare: { 0: 'start', 25: 'finish', 3: 'question' },
+        subjectBySquare: { 3: 'matematica' },
+      },
+    });
+    const out = await service.applyDiceRoll('12345', 'a');
+    expect(out.prompt).toBeNull();
+    expect(out.nextPlayerId).toBe('b');
+    expect(
+      out.state.players.find((p) => p.id === 'a')!.pendingQuestion,
+    ).toBeNull();
   });
 });
 
