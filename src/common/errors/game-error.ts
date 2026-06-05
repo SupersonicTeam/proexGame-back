@@ -14,6 +14,8 @@ export enum ErrorCode {
   NO_PENDING_QUESTION = 'NO_PENDING_QUESTION',
   QUESTION_MISMATCH = 'QUESTION_MISMATCH',
   INVALID_OPTION = 'INVALID_OPTION',
+  // --- Sprint 2: reconexão ---
+  RECONNECT_FAILED = 'RECONNECT_FAILED',
   // Erro inesperado/não-domínio. Mantido no enum para o payload `error` ser sempre tipado.
   INTERNAL = 'INTERNAL',
 }
@@ -33,6 +35,7 @@ const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.QUESTION_MISMATCH]:
     'A pergunta enviada não corresponde à pendente.',
   [ErrorCode.INVALID_OPTION]: 'Alternativa inválida.',
+  [ErrorCode.RECONNECT_FAILED]: 'Não foi possível reconectar à sessão.',
   [ErrorCode.INTERNAL]: 'Erro interno.',
 };
 

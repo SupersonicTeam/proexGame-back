@@ -226,3 +226,100 @@ describe('SessionService.markDisconnected / leaveSession', () => {
     expect(state!.players.some((p) => p.id === joinerId)).toBe(false);
   });
 });
+
+describe('SessionService.reconnect', () => {
+  it('revincula o socket e marca o jogador como conectado', async () => {
+    const { repo, service } = build();
+    const { state, playerId } = await service.createSession(
+      'Ana',
+      'normal',
+      'sock-old',
+    );
+    await service.markDisconnected(state.code, playerId);
+
+    const out = await service.reconnect(state.code, playerId, 'sock-new');
+    const player = out.players.find((p) => p.id === playerId)!;
+    expect(player.connected).toBe(true);
+    expect(player.socketId).toBe('sock-new');
+    // Persistido.
+    const stored = (await repo.findByCode(state.code))!.players.find(
+      (p) => p.id === playerId,
+    )!;
+    expect(stored.connected).toBe(true);
+  });
+
+  it('rejeita reconexão em sessão inexistente com RECONNECT_FAILED', async () => {
+    const { service } = build();
+    await expect(
+      service.reconnect('00000', 'qualquer', 'sock'),
+    ).rejects.toMatchObject({ code: ErrorCode.RECONNECT_FAILED });
+  });
+
+  it('rejeita reconexão com playerId desconhecido com RECONNECT_FAILED', async () => {
+    const { service } = build();
+    const { state } = await service.createSession('Ana', 'normal', 'sock');
+    await expect(
+      service.reconnect(state.code, 'fantasma', 'sock'),
+    ).rejects.toMatchObject({ code: ErrorCode.RECONNECT_FAILED });
+  });
+});
+
+describe('SessionService.expireDisconnectedPlayer', () => {
+  it('remove o jogador desconectado, mantendo a sessão se restarem outros', async () => {
+    const { repo, service } = build();
+    const { state, playerId: hostId } = await service.createSession(
+      'Ana',
+      'normal',
+      'sock-a',
+    );
+    const { playerId: guestId } = await service.joinSession(
+      state.code,
+      'Bia',
+      'sock-b',
+    );
+    await service.markDisconnected(state.code, guestId);
+
+    const out = await service.expireDisconnectedPlayer(state.code, guestId);
+    expect(out.removed).toBe(true);
+    expect(out.sessionDeleted).toBe(false);
+    const stored = await repo.findByCode(state.code);
+    expect(stored!.players.map((p) => p.id)).toEqual([hostId]);
+  });
+
+  it('apaga a sessão quando o último jogador expira (RF-15)', async () => {
+    const { repo, service } = build();
+    const { state, playerId } = await service.createSession(
+      'Ana',
+      'normal',
+      'sock-a',
+    );
+    await service.markDisconnected(state.code, playerId);
+
+    const out = await service.expireDisconnectedPlayer(state.code, playerId);
+    expect(out.removed).toBe(true);
+    expect(out.sessionDeleted).toBe(true);
+    expect(await repo.findByCode(state.code)).toBeNull();
+  });
+
+  it('não remove se o jogador reconectou no intervalo', async () => {
+    const { repo, service } = build();
+    const { state, playerId } = await service.createSession(
+      'Ana',
+      'normal',
+      'sock-a',
+    );
+    await service.joinSession(state.code, 'Bia', 'sock-b');
+    await service.markDisconnected(state.code, playerId);
+    await service.reconnect(state.code, playerId, 'sock-a2'); // voltou
+
+    const out = await service.expireDisconnectedPlayer(state.code, playerId);
+    expect(out.removed).toBe(false);
+    expect((await repo.findByCode(state.code))!.players).toHaveLength(2);
+  });
+
+  it('é no-op seguro para sessão inexistente', async () => {
+    const { service } = build();
+    const out = await service.expireDisconnectedPlayer('00000', 'x');
+    expect(out).toEqual({ state: null, removed: false, sessionDeleted: false });
+  });
+});

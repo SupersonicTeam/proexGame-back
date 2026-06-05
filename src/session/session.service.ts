@@ -121,6 +121,52 @@ export class SessionService {
     return state;
   }
 
+  // Reconecta um jogador dentro da janela de grace (RF-14): revincula o novo
+  // socket e marca como conectado. O `playerId` (UUIDv4) é o portador da
+  // identidade — sessão/jogador inexistentes resultam em RECONNECT_FAILED, sem
+  // vazar qual dos dois faltou.
+  async reconnect(
+    code: string,
+    playerId: string,
+    socketId: string,
+  ): Promise<SessionState> {
+    const state = await this.repo.findByCode(code);
+    if (!state) throw new GameError(ErrorCode.RECONNECT_FAILED);
+    const player = state.players.find((p) => p.id === playerId);
+    if (!player) throw new GameError(ErrorCode.RECONNECT_FAILED);
+    player.connected = true;
+    player.socketId = socketId;
+    await this.repo.save(state);
+    return state;
+  }
+
+  // Expira a janela de reconexão de um jogador (RF-14/15): se ele não reconectou,
+  // remove-o da sessão; se a sessão ficar sem ninguém, apaga do Redis. Retorna o
+  // que aconteceu para o gateway emitir os eventos certos (sessionClosed/lobby).
+  async expireDisconnectedPlayer(
+    code: string,
+    playerId: string,
+  ): Promise<{
+    state: SessionState | null;
+    removed: boolean;
+    sessionDeleted: boolean;
+  }> {
+    const state = await this.repo.findByCode(code);
+    if (!state) return { state: null, removed: false, sessionDeleted: false };
+    const player = state.players.find((p) => p.id === playerId);
+    // Reconectou no intervalo → nada a fazer.
+    if (!player || player.connected) {
+      return { state, removed: false, sessionDeleted: false };
+    }
+    state.players = state.players.filter((p) => p.id !== playerId);
+    if (state.players.length === 0) {
+      await this.repo.delete(code);
+      return { state: null, removed: true, sessionDeleted: true };
+    }
+    await this.repo.save(state);
+    return { state, removed: true, sessionDeleted: false };
+  }
+
   getState(code: string): Promise<SessionState | null> {
     return this.repo.findByCode(code);
   }

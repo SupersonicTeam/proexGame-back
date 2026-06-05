@@ -3,9 +3,15 @@ import Redis from 'ioredis';
 import { REDIS_CLIENT } from '../redis/redis.constants';
 import { SessionState } from './session.types';
 
+// TTL (segundos) da chave de sessão no Redis. Backstop de RF-15: mesmo que os
+// timers in-process se percam (restart do processo), a sessão expira sozinha.
+// Folgado sobre os 5 min de grace para não apagar partidas ativas; deslizante
+// (renovado a cada save).
+export const SESSION_TTL_SECONDS = 1800;
+
 // Persistência do SessionState no Redis — fonte única da verdade.
-// O estado sobrevive a um restart do processo Node no meio da partida (RF-16).
-// TTL por inatividade entra na Sprint 2 (RF-15); aqui o set é simples.
+// O estado sobrevive a um restart do processo Node no meio da partida (RF-16),
+// com TTL deslizante por inatividade (RF-15).
 @Injectable()
 export class SessionRepository {
   constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
@@ -15,7 +21,12 @@ export class SessionRepository {
   }
 
   async create(state: SessionState): Promise<void> {
-    await this.redis.set(this.key(state.code), JSON.stringify(state));
+    await this.redis.set(
+      this.key(state.code),
+      JSON.stringify(state),
+      'EX',
+      SESSION_TTL_SECONDS,
+    );
   }
 
   // Cria a sessão de forma ATÔMICA: só grava se a chave ainda não existir (SET NX).
@@ -25,6 +36,8 @@ export class SessionRepository {
     const result = await this.redis.set(
       this.key(state.code),
       JSON.stringify(state),
+      'EX',
+      SESSION_TTL_SECONDS,
       'NX',
     );
     return result === 'OK';
@@ -38,7 +51,12 @@ export class SessionRepository {
 
   async save(state: SessionState): Promise<void> {
     state.lastActivityAt = new Date().toISOString();
-    await this.redis.set(this.key(state.code), JSON.stringify(state));
+    await this.redis.set(
+      this.key(state.code),
+      JSON.stringify(state),
+      'EX',
+      SESSION_TTL_SECONDS,
+    );
   }
 
   async exists(code: string): Promise<boolean> {

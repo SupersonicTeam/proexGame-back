@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import RedisMock from 'ioredis-mock';
-import { SessionRepository } from './session.repository';
+import { SESSION_TTL_SECONDS, SessionRepository } from './session.repository';
 import { SessionState } from './session.types';
 
 function makeState(code = '12345'): SessionState {
@@ -65,6 +65,22 @@ describe('SessionRepository', () => {
     await repo.create(makeState());
     await repo.delete('12345');
     expect(await repo.findByCode('12345')).toBeNull();
+  });
+
+  it('aplica TTL na criação (RF-15 backstop)', async () => {
+    await repo.create(makeState());
+    const ttl = await client.ttl('session:12345');
+    expect(ttl).toBeGreaterThan(0);
+    expect(ttl).toBeLessThanOrEqual(SESSION_TTL_SECONDS);
+  });
+
+  it('renova o TTL a cada save (deslizante)', async () => {
+    const state = makeState();
+    await repo.create(state);
+    await repo.save(state);
+    const ttl = await client.ttl('session:12345');
+    expect(ttl).toBeGreaterThan(0);
+    expect(ttl).toBeLessThanOrEqual(SESSION_TTL_SECONDS);
   });
 
   describe('createIfAbsent (atômico)', () => {
