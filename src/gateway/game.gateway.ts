@@ -9,10 +9,13 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { GameService } from '../game/game.service';
+import { ReconnectService } from '../session/reconnect.service';
 import { SessionService } from '../session/session.service';
 import {
   CreateSessionDto,
   JoinSessionDto,
+  parseReconnect,
+  parseSubmitAnswer,
   SocketData,
   toLobbyState,
   toPlayerView,
@@ -29,6 +32,7 @@ export class GameGateway implements OnGatewayDisconnect {
   constructor(
     private readonly sessions: SessionService,
     private readonly games: GameService,
+    private readonly reconnects: ReconnectService,
   ) {}
 
   @SubscribeMessage('createSession')
@@ -79,8 +83,10 @@ export class GameGateway implements OnGatewayDisconnect {
     const { code, playerId } = this.dataOf(client);
     try {
       if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
-      const started = await this.sessions.startGame(code, playerId);
-      this.server.to(code).emit('gameStarted', { board: started.board });
+      await this.sessions.startGame(code, playerId);
+      // Gera o tabuleiro procedural (RF-06/07/17/18) e emite com gameStarted.
+      const withBoard = await this.games.setupBoard(code);
+      this.server.to(code).emit('gameStarted', { board: withBoard.board });
 
       const { state, rolls } = await this.games.resolveTurnOrder(code);
       this.server
@@ -117,13 +123,82 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server
           .to(code)
           .emit('gameOver', { winner: out.playerId, ranking: out.ranking });
+      } else if (out.prompt) {
+        // Aterrissou em casa-pergunta: o prompt vai só ao jogador (turno não passa).
+        client.emit('questionPrompt', out.prompt);
       } else {
-        this.server
-          .to(code)
-          .emit('turnChanged', { playerId: out.nextPlayerId });
+        await this.advanceTurn(code, out.nextPlayerId);
       }
     } catch (err) {
       this.emitError(client, err);
+    }
+  }
+
+  @SubscribeMessage('submitAnswer')
+  async handleSubmitAnswer(
+    @MessageBody() body: unknown,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { code, playerId } = this.dataOf(client);
+    try {
+      if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const dto = parseSubmitAnswer(body);
+      const out = await this.games.submitAnswer(
+        code,
+        playerId,
+        dto.questionId,
+        dto.optionIndex,
+      );
+      this.server.to(code).emit('answerResult', {
+        playerId: out.playerId,
+        correct: out.correct,
+        errorType: out.errorType,
+        movement: out.movement,
+        fromSquare: out.fromSquare,
+        toSquare: out.toSquare,
+      });
+      if (out.isWin) {
+        this.server
+          .to(code)
+          .emit('gameOver', { winner: out.playerId, ranking: out.ranking });
+      } else if (out.prompt) {
+        // Encadeamento (RF-11): nova pergunta ao mesmo jogador, turno não passa.
+        client.emit('questionPrompt', out.prompt);
+      } else {
+        await this.advanceTurn(code, out.nextPlayerId);
+      }
+    } catch (err) {
+      this.emitError(client, err);
+    }
+  }
+
+  @SubscribeMessage('reconnect')
+  async handleReconnect(
+    @MessageBody() body: unknown,
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const dto = parseReconnect(body);
+      const state = await this.sessions.reconnect(
+        dto.code,
+        dto.playerId,
+        client.id,
+      );
+      this.reconnects.cancel(dto.code, dto.playerId); // cancela o grace
+      this.bindSocket(client, dto.code, dto.playerId);
+      this.server
+        .to(dto.code)
+        .emit('playerReconnected', { playerId: dto.playerId });
+      // Reenvia o estado atual; se a partida está em andamento, informa o turno.
+      this.server.to(dto.code).emit('lobbyState', toLobbyState(state));
+      if (state.status === 'playing') {
+        client.emit('turnChanged', {
+          playerId: state.turnOrder[state.currentTurnIndex],
+        });
+      }
+      return { code: dto.code, playerId: dto.playerId };
+    } catch (err) {
+      return this.emitError(client, err);
     }
   }
 
@@ -147,9 +222,48 @@ export class GameGateway implements OnGatewayDisconnect {
     // Se era a vez do jogador que caiu, passa o turno para não travar a partida.
     const passed = await this.games.passTurnIfDisconnected(code);
     if (passed) {
-      this.server
-        .to(code)
-        .emit('turnChanged', { playerId: passed.nextPlayerId });
+      await this.advanceTurn(code, passed.nextPlayerId);
+    }
+    // Arma o grace period de reconexão (RF-14). Na expiração, remove o jogador
+    // e — se a sessão esvaziar — apaga e emite sessionClosed (RF-15).
+    this.reconnects.arm(code, playerId, () =>
+      this.handleGraceExpired(code, playerId),
+    );
+  }
+
+  // Emite a troca de turno e drena presídios em sequência: enquanto o jogador da
+  // vez tiver turnos a pular, emite turnSkipped e avança (RF-20).
+  private async advanceTurn(
+    code: string,
+    nextPlayerId: string | null,
+  ): Promise<void> {
+    let current = nextPlayerId;
+    if (!current) return;
+    this.server.to(code).emit('turnChanged', { playerId: current });
+    for (;;) {
+      const skip = await this.games.startTurnSkipIfNeeded(code);
+      if (!skip) break;
+      this.server.to(code).emit('turnSkipped', {
+        playerId: skip.playerId,
+        remaining: skip.remaining,
+      });
+      current = skip.nextPlayerId;
+      this.server.to(code).emit('turnChanged', { playerId: current });
+    }
+  }
+
+  // Callback de expiração do grace: remove o jogador; se a sessão foi apagada,
+  // emite sessionClosed, senão atualiza o lobby.
+  private async handleGraceExpired(
+    code: string,
+    playerId: string,
+  ): Promise<void> {
+    const result = await this.sessions.expireDisconnectedPlayer(code, playerId);
+    if (!result.removed) return;
+    if (result.sessionDeleted) {
+      this.server.to(code).emit('sessionClosed', { reason: 'inactivity' });
+    } else if (result.state) {
+      this.server.to(code).emit('lobbyState', toLobbyState(result.state));
     }
   }
 

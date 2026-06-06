@@ -1,0 +1,42 @@
+[
+  {
+    "id": "por-0001",
+    "subject": "portugues",
+    "statement": "Qual é o plural de \"pão\"?",
+    "correct": "pães",
+    "proximal": "pãos",
+    "wrong": ["pão", "paes"]
+  },
+  {
+    "id": "por-0002",
+    "subject": "portugues",
+    "statement": "O que é um substantivo?",
+    "correct": "Palavra que nomeia seres, objetos e lugares",
+    "proximal": "Palavra que expressa ação",
+    "wrong": ["Palavra que qualifica substantivos", "Palavra de ligação"]
+  },
+  {
+    "id": "por-0003",
+    "subject": "portugues",
+    "statement": "Qual é o antônimo de \"feliz\"?",
+    "correct": "triste",
+    "proximal": "infeliz",
+    "wrong": ["contente", "alegre"]
+  },
+  {
+    "id": "por-0004",
+    "subject": "portugues",
+    "statement": "O que é um verbo?",
+    "correct": "Palavra que expressa ação, estado ou fenômeno",
+    "proximal": "Palavra que nomeia seres",
+    "wrong": ["Palavra que indica lugar", "Palavra que qualifica substantivos"]
+  },
+  {
+    "id": "por-0005",
+    "subject": "portugues",
+    "statement": "Qual das alternativas está escrita corretamente?",
+    "correct": "exceção",
+    "proximal": "excessão",
+    "wrong": ["ecseção", "exeção"]
+  }
+]

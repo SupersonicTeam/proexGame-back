@@ -47,6 +47,7 @@ export class SessionService {
         winner: null,
         createdAt: now,
         lastActivityAt: now,
+        servedQuestionIds: [],
       };
       if (await this.repo.createIfAbsent(state)) {
         return { state, playerId };
@@ -120,6 +121,65 @@ export class SessionService {
     return state;
   }
 
+  // Reconecta um jogador dentro da janela de grace (RF-14): revincula o novo
+  // socket e marca como conectado. O `playerId` (UUIDv4) é o portador da
+  // identidade — sessão/jogador inexistentes resultam em RECONNECT_FAILED, sem
+  // vazar qual dos dois faltou.
+  async reconnect(
+    code: string,
+    playerId: string,
+    socketId: string,
+  ): Promise<SessionState> {
+    const state = await this.repo.findByCode(code);
+    if (!state) throw new GameError(ErrorCode.RECONNECT_FAILED);
+    const player = state.players.find((p) => p.id === playerId);
+    if (!player) throw new GameError(ErrorCode.RECONNECT_FAILED);
+    player.connected = true;
+    player.socketId = socketId;
+    await this.repo.save(state);
+    return state;
+  }
+
+  // Expira a janela de reconexão de um jogador (RF-14/15): se ele não reconectou,
+  // remove-o da sessão; se a sessão ficar sem ninguém, apaga do Redis. Retorna o
+  // que aconteceu para o gateway emitir os eventos certos (sessionClosed/lobby).
+  async expireDisconnectedPlayer(
+    code: string,
+    playerId: string,
+  ): Promise<{
+    state: SessionState | null;
+    removed: boolean;
+    sessionDeleted: boolean;
+  }> {
+    const state = await this.repo.findByCode(code);
+    if (!state) return { state: null, removed: false, sessionDeleted: false };
+    const player = state.players.find((p) => p.id === playerId);
+    // Reconectou no intervalo → nada a fazer.
+    if (!player || player.connected) {
+      return { state, removed: false, sessionDeleted: false };
+    }
+    const removedIdx = state.turnOrder.indexOf(playerId);
+    state.players = state.players.filter((p) => p.id !== playerId);
+    if (state.players.length === 0) {
+      await this.repo.delete(code);
+      return { state: null, removed: true, sessionDeleted: true };
+    }
+    // Remove também da ordem de turnos e reajusta currentTurnIndex para não
+    // apontar para um jogador inexistente (evita turnChanged/rotação inconsistentes
+    // numa partida em andamento).
+    state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
+    if (state.turnOrder.length > 0) {
+      // Se removemos alguém antes do índice atual, recua um para preservar o alvo.
+      if (removedIdx !== -1 && removedIdx < state.currentTurnIndex) {
+        state.currentTurnIndex -= 1;
+      }
+      // Mantém o índice dentro dos limites (wrap quando o removido era o último).
+      state.currentTurnIndex %= state.turnOrder.length;
+    }
+    await this.repo.save(state);
+    return { state, removed: true, sessionDeleted: false };
+  }
+
   getState(code: string): Promise<SessionState | null> {
     return this.repo.findByCode(code);
   }
@@ -142,14 +202,27 @@ export class SessionService {
     socketId: string,
     isHost: boolean,
   ): Player {
-    return { id, name, socketId, square: 0, connected: true, isHost };
+    return {
+      id,
+      name,
+      socketId,
+      square: 0,
+      connected: true,
+      isHost,
+      usedQuestionIds: [],
+      skipTurns: 0,
+      pendingQuestion: null,
+    };
   }
 
-  // Tabuleiro fixo da Sprint 1: casa 0 = início, casa N = chegada, demais 'normal'.
+  // Tabuleiro fixo: casa 0 = início, casa N = chegada, demais 'normal'.
+  // @deprecated Sprint 2 substitui por board.rules.generateBoard (procedural) no
+  // início da partida (S2-07). Mantido para o lobby ter um board válido.
   private makeBoard(): Board {
     return {
       size: BOARD_SIZE,
       tileTypeBySquare: { 0: 'start', [BOARD_SIZE]: 'finish' },
+      subjectBySquare: {},
     };
   }
 }

@@ -79,28 +79,44 @@ describe('Game loop (e2e)', () => {
     const firstTurn = once<{ playerId: string }>(c1, 'turnChanged');
     c1.emit('startGame');
     const board = await startedBoard;
-    expect(board.board.size).toBe(25);
+    // Tabuleiro agora é procedural (RF-06): tamanho em [20, 30].
+    expect(board.board.size).toBeGreaterThanOrEqual(20);
+    expect(board.board.size).toBeLessThanOrEqual(30);
     let current = (await firstTurn).playerId;
 
-    // Driver do loop: o jogador da vez rola; seguimos turnChanged até gameOver.
+    // Driver do loop: o jogador da vez rola; ao receber uma pergunta, responde
+    // (índice 0); seguimos até gameOver. Cobre tabuleiro procedural com perguntas.
     const gameOver = await new Promise<{ winner: string; ranking: any[] }>(
       (resolve, reject) => {
         const failTimer = setTimeout(
           () => reject(new Error('partida não terminou')),
-          15000,
+          20000,
         );
 
         const onTurn = (p: { playerId: string }) => {
           current = p.playerId;
           byId[current]?.emit('rollDice');
         };
+        const onPrompt =
+          (sock: Socket) => (q: { questionId: string; options: string[] }) => {
+            sock.emit('submitAnswer', {
+              questionId: q.questionId,
+              optionIndex: 0,
+            });
+          };
+        const onPrompt1 = onPrompt(c1);
+        const onPrompt2 = onPrompt(c2);
         const onOver = (payload: { winner: string; ranking: any[] }) => {
           clearTimeout(failTimer);
           c1.off('turnChanged', onTurn);
           c2.off('turnChanged', onTurn);
+          c1.off('questionPrompt', onPrompt1);
+          c2.off('questionPrompt', onPrompt2);
           resolve(payload);
         };
         c1.on('turnChanged', onTurn);
+        c1.on('questionPrompt', onPrompt1);
+        c2.on('questionPrompt', onPrompt2);
         c1.on('gameOver', onOver);
         c2.on('gameOver', onOver);
 

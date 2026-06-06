@@ -1,5 +1,7 @@
 import { ErrorCode } from '../common/errors/game-error';
 import { RandomSource } from '../common/random/random.source';
+import { QuestionBankService } from '../questions/question-bank.service';
+import { PendingQuestion, Question } from '../questions/question.types';
 import { SessionRepository } from '../session/session.repository';
 import { Player, SessionState } from '../session/session.types';
 import { GameService } from './game.service';
@@ -40,6 +42,60 @@ class FakeRandomSource implements RandomSource {
   }
 }
 
+// Banco de perguntas fake: implementa só o que o GameService consome.
+class FakeQuestionBank {
+  constructor(private readonly questions: Question[] = []) {}
+  pickQuestion(
+    subject: string,
+    excludedIds: Set<string>,
+    rng: RandomSource,
+  ): Question | null {
+    const available = this.questions.filter(
+      (q) => q.subject === subject && !excludedIds.has(q.id),
+    );
+    if (available.length === 0) return null;
+    return available[rng.int(0, available.length - 1)];
+  }
+  getById(id: string): Question | undefined {
+    return this.questions.find((q) => q.id === id);
+  }
+  subjects(): string[] {
+    return [...new Set(this.questions.map((q) => q.subject))];
+  }
+}
+
+const SAMPLE_QUESTIONS: Question[] = [
+  {
+    id: 'mat-0001',
+    subject: 'matematica',
+    statement: '2 + 2?',
+    correct: '4',
+    proximal: '3',
+    wrong: ['5', '22'],
+  },
+  {
+    id: 'mat-0002',
+    subject: 'matematica',
+    statement: '3 + 3?',
+    correct: '6',
+    proximal: '5',
+    wrong: ['9', '33'],
+  },
+];
+
+// Pergunta pendente pré-montada (ordem conhecida): índice 0 = correta, 1 = proximal.
+function makePending(over: Partial<PendingQuestion> = {}): PendingQuestion {
+  return {
+    questionId: 'mat-0001',
+    subject: 'matematica',
+    statement: '2 + 2?',
+    options: ['4', '3', '5', '22'],
+    correctIndex: 0,
+    proximalIndex: 1,
+    ...over,
+  };
+}
+
 function makePlayer(over: Partial<Player> & { id: string }): Player {
   return {
     name: over.id,
@@ -47,6 +103,9 @@ function makePlayer(over: Partial<Player> & { id: string }): Player {
     square: 0,
     connected: true,
     isHost: false,
+    usedQuestionIds: [],
+    skipTurns: 0,
+    pendingQuestion: null,
     ...over,
   };
 }
@@ -60,24 +119,34 @@ function seedState(
     code: '12345',
     status: 'playing',
     difficulty: 'normal',
-    board: { size: 25, tileTypeBySquare: { 0: 'start', 25: 'finish' } },
+    board: {
+      size: 25,
+      tileTypeBySquare: { 0: 'start', 25: 'finish' },
+      subjectBySquare: {},
+    },
     players,
     turnOrder: players.map((p) => p.id),
     currentTurnIndex: 0,
     winner: null,
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
+    servedQuestionIds: [],
     ...over,
   };
   repo.store.set(state.code, structuredClone(state));
   return state;
 }
 
-function build(rngValues: number[]) {
+function build(rngValues: number[], questions: Question[] = SAMPLE_QUESTIONS) {
   const repo = new InMemoryRepo();
   const rng = new FakeRandomSource(rngValues);
-  const service = new GameService(repo as unknown as SessionRepository, rng);
-  return { repo, service };
+  const bank = new FakeQuestionBank(questions);
+  const service = new GameService(
+    repo as unknown as SessionRepository,
+    rng,
+    bank as unknown as QuestionBankService,
+  );
+  return { repo, service, bank };
 }
 
 describe('GameService.resolveTurnOrder', () => {
@@ -88,6 +157,24 @@ describe('GameService.resolveTurnOrder', () => {
     expect(state.turnOrder).toEqual(['b', 'a']);
     expect(state.currentTurnIndex).toBe(0);
     expect(rolls).toHaveLength(2);
+  });
+});
+
+describe('GameService.setupBoard', () => {
+  it('gera tabuleiro procedural (20-30, com presídio e pergunta) e persiste', async () => {
+    // Fake int devolve o valor da fila: N=20, depois 0s → presídio na casa 1 e
+    // perguntas nas casas seguintes (suficiente p/ haver 'prison' e 'question').
+    const { repo, service } = build([20, ...Array<number>(60).fill(0)]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      difficulty: 'normal',
+    });
+    const state = await service.setupBoard('12345');
+    expect(state.board.size).toBeGreaterThanOrEqual(20);
+    expect(state.board.size).toBeLessThanOrEqual(30);
+    const types = Object.values(state.board.tileTypeBySquare);
+    expect(types).toContain('prison');
+    expect(types).toContain('question');
+    expect((await repo.findByCode('12345'))!.board.size).toBe(state.board.size);
   });
 });
 
@@ -178,6 +265,71 @@ describe('GameService.applyDiceRoll', () => {
     expect(out.nextPlayerId).toBe('c');
     expect(out.state.currentTurnIndex).toBe(2);
   });
+
+  // --- S2-07: aterrissagem em casas especiais ---
+
+  it('dispara pergunta ao cair em casa-pergunta e NÃO passa o turno', async () => {
+    // dado=3 → casa 3 (question, materia matematica).
+    // rng: [dado, pickQuestion idx, fy1, fy2, fy3]
+    const { repo, service } = build([3, 0, 3, 2, 1]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      board: {
+        size: 25,
+        tileTypeBySquare: { 0: 'start', 25: 'finish', 3: 'question' },
+        subjectBySquare: { 3: 'matematica' },
+      },
+    });
+    const out = await service.applyDiceRoll('12345', 'a');
+    expect(out.toSquare).toBe(3);
+    expect(out.isWin).toBe(false);
+    expect(out.nextPlayerId).toBeNull(); // turno NÃO passa
+    expect(out.prompt).not.toBeNull();
+    expect(out.prompt!.questionId).toBe('mat-0001');
+    expect(out.prompt!.options).toHaveLength(4);
+    // SEGURANÇA: o prompt não carrega a resposta correta.
+    expect(JSON.stringify(out.prompt)).not.toContain('correctIndex');
+    // Estado: pendência armada e id registrado globalmente + por jogador.
+    const a = out.state.players.find((p) => p.id === 'a')!;
+    expect(a.pendingQuestion).not.toBeNull();
+    expect(out.state.servedQuestionIds).toContain('mat-0001');
+    expect(a.usedQuestionIds).toContain('mat-0001');
+    expect(out.state.currentTurnIndex).toBe(0); // não avançou
+  });
+
+  it('prende ao cair em presídio (skipTurns++) e passa o turno', async () => {
+    const { repo, service } = build([3]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      board: {
+        size: 25,
+        tileTypeBySquare: { 0: 'start', 25: 'finish', 3: 'prison' },
+        subjectBySquare: {},
+      },
+    });
+    const out = await service.applyDiceRoll('12345', 'a');
+    expect(out.toSquare).toBe(3);
+    expect(out.prompt).toBeNull();
+    expect(out.nextPlayerId).toBe('b'); // turno passa
+    expect(out.state.players.find((p) => p.id === 'a')!.skipTurns).toBe(1);
+    expect(out.state.currentTurnIndex).toBe(1);
+  });
+
+  it('trata casa-pergunta esgotada como normal (passa o turno, sem prompt)', async () => {
+    // Banco vazio → pickQuestion retorna null → fallback para casa normal.
+    const { repo, service } = build([3], []);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      board: {
+        size: 25,
+        tileTypeBySquare: { 0: 'start', 25: 'finish', 3: 'question' },
+        subjectBySquare: { 3: 'matematica' },
+      },
+    });
+    const out = await service.applyDiceRoll('12345', 'a');
+    expect(out.prompt).toBeNull();
+    expect(out.nextPlayerId).toBe('b');
+    expect(
+      out.state.players.find((p) => p.id === 'a')!.pendingQuestion,
+    ).toBeNull();
+  });
 });
 
 describe('GameService.passTurnIfDisconnected', () => {
@@ -210,5 +362,188 @@ describe('GameService.passTurnIfDisconnected', () => {
       { turnOrder: [] },
     );
     expect(await service.passTurnIfDisconnected('12345')).toBeNull();
+  });
+});
+
+describe('GameService.submitAnswer', () => {
+  // Tabuleiro com casa-pergunta em 5 (materia matematica) para testar encadeamento.
+  const boardWithQ = {
+    size: 25,
+    tileTypeBySquare: { 0: 'start', 25: 'finish', 5: 'question' } as Record<
+      number,
+      'start' | 'normal' | 'question' | 'prison' | 'finish'
+    >,
+    subjectBySquare: { 5: 'matematica' },
+  };
+
+  it('acerto move pelo avanço (tier/dificuldade) e passa o turno', async () => {
+    // a em 1 (leader), b em 0. normal/leader = +2 → casa 3 (normal). Sem nudge.
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 1, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b', square: 0 }),
+    ]);
+    const out = await service.submitAnswer('12345', 'a', 'mat-0001', 0);
+    expect(out.correct).toBe(true);
+    expect(out.errorType).toBe('none');
+    expect(out.fromSquare).toBe(1);
+    expect(out.toSquare).toBe(3);
+    expect(out.movement).toBe(2);
+    expect(out.isWin).toBe(false);
+    expect(out.nextPlayerId).toBe('b');
+    expect(out.prompt).toBeNull();
+    // Pendência limpa (anti double-submit).
+    expect(
+      out.state.players.find((p) => p.id === 'a')!.pendingQuestion,
+    ).toBeNull();
+  });
+
+  it('erro proximal recua pouco e passa o turno sem disparar nada', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 5, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b', square: 0 }),
+    ]);
+    const out = await service.submitAnswer('12345', 'a', 'mat-0001', 1);
+    expect(out.correct).toBe(false);
+    expect(out.errorType).toBe('proximal');
+    expect(out.toSquare).toBe(3); // 5 - 2 (normal proximal)
+    expect(out.movement).toBe(-2);
+    expect(out.nextPlayerId).toBe('b');
+    expect(out.prompt).toBeNull();
+  });
+
+  it('erro total recua mais que o proximal', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 5, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b', square: 0 }),
+    ]);
+    const out = await service.submitAnswer('12345', 'a', 'mat-0001', 2);
+    expect(out.errorType).toBe('wrong');
+    expect(out.toSquare).toBe(2); // 5 - 3 (normal wrong)
+  });
+
+  it('acerto que cai em casa-pergunta encadeia (RF-11): novo prompt, turno não passa', async () => {
+    // a em 3 (leader) → +2 → casa 5 (question). nudge não dispara (int>7 → fica em 5).
+    // depois encadeia: pickQuestion(idx 0) + buildPendingQuestion(fy 3,2,1).
+    const { repo, service } = build([8, 0, 3, 2, 1]);
+    seedState(
+      repo,
+      [
+        makePlayer({ id: 'a', square: 3, pendingQuestion: makePending() }),
+        makePlayer({ id: 'b', square: 0 }),
+      ],
+      { board: boardWithQ, servedQuestionIds: ['mat-0001'] },
+    );
+    const out = await service.submitAnswer('12345', 'a', 'mat-0001', 0);
+    expect(out.correct).toBe(true);
+    expect(out.toSquare).toBe(5);
+    expect(out.nextPlayerId).toBeNull(); // turno não passa
+    expect(out.prompt).not.toBeNull();
+    expect(out.prompt!.questionId).toBe('mat-0002'); // pergunta nova, não repetida
+    const a = out.state.players.find((p) => p.id === 'a')!;
+    expect(a.pendingQuestion!.questionId).toBe('mat-0002');
+    expect(out.state.servedQuestionIds).toEqual(['mat-0001', 'mat-0002']);
+  });
+
+  it('acerto que alcança N vence (chega-ou-passa)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 24, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b', square: 0 }),
+    ]);
+    const out = await service.submitAnswer('12345', 'a', 'mat-0001', 0);
+    expect(out.isWin).toBe(true);
+    expect(out.toSquare).toBe(25);
+    expect(out.nextPlayerId).toBeNull();
+    expect(out.ranking).not.toBeNull();
+    expect(out.state.status).toBe('finished');
+    expect(out.state.winner).toBe('a');
+  });
+
+  it('rejeita submitAnswer sem pergunta pendente (NO_PENDING_QUESTION)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
+    await expect(
+      service.submitAnswer('12345', 'a', 'mat-0001', 0),
+    ).rejects.toMatchObject({ code: ErrorCode.NO_PENDING_QUESTION });
+  });
+
+  it('rejeita questionId divergente (QUESTION_MISMATCH) sem alterar estado', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 5, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b' }),
+    ]);
+    await expect(
+      service.submitAnswer('12345', 'a', 'OUTRA', 0),
+    ).rejects.toMatchObject({ code: ErrorCode.QUESTION_MISMATCH });
+    // Estado intacto: pendência preservada, posição inalterada.
+    const a = (await repo.findByCode('12345'))!.players.find(
+      (p) => p.id === 'a',
+    )!;
+    expect(a.pendingQuestion).not.toBeNull();
+    expect(a.square).toBe(5);
+  });
+
+  it('rejeita optionIndex fora de [0,3] (INVALID_OPTION)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 5, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b' }),
+    ]);
+    await expect(
+      service.submitAnswer('12345', 'a', 'mat-0001', 7),
+    ).rejects.toMatchObject({ code: ErrorCode.INVALID_OPTION });
+    await expect(
+      service.submitAnswer('12345', 'a', 'mat-0001', -1),
+    ).rejects.toMatchObject({ code: ErrorCode.INVALID_OPTION });
+  });
+});
+
+describe('GameService.startTurnSkipIfNeeded', () => {
+  it('decrementa skipTurns, passa o turno e sinaliza turnSkipped', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', skipTurns: 1 }),
+      makePlayer({ id: 'b' }),
+    ]);
+    const out = await service.startTurnSkipIfNeeded('12345');
+    expect(out).not.toBeNull();
+    expect(out!.playerId).toBe('a');
+    expect(out!.remaining).toBe(0);
+    expect(out!.nextPlayerId).toBe('b');
+    expect(out!.state.players.find((p) => p.id === 'a')!.skipTurns).toBe(0);
+    expect(out!.state.currentTurnIndex).toBe(1);
+  });
+
+  it('com múltiplos turnos presos, decrementa de 1 em 1 (remaining > 0)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [
+      makePlayer({ id: 'a', skipTurns: 2 }),
+      makePlayer({ id: 'b' }),
+    ]);
+    const out = await service.startTurnSkipIfNeeded('12345');
+    expect(out!.remaining).toBe(1);
+  });
+
+  it('retorna null quando o jogador da vez não está preso', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
+    expect(await service.startTurnSkipIfNeeded('12345')).toBeNull();
+  });
+
+  it('retorna null quando a partida não está ativa', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a', skipTurns: 1 })], {
+      status: 'finished',
+    });
+    expect(await service.startTurnSkipIfNeeded('12345')).toBeNull();
+  });
+
+  it('retorna null para sessão inexistente', async () => {
+    const { service } = build([]);
+    expect(await service.startTurnSkipIfNeeded('00000')).toBeNull();
   });
 });
