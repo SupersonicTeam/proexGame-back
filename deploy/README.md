@@ -87,7 +87,7 @@ Todo merge na `main` cria a tag, publica a imagem e faz o deploy sozinho.
 ### Rollback
 ```bash
 cd /opt/proexgame-deploy
-sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=v0.1.0/' .env   # versão estável anterior
+sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=0.1.0/' .env   # versão estável anterior (sem o "v": as imagens no ghcr usam new_version)
 docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
 ```
 
