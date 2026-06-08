@@ -21,5 +21,9 @@ RUN npm ci --omit=dev
 # Artefato compilado do estágio de build.
 COPY --from=builder /app/dist ./dist
 
+# Banco de perguntas (lido em runtime por QuestionBankService via <cwd>/questions).
+# Sem isto a imagem sobe sem /app/questions e o boot falha com ENOENT (crash loop).
+COPY --from=builder /app/questions ./questions
+
 EXPOSE 3000
 CMD ["node", "dist/main"]
