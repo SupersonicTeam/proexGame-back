@@ -48,15 +48,15 @@ echo "SEU_PAT_read_packages" | docker login ghcr.io -u SEU_USUARIO_GITHUB --pass
 # 2.3 Diretório de deploy + arquivos (sem código-fonte!)
 sudo mkdir -p /opt/proexgame-deploy
 cd /opt/proexgame-deploy
-#   Copie para cá: docker-compose.prod.yml (renomeie para docker-compose.yml) e .env
+#   Copie para cá: docker-compose.prod.yml (mantenha o nome) e .env
 #   Ex.: baixe do repo via raw, ou scp, ou cole na mão.
-cp /caminho/deploy/docker-compose.prod.yml ./docker-compose.yml
+cp /caminho/deploy/docker-compose.prod.yml ./docker-compose.prod.yml
 cp /caminho/deploy/.env.example ./.env      # ajuste IMAGE_TAG/BACKEND_PORT se quiser
 
 # 2.4 Primeira subida (a primeira imagem precisa já existir no ghcr — ver Parte 4)
-docker compose pull
-docker compose up -d
-docker compose ps
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml ps
 curl -sN 'http://127.0.0.1:3003/socket.io/?EIO=4&transport=polling' | head -c 40
 ```
 
@@ -87,12 +87,12 @@ Todo merge na `main` cria a tag, publica a imagem e faz o deploy sozinho.
 ### Rollback
 ```bash
 cd /opt/proexgame-deploy
-sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=v0.1.0/' .env   # versão estável anterior
-docker compose pull && docker compose up -d
+sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=0.1.0/' .env   # versão estável anterior (sem o "v": as imagens no ghcr usam new_version)
+docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### Operação
 ```bash
-docker compose logs -f backend     # logs
-docker compose ps                  # status
+docker compose -f docker-compose.prod.yml logs -f backend     # logs
+docker compose -f docker-compose.prod.yml ps                  # status
 ```

@@ -107,6 +107,6 @@ jobs:
             else
               echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
             fi
-            docker compose pull
-            docker compose up -d
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
             docker image prune -f
