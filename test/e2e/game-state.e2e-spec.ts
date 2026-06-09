@@ -124,6 +124,33 @@ describe('requestState (e2e)', () => {
 
     stranger.disconnect();
   }, 10000);
+
+  it('jogador que saiu (leaveSession) não consegue mais puxar gameState', async () => {
+    const c1 = connect();
+    const c2 = connect();
+    await Promise.all([once(c1, 'connect'), once(c2, 'connect')]);
+
+    c1.emit('createSession', { name: 'Ana', difficulty: 'normal' });
+    const created = await once<{ code: string; playerId: string }>(
+      c1,
+      'sessionCreated',
+    );
+    // c2 entra e depois sai — seu socket.data ainda tem code/playerId.
+    await new Promise((r) =>
+      c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
+    );
+    const leftLobby = once<{ players: unknown[] }>(c1, 'lobbyState');
+    c2.emit('leaveSession');
+    await leftLobby;
+
+    // Membership inválida → NOT_IN_SESSION, sem vazar o gameState da sessão.
+    const errP = once<{ code: string }>(c2, 'error');
+    c2.emit('requestState');
+    expect((await errP).code).toBe('NOT_IN_SESSION');
+
+    c1.disconnect();
+    c2.disconnect();
+  }, 20000);
 });
 
 describe('gameState snapshot (e2e)', () => {

@@ -226,6 +226,11 @@ export class GameGateway implements OnGatewayDisconnect {
       if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
       const state = await this.sessions.getState(code);
       if (!state) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      // Valida membership: um socket cujo jogador já saiu/foi removido (sem limpar
+      // socket.data, ex.: após leaveSession) não pode mais puxar o estado da sessão.
+      if (!state.players.some((p) => p.id === playerId)) {
+        throw new GameError(ErrorCode.NOT_IN_SESSION);
+      }
       client.emit('gameState', toGameState(state));
     } catch (err) {
       this.emitError(client, err);
