@@ -64,6 +64,7 @@ export function toPlayerView(player: Player) {
     name: player.name,
     connected: player.connected,
     isHost: player.isHost,
+    square: player.square,
   };
 }
 
@@ -73,6 +74,7 @@ export function toLobbyState(state: SessionState) {
   return {
     code: state.code,
     status: state.status,
+    difficulty: state.difficulty,
     hostId: host?.id ?? null,
     players: state.players.map(toPlayerView),
   };
