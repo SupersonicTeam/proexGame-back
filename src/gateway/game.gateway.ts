@@ -159,6 +159,8 @@ export class GameGateway implements OnGatewayDisconnect {
         movement: out.movement,
         fromSquare: out.fromSquare,
         toSquare: out.toSquare,
+        // RF-16-safe: revelado APÓS a submissão para a tela de resultado educativa.
+        correctIndex: out.correctIndex,
       });
       if (out.isWin) {
         this.server

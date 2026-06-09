@@ -132,12 +132,17 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
       correct: boolean;
       errorType: string;
       toSquare: number;
+      correctIndex: number;
     }>(c1, 'answerResult');
     c1.emit('submitAnswer', { questionId: prompt.questionId, optionIndex: 0 });
     const answer = await answerP;
     expect(answer.playerId).toBe(p1);
     expect(typeof answer.correct).toBe('boolean');
     expect(['none', 'proximal', 'wrong']).toContain(answer.errorType);
+    // RF-16: o questionPrompt não revelou correctIndex; o answerResult deve revelar.
+    expect(typeof answer.correctIndex).toBe('number');
+    expect(answer.correctIndex).toBeGreaterThanOrEqual(0);
+    expect(answer.correctIndex).toBeLessThan(prompt.options.length);
 
     c1.disconnect();
     c2.disconnect();
