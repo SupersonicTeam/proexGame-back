@@ -152,14 +152,22 @@ export class GameGateway implements OnGatewayDisconnect {
         dto.questionId,
         dto.optionIndex,
       );
-      this.server.to(code).emit('answerResult', {
+      // Resultado do movimento vai para a sala (anima tabuleiro) SEM a correta —
+      // adversários não devem saber qual era a alternativa correta da pergunta alheia.
+      const answerBroadcast = {
         playerId: out.playerId,
         correct: out.correct,
         errorType: out.errorType,
         movement: out.movement,
         fromSquare: out.fromSquare,
         toSquare: out.toSquare,
-        // RF-16-safe: revelado APÓS a submissão para a tela de resultado educativa.
+      };
+      // Todos menos o autor: sem correctIndex.
+      client.broadcast.to(code).emit('answerResult', answerBroadcast);
+      // Só o autor: inclui correctIndex (RF-16-safe — revelado APÓS a submissão,
+      // exclusivamente para a tela de resultado educativa de quem respondeu).
+      client.emit('answerResult', {
+        ...answerBroadcast,
         correctIndex: out.correctIndex,
       });
       if (out.isWin) {
@@ -213,9 +221,9 @@ export class GameGateway implements OnGatewayDisconnect {
   // o snapshot completo. Emite gameState só ao remetente; sem payload obrigatório.
   @SubscribeMessage('requestState')
   async handleRequestState(@ConnectedSocket() client: Socket) {
-    const { code } = this.dataOf(client);
+    const { code, playerId } = this.dataOf(client);
     try {
-      if (!code) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
       const state = await this.sessions.getState(code);
       if (!state) throw new GameError(ErrorCode.NOT_IN_SESSION);
       client.emit('gameState', toGameState(state));

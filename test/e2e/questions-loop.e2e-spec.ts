@@ -126,7 +126,8 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
     expect(serialized).not.toContain('correctIndex');
     expect(serialized).not.toContain('proximalIndex');
 
-    // p1 responde (índice 0). answerResult é emitido para a sala.
+    // p1 responde (índice 0). answerResult: autor (c1) recebe COM correctIndex;
+    // o adversário (c2) recebe o mesmo evento SEM correctIndex (RF-16).
     const answerP = once<{
       playerId: string;
       correct: boolean;
@@ -134,15 +135,20 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
       toSquare: number;
       correctIndex: number;
     }>(c1, 'answerResult');
+    const opponentAnswerP = once<Record<string, unknown>>(c2, 'answerResult');
     c1.emit('submitAnswer', { questionId: prompt.questionId, optionIndex: 0 });
     const answer = await answerP;
     expect(answer.playerId).toBe(p1);
     expect(typeof answer.correct).toBe('boolean');
     expect(['none', 'proximal', 'wrong']).toContain(answer.errorType);
-    // RF-16: o questionPrompt não revelou correctIndex; o answerResult deve revelar.
+    // RF-16: o questionPrompt não revelou correctIndex; o autor recebe a revelação.
     expect(typeof answer.correctIndex).toBe('number');
     expect(answer.correctIndex).toBeGreaterThanOrEqual(0);
     expect(answer.correctIndex).toBeLessThan(prompt.options.length);
+    // RF-16: o adversário NÃO recebe correctIndex da pergunta que ele não respondeu.
+    const opponentAnswer = await opponentAnswerP;
+    expect(opponentAnswer).not.toHaveProperty('correctIndex');
+    expect(opponentAnswer.playerId).toBe(p1);
 
     c1.disconnect();
     c2.disconnect();
