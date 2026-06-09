@@ -82,6 +82,33 @@ e hardening/deploy permanecem na S4.
 
 **Novos ErrorCode:** NO_PENDING_QUESTION, QUESTION_MISMATCH, INVALID_OPTION, RECONNECT_FAILED.
 
+## SPRINT 3 — CONCLUÍDA ✅ (2026-06-09, backend-only — habilitação do frontend)
+
+Como o balanceamento já veio na S2 (D1), a S3 backend virou **habilitação do frontend**: o delta
+de contrato que destrava o render do tabuleiro SVG, peões e telas de pergunta/resultado — inclusive
+após refresh/reconexão. Spec em `.specs/features/sprint-3-frontend-enablement/`; contrato congelado
+em `CONTRACT-S3.md`. Origem: issue #7 ("Contrato s3"). Tudo **aditivo/retrocompatível** à S2.
+
+**Entregue (6 commits atômicos):**
+- `square` em `playerView`; `difficulty` em `lobbyState`.
+- Evento **`gameState`** (snapshot completo: board + posições + turno + dificuldade + ranking),
+  emitido em `startGame`, `reconnect` (ao remetente) e via novo handler **`requestState`**.
+- `subject` no `questionPrompt`.
+- `correctIndex` no `answerResult`, **revelado só ao autor** (sala recebe sem ele).
+
+**Decisões da S3:**
+- **gameState como evento novo** (vs. inflar lobbyState): semântica limpa — lobbyState p/ lobby,
+  gameState p/ partida.
+- **answerResult: correctIndex só ao autor** (`client.emit`); sala via `client.broadcast` sem a
+  correta. Veio da revisão de segurança (MEDIUM): broadcast da correta vazaria p/ adversários.
+- **requestState** lê `code` só do `socket.data` (vinculado pelo servidor) → sem IDOR.
+
+**Gates finais:** build ✅ · lint ✅ · **193 unit ✅** · **11 e2e ✅** (5 suites; +`game-state.e2e-spec.ts`).
+Code review ✅ aprovado. Segurança: sem críticos/altos; RF-16 preservado e reforçado.
+
+**Ressalva p/ S4 (hardening):** CORS `origin: true` em `game.gateway.ts` + `main.ts` é
+pré-existente (S1/S2) e deve virar origem explícita via env (`FRONTEND_ORIGIN`). Chip de task criado.
+
 ## Blockers
 
 - (nenhum)
