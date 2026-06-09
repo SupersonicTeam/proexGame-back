@@ -207,6 +207,21 @@ export class GameGateway implements OnGatewayDisconnect {
     }
   }
 
+  // Resync sob demanda (L3/RF-14): cliente sem estado (ex.: após refresh) pede
+  // o snapshot completo. Emite gameState só ao remetente; sem payload obrigatório.
+  @SubscribeMessage('requestState')
+  async handleRequestState(@ConnectedSocket() client: Socket) {
+    const { code } = this.dataOf(client);
+    try {
+      if (!code) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const state = await this.sessions.getState(code);
+      if (!state) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      client.emit('gameState', toGameState(state));
+    } catch (err) {
+      this.emitError(client, err);
+    }
+  }
+
   @SubscribeMessage('leaveSession')
   async handleLeaveSession(@ConnectedSocket() client: Socket) {
     const { code, playerId } = this.dataOf(client);

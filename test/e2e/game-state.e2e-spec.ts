@@ -44,6 +44,88 @@ function once<T = any>(
   });
 }
 
+describe('requestState (e2e)', () => {
+  let app: INestApplication;
+  let url: string;
+  let redis: { flushall(): Promise<unknown> };
+
+  beforeAll(async () => {
+    redis = new RedisMock() as unknown as { flushall(): Promise<unknown> };
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(REDIS_CLIENT)
+      .useValue(redis)
+      .overrideProvider(RANDOM_SOURCE)
+      .useValue(new ScriptedRandom([2, 1]))
+      .compile();
+
+    app = moduleRef.createNestApplication();
+    await app.listen(0);
+    const address = app.getHttpServer().address() as AddressInfo;
+    url = `http://127.0.0.1:${address.port}`;
+  });
+
+  afterEach(async () => {
+    await redis.flushall();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  function connect(): Socket {
+    return io(url, { transports: ['websocket'], forceNew: true });
+  }
+
+  it('cliente em partida emite requestState e recebe gameState coerente', async () => {
+    const c1 = connect();
+    const c2 = connect();
+    await Promise.all([once(c1, 'connect'), once(c2, 'connect')]);
+
+    c1.emit('createSession', { name: 'Ana', difficulty: 'normal' });
+    const created = await once<{ code: string; playerId: string }>(
+      c1,
+      'sessionCreated',
+    );
+    await new Promise((r) =>
+      c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
+    );
+    // Aguarda gameState do startGame antes de pedir o resync.
+    const startedGs = once<{ code: string }>(c1, 'gameState');
+    c1.emit('startGame');
+    await startedGs;
+
+    // Solicita resync sob demanda.
+    const resyncP = once<{
+      code: string;
+      status: string;
+      board: { size: number };
+      players: { id: string; square: number }[];
+    }>(c1, 'gameState');
+    c1.emit('requestState');
+    const snap = await resyncP;
+
+    expect(snap.code).toBe(created.code);
+    expect(snap.status).toBe('playing');
+    expect(typeof snap.board.size).toBe('number');
+    expect(snap.players).toHaveLength(2);
+
+    c1.disconnect();
+    c2.disconnect();
+  }, 20000);
+
+  it('socket sem sessão recebe error NOT_IN_SESSION', async () => {
+    const stranger = connect();
+    await once(stranger, 'connect');
+
+    const errP = once<{ code: string }>(stranger, 'error');
+    stranger.emit('requestState');
+    const err = await errP;
+    expect(err.code).toBe('NOT_IN_SESSION');
+
+    stranger.disconnect();
+  }, 10000);
+});
+
 describe('gameState snapshot (e2e)', () => {
   let app: INestApplication;
   let url: string;
