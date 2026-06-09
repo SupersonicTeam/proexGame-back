@@ -1,3 +1,4 @@
+import { buildRanking } from '../game/game.rules';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { Difficulty, Player, SessionState } from '../session/session.types';
 
@@ -65,6 +66,29 @@ export function toPlayerView(player: Player) {
     connected: player.connected,
     isHost: player.isHost,
     square: player.square,
+  };
+}
+
+// Snapshot completo de partida para (re)render do frontend. Não vaza socketId,
+// pendingQuestion, correctIndex, servedQuestionIds nem usedQuestionIds (RF-16).
+export function toGameState(state: SessionState) {
+  const currentTurnPlayerId =
+    state.status === 'playing'
+      ? (state.turnOrder[state.currentTurnIndex] ?? null)
+      : null;
+  const ranking =
+    state.status === 'finished' && state.winner
+      ? buildRanking(state, state.winner)
+      : null;
+  return {
+    code: state.code,
+    status: state.status,
+    difficulty: state.difficulty,
+    board: state.board,
+    players: state.players.map(toPlayerView),
+    currentTurnPlayerId,
+    winner: state.winner,
+    ranking,
   };
 }
 

@@ -17,6 +17,7 @@ import {
   parseReconnect,
   parseSubmitAnswer,
   SocketData,
+  toGameState,
   toLobbyState,
   toPlayerView,
 } from './gateway.dto';
@@ -89,6 +90,8 @@ export class GameGateway implements OnGatewayDisconnect {
       this.server.to(code).emit('gameStarted', { board: withBoard.board });
 
       const { state, rolls } = await this.games.resolveTurnOrder(code);
+      // Emite snapshot completo após a ordem ser resolvida (turnOrder preenchido).
+      this.server.to(code).emit('gameState', toGameState(state));
       this.server
         .to(code)
         .emit('orderResult', { rolls, turnOrder: state.turnOrder });
@@ -196,6 +199,8 @@ export class GameGateway implements OnGatewayDisconnect {
           playerId: state.turnOrder[state.currentTurnIndex],
         });
       }
+      // Snapshot completo para o reconectado renderizar tabuleiro e posições (RF-14).
+      client.emit('gameState', toGameState(state));
       return { code: dto.code, playerId: dto.playerId };
     } catch (err) {
       return this.emitError(client, err);

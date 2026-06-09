@@ -1,8 +1,9 @@
 import { ErrorCode } from '../common/errors/game-error';
-import { Player, SessionState } from '../session/session.types';
+import { Board, Player, SessionState } from '../session/session.types';
 import {
   parseReconnect,
   parseSubmitAnswer,
+  toGameState,
   toLobbyState,
   toPlayerView,
 } from './gateway.dto';
@@ -53,6 +54,65 @@ describe('toLobbyState', () => {
     for (const p of lobby.players) {
       expect(p).not.toHaveProperty('socketId');
     }
+  });
+});
+
+describe('toGameState', () => {
+  const board: Board = {
+    size: 20,
+    tileTypeBySquare: { 5: 'question' },
+    subjectBySquare: { 5: 'matematica' },
+  };
+
+  function makeState(over: Partial<SessionState> = {}): SessionState {
+    return {
+      code: '99999',
+      status: 'playing',
+      difficulty: 'normal',
+      board,
+      players: [
+        makePlayer({ id: 'p1', name: 'Ana', isHost: true, square: 3 }),
+        makePlayer({ id: 'p2', name: 'Bia', square: 1 }),
+      ],
+      turnOrder: ['p1', 'p2'],
+      currentTurnIndex: 0,
+      winner: null,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      lastActivityAt: '2026-01-01T00:00:00.000Z',
+      servedQuestionIds: [],
+      ...over,
+    };
+  }
+
+  it('retorna shape completo com currentTurnPlayerId e sem campos internos', () => {
+    const snap = toGameState(makeState());
+    expect(snap.code).toBe('99999');
+    expect(snap.status).toBe('playing');
+    expect(snap.difficulty).toBe('normal');
+    expect(snap.board).toEqual(board);
+    expect(snap.players).toHaveLength(2);
+    expect(snap.players[0].square).toBe(3);
+    expect(snap.currentTurnPlayerId).toBe('p1');
+    expect(snap.winner).toBeNull();
+    expect(snap.ranking).toBeNull();
+  });
+
+  it('currentTurnPlayerId é null quando status não é playing', () => {
+    const snap = toGameState(makeState({ status: 'lobby' }));
+    expect(snap.currentTurnPlayerId).toBeNull();
+  });
+
+  it('ranking é preenchido no status finished', () => {
+    const snap = toGameState(makeState({ status: 'finished', winner: 'p1' }));
+    expect(snap.ranking).not.toBeNull();
+    expect(snap.ranking![0].playerId).toBe('p1');
+  });
+
+  it('JSON serializado não contém socketId, correctIndex nem pendingQuestion', () => {
+    const serialized = JSON.stringify(toGameState(makeState()));
+    expect(serialized).not.toContain('secret-socket');
+    expect(serialized).not.toContain('correctIndex');
+    expect(serialized).not.toContain('pendingQuestion');
   });
 });
 
