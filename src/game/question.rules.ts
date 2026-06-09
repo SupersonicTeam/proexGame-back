@@ -61,18 +61,20 @@ export function classifyAnswer(
 // Payload público do prompt de pergunta — o ÚNICO caminho de projeção ao client.
 export interface QuestionPromptView {
   questionId: string;
+  subject: string;
   statement: string;
   options: string[];
 }
 
 /**
  * Projeta a pergunta pendente para o client. Por construção, expõe apenas
- * questionId, statement e options embaralhadas — nunca os índices da correta/
- * proximal (RF-16). Toda emissão de questionPrompt DEVE passar por aqui.
+ * questionId, subject, statement e options embaralhadas — nunca os índices da
+ * correta/proximal (RF-16). Toda emissão de questionPrompt DEVE passar por aqui.
  */
 export function toQuestionPrompt(pending: PendingQuestion): QuestionPromptView {
   return {
     questionId: pending.questionId,
+    subject: pending.subject,
     statement: pending.statement,
     options: pending.options,
   };

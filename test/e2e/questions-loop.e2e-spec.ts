@@ -105,20 +105,23 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
     // p1 rola 2 → cai na casa 2 (pergunta) → recebe questionPrompt.
     const promptP = once<{
       questionId: string;
+      subject: string;
       statement: string;
       options: string[];
     }>(c1, 'questionPrompt');
     c1.emit('rollDice');
     const prompt = await promptP;
 
-    // SEGURANÇA (RF-16): o payload tem só questionId/statement/options e NUNCA
-    // expõe qual alternativa é a correta.
+    // SEGURANÇA (RF-16): o payload tem questionId/subject/statement/options e
+    // NUNCA expõe qual alternativa é a correta.
     expect(Object.keys(prompt).sort()).toEqual([
       'options',
       'questionId',
       'statement',
+      'subject',
     ]);
     expect(prompt.options).toHaveLength(4);
+    expect(typeof prompt.subject).toBe('string');
     const serialized = JSON.stringify(prompt);
     expect(serialized).not.toContain('correctIndex');
     expect(serialized).not.toContain('proximalIndex');

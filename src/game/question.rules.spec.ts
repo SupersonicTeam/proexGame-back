@@ -96,14 +96,16 @@ describe('toQuestionPrompt — projeção SEGURA (RF-16)', () => {
     new FakeRandomSource([0, 1, 0]),
   );
 
-  it('expõe apenas questionId, statement e options', () => {
+  it('expõe apenas questionId, subject, statement e options', () => {
     const view = toQuestionPrompt(pending);
     expect(Object.keys(view).sort()).toEqual([
       'options',
       'questionId',
       'statement',
+      'subject',
     ]);
     expect(view.options).toHaveLength(4);
+    expect(view.subject).toBe('matematica');
   });
 
   it('NUNCA vaza correctIndex/proximalIndex no payload', () => {
