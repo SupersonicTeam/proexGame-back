@@ -7,6 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { resolveCorsOrigin } from '../common/config/cors';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { GameService } from '../game/game.service';
 import { ReconnectService } from '../session/reconnect.service';
@@ -25,7 +26,7 @@ import {
 // Única camada que toca sockets. Traduz eventos client→server em chamadas de
 // serviço e emite os resultados para a sala (= código da sessão). Toda a
 // lógica autoritativa vive nos serviços; o gateway não decide nada do jogo.
-@WebSocketGateway({ cors: { origin: true } })
+@WebSocketGateway({ cors: { origin: resolveCorsOrigin() } })
 export class GameGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   private server!: Server;
