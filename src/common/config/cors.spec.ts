@@ -37,6 +37,17 @@ describe('resolveCorsOrigin', () => {
     expect(resolveCorsOrigin()).toBe(true);
   });
 
+  it('trata FRONTEND_ORIGIN só com vírgulas/espaços como ausente (dev: true)', () => {
+    process.env.FRONTEND_ORIGIN = ', ,  ,';
+    expect(resolveCorsOrigin()).toBe(true);
+  });
+
+  it('aplica fail-safe em produção quando FRONTEND_ORIGIN só tem vírgulas/espaços', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.FRONTEND_ORIGIN = ', ,  ,';
+    expect(() => resolveCorsOrigin()).toThrow(/FRONTEND_ORIGIN/);
+  });
+
   it('falha (fail-safe) em produção quando FRONTEND_ORIGIN está ausente', () => {
     process.env.NODE_ENV = 'production';
     expect(() => resolveCorsOrigin()).toThrow(/FRONTEND_ORIGIN/);

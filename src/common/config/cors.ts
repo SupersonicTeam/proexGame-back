@@ -10,13 +10,14 @@
 // - Sem FRONTEND_ORIGIN, em dev/test -> espelha qualquer origem (`true`),
 //   apenas para facilitar o desenvolvimento local.
 export function resolveCorsOrigin(): string | string[] | boolean {
-  const raw = process.env.FRONTEND_ORIGIN?.trim();
+  const origins = (process.env.FRONTEND_ORIGIN ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
-  if (raw) {
-    const origins = raw
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean);
+  // Um valor só com vírgulas/espaços (origins vazio) é tratado como ausente,
+  // caindo no fail-safe de produção em vez de retornar `[]`.
+  if (origins.length > 0) {
     return origins.length === 1 ? origins[0] : origins;
   }
 

@@ -13,9 +13,10 @@ services:
       - PORT=3000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      # Origem do frontend para o CORS. Definida no .env do deploy (fail-safe: o
-      # boot falha em produção se ausente).
-      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN}
+      # Origem do frontend para o CORS. Definida no .env do deploy. A sintaxe
+      # `:?` faz o Compose abortar o deploy se a variável estiver ausente/vazia
+      # (fail-fast antes mesmo de subir o container).
+      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN:?defina FRONTEND_ORIGIN no .env do deploy}
     ports:
       - '127.0.0.1:${BACKEND_PORT:-3003}:3000'
     depends_on:
