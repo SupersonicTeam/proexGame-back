@@ -9,9 +9,13 @@ services:
     image: ghcr.io/supersonicteam/proexgame-back:${IMAGE_TAG:-latest}
     restart: unless-stopped
     environment:
+      - NODE_ENV=production
       - PORT=3000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      # Origem do frontend para o CORS. Definida no .env do deploy (fail-safe: o
+      # boot falha em produção se ausente).
+      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN}
     ports:
       - '127.0.0.1:${BACKEND_PORT:-3003}:3000'
     depends_on:
