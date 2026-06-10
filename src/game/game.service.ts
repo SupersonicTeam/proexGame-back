@@ -57,6 +57,8 @@ export interface SubmitAnswerResult {
   nextPlayerId: string | null; // null quando encadeou nova pergunta ou venceu
   ranking: RankingEntry[] | null;
   prompt: QuestionPromptView | null; // nova pergunta quando há encadeamento (RF-11)
+  // RF-16-safe: revelado APÓS a submissão para a tela de resultado educativa.
+  correctIndex: number;
 }
 
 // Orquestra as regras puras (game.rules) com a persistência para os eventos
@@ -197,18 +199,21 @@ export class GameService {
     }
 
     const errorType = classifyAnswer(pending, optionIndex);
+    // Captura correctIndex antes de limpar — será incluído no answerResult (RF-16-safe).
+    const correctIndex = pending.correctIndex;
     // Anti double-submit: limpa a pendência antes de aplicar o efeito.
     player.pendingQuestion = null;
 
     return errorType === 'none'
-      ? this.applyCorrect(state, player)
-      : this.applyError(state, player, errorType);
+      ? this.applyCorrect(state, player, correctIndex)
+      : this.applyError(state, player, errorType, correctIndex);
   }
 
   // Acerto: avança (tier/dificuldade + nudge), vence, encadeia ou passa o turno.
   private async applyCorrect(
     state: SessionState,
     player: Player,
+    correctIndex: number,
   ): Promise<SubmitAnswerResult> {
     const movement = resolveCorrectMovement(state, player.id, this.rng);
     player.square = movement.toSquare;
@@ -220,6 +225,7 @@ export class GameService {
       fromSquare: movement.fromSquare,
       toSquare: movement.toSquare,
       movement: movement.toSquare - movement.fromSquare,
+      correctIndex,
     };
 
     if (movement.isWin) {
@@ -262,6 +268,7 @@ export class GameService {
     state: SessionState,
     player: Player,
     errorType: 'proximal' | 'wrong',
+    correctIndex: number,
   ): Promise<SubmitAnswerResult> {
     const movement = resolveErrorMovement(state, player.id, errorType);
     player.square = movement.toSquare;
@@ -279,6 +286,7 @@ export class GameService {
       nextPlayerId,
       ranking: null,
       prompt: null,
+      correctIndex,
     };
   }
 

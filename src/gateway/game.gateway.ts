@@ -18,6 +18,7 @@ import {
   parseReconnect,
   parseSubmitAnswer,
   SocketData,
+  toGameState,
   toLobbyState,
   toPlayerView,
 } from './gateway.dto';
@@ -90,6 +91,8 @@ export class GameGateway implements OnGatewayDisconnect {
       this.server.to(code).emit('gameStarted', { board: withBoard.board });
 
       const { state, rolls } = await this.games.resolveTurnOrder(code);
+      // Emite snapshot completo após a ordem ser resolvida (turnOrder preenchido).
+      this.server.to(code).emit('gameState', toGameState(state));
       this.server
         .to(code)
         .emit('orderResult', { rolls, turnOrder: state.turnOrder });
@@ -150,13 +153,23 @@ export class GameGateway implements OnGatewayDisconnect {
         dto.questionId,
         dto.optionIndex,
       );
-      this.server.to(code).emit('answerResult', {
+      // Resultado do movimento vai para a sala (anima tabuleiro) SEM a correta —
+      // adversários não devem saber qual era a alternativa correta da pergunta alheia.
+      const answerBroadcast = {
         playerId: out.playerId,
         correct: out.correct,
         errorType: out.errorType,
         movement: out.movement,
         fromSquare: out.fromSquare,
         toSquare: out.toSquare,
+      };
+      // Todos menos o autor: sem correctIndex.
+      client.broadcast.to(code).emit('answerResult', answerBroadcast);
+      // Só o autor: inclui correctIndex (RF-16-safe — revelado APÓS a submissão,
+      // exclusivamente para a tela de resultado educativa de quem respondeu).
+      client.emit('answerResult', {
+        ...answerBroadcast,
+        correctIndex: out.correctIndex,
       });
       if (out.isWin) {
         this.server
@@ -197,9 +210,31 @@ export class GameGateway implements OnGatewayDisconnect {
           playerId: state.turnOrder[state.currentTurnIndex],
         });
       }
+      // Snapshot completo para o reconectado renderizar tabuleiro e posições (RF-14).
+      client.emit('gameState', toGameState(state));
       return { code: dto.code, playerId: dto.playerId };
     } catch (err) {
       return this.emitError(client, err);
+    }
+  }
+
+  // Resync sob demanda (L3/RF-14): cliente sem estado (ex.: após refresh) pede
+  // o snapshot completo. Emite gameState só ao remetente; sem payload obrigatório.
+  @SubscribeMessage('requestState')
+  async handleRequestState(@ConnectedSocket() client: Socket) {
+    const { code, playerId } = this.dataOf(client);
+    try {
+      if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const state = await this.sessions.getState(code);
+      if (!state) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      // Valida membership: um socket cujo jogador já saiu/foi removido (sem limpar
+      // socket.data, ex.: após leaveSession) não pode mais puxar o estado da sessão.
+      if (!state.players.some((p) => p.id === playerId)) {
+        throw new GameError(ErrorCode.NOT_IN_SESSION);
+      }
+      client.emit('gameState', toGameState(state));
+    } catch (err) {
+      this.emitError(client, err);
     }
   }
 
