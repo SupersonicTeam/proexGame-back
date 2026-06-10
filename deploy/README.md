@@ -53,7 +53,7 @@ cd /opt/proexgame-deploy
 cp /caminho/deploy/docker-compose.prod.yml ./docker-compose.prod.yml
 cp /caminho/deploy/.env.example ./.env      # ajuste IMAGE_TAG/BACKEND_PORT se quiser
 #   IMPORTANTE: defina FRONTEND_ORIGIN com o domínio público do front (ex.:
-#   https://jogo.seudominio.com). Em produção (NODE_ENV=production) o backend
+#   https://jogar.weissmurillo.de). Em produção (NODE_ENV=production) o backend
 #   recusa subir sem essa variável — é o hardening do CORS (sem origin:true).
 
 # 2.4 Primeira subida (a primeira imagem precisa já existir no ghcr — ver Parte 4)
