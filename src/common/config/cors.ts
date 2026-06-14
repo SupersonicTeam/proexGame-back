@@ -13,6 +13,10 @@ export function resolveCorsOrigin(): string | string[] | boolean {
   const origins = (process.env.FRONTEND_ORIGIN ?? '')
     .split(',')
     .map((origin) => origin.trim())
+    // Remove barra(s) final(is): o header `Origin` do browser nunca tem barra,
+    // então `https://dominio/` não casaria com `https://dominio` e o WebSocket
+    // seria rejeitado mesmo com a variável "definida corretamente".
+    .map((origin) => origin.replace(/\/+$/, ''))
     .filter(Boolean);
 
   // Um valor só com vírgulas/espaços (origins vazio) é tratado como ausente,

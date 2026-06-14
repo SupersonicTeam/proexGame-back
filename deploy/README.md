@@ -55,6 +55,8 @@ cp /caminho/deploy/.env.example ./.env      # ajuste IMAGE_TAG/BACKEND_PORT se q
 #   IMPORTANTE: defina FRONTEND_ORIGIN com o domínio público do front (ex.:
 #   https://jogar.weissmurillo.de). Em produção (NODE_ENV=production) o backend
 #   recusa subir sem essa variável — é o hardening do CORS (sem origin:true).
+#   NÃO use barra final (https://dominio/): o backend normaliza, mas evite —
+#   o header Origin do browser nunca tem barra. Múltiplas origens: separe por vírgula.
 
 # 2.4 Primeira subida (a primeira imagem precisa já existir no ghcr — ver Parte 4)
 docker compose -f docker-compose.prod.yml pull
