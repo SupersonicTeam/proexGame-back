@@ -14,6 +14,13 @@ import {
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
+// Limite de exibição do nome: nomes maiores quebram o layout do tabuleiro/lobby.
+const MAX_NAME_LENGTH = 24;
+// Caracteres de controle (C0 0x00–0x1F, DEL 0x7F, C1 0x80–0x9F): removidos para
+// preservar a integridade do layout e dos logs. NÃO é mitigação de XSS — o
+// escape/sanitização de HTML é responsabilidade do client ao renderizar o nome.
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHARS = /[\u0000-\u001f\u007f-\u009f]/g;
 
 // Regras de lobby/presença: criar, entrar, iniciar, sair, desconectar.
 // Validações lançam GameError(code), traduzido pelo gateway em evento `error`.
@@ -208,10 +215,18 @@ export class SessionService {
     return state;
   }
 
+  // Sanitiza o nome enviado pelo jogador antes de projetá-lo a todos os clients
+  // (lobbyState/playerJoined/gameState). Remove caracteres de controle e limita
+  // o tamanho; só rejeita (INVALID_NAME) quando nada útil sobra, para não
+  // atrapalhar o jogador com truncamento/limpeza silenciosos.
   private validateName(name: string): string {
-    const clean = (name ?? '').trim();
-    if (clean.length === 0) throw new GameError(ErrorCode.INVALID_NAME);
-    return clean;
+    const sanitized = (name ?? '').replace(CONTROL_CHARS, '').trim();
+    if (sanitized.length === 0) throw new GameError(ErrorCode.INVALID_NAME);
+    // Trunca por code points (Array.from itera por code points) para não cortar
+    // um par substituto ao meio — ex.: emoji — gerando surrogate inválido. Novo
+    // trim após o corte evita um nome terminado em espaço quando o limite cai
+    // logo após um espaço interno.
+    return Array.from(sanitized).slice(0, MAX_NAME_LENGTH).join('').trim();
   }
 
   private makePlayer(
