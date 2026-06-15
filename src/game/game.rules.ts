@@ -3,7 +3,6 @@ import {
   Board,
   Difficulty,
   RankingEntry,
-  Roll,
   SessionState,
   TileType,
 } from '../session/session.types';
@@ -65,48 +64,8 @@ export function resolveMovement(
   };
 }
 
-export interface OrderResult {
-  turnOrder: string[];
-  rolls: Roll[]; // rolls da primeira rolagem (para emitir em orderResult)
-}
-
-// Resolve a ordem de turnos: ordena por maior valor; empates são desfeitos
-// re-rolando recursivamente apenas entre os empatados (RF-04).
-export function resolveOrder(
-  playerIds: string[],
-  rng: RandomSource,
-): OrderResult {
-  const rolls: Roll[] = playerIds.map((playerId) => ({
-    playerId,
-    value: rollDie(rng),
-  }));
-  const turnOrder = orderByRolls(rolls, rng);
-  return { turnOrder, rolls };
-}
-
-// Ordena ids por valor desc; cada grupo empatado é re-rolado entre si.
-function orderByRolls(rolls: Roll[], rng: RandomSource): string[] {
-  // Agrupa ids por valor rolado.
-  const byValue = new Map<number, string[]>();
-  for (const { playerId, value } of rolls) {
-    const group = byValue.get(value) ?? [];
-    group.push(playerId);
-    byValue.set(value, group);
-  }
-  // Valores distintos do maior para o menor.
-  const values = [...byValue.keys()].sort((a, b) => b - a);
-  const ordered: string[] = [];
-  for (const value of values) {
-    const group = byValue.get(value) as string[];
-    if (group.length === 1) {
-      ordered.push(group[0]);
-    } else {
-      // Desempate: re-rola só entre os empatados.
-      ordered.push(...resolveOrder(group, rng).turnOrder);
-    }
-  }
-  return ordered;
-}
+// A ordem de turnos (RF-04) agora é resolvida na fase interativa de ordenação —
+// ver game/ordering.rules.ts (cada jogador rola; empates re-rolam entre si).
 
 // Próximo índice de turno cujo jogador está conectado (circular).
 // Se ninguém mais estiver conectado, mantém o índice atual (evita loop infinito).

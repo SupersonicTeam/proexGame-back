@@ -80,6 +80,7 @@ describe('toGameState', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
       lastActivityAt: '2026-01-01T00:00:00.000Z',
       servedQuestionIds: [],
+      ordering: null,
       ...over,
     };
   }
@@ -100,6 +101,24 @@ describe('toGameState', () => {
   it('currentTurnPlayerId é null quando status não é playing', () => {
     const snap = toGameState(makeState({ status: 'lobby' }));
     expect(snap.currentTurnPlayerId).toBeNull();
+  });
+
+  it('projeta ordering em status ordering (round + pendentes + quem rolou)', () => {
+    const ordering = {
+      groups: [['p1', 'p2']],
+      currentRolls: { p1: 4 },
+      round: 1,
+      history: [],
+    };
+    const snap = toGameState(makeState({ status: 'ordering', ordering }));
+    expect(snap.ordering).toEqual({
+      round: 1,
+      playersToRoll: ['p1', 'p2'],
+      rolled: ['p1'],
+    });
+    expect(snap.currentTurnPlayerId).toBeNull();
+    // Fora da fase de ordem → ordering é null.
+    expect(toGameState(makeState()).ordering).toBeNull();
   });
 
   it('ranking é preenchido no status finished', () => {
@@ -123,22 +142,22 @@ describe('parseSubmitAnswer', () => {
     ).toEqual({ questionId: 'mat-0001', optionIndex: 2 });
   });
 
-  it('rejeita questionId ausente/vazio com QUESTION_MISMATCH', () => {
+  it('rejeita questionId ausente/vazio com INVALID_PAYLOAD (P5)', () => {
     expect(() => parseSubmitAnswer({ optionIndex: 0 })).toThrow(
-      expect.objectContaining({ code: ErrorCode.QUESTION_MISMATCH }),
+      expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
     );
     expect(() =>
       parseSubmitAnswer({ questionId: '  ', optionIndex: 0 }),
-    ).toThrow(expect.objectContaining({ code: ErrorCode.QUESTION_MISMATCH }));
+    ).toThrow(expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }));
   });
 
-  it('rejeita optionIndex não-inteiro com INVALID_OPTION', () => {
+  it('rejeita optionIndex não-inteiro com INVALID_PAYLOAD (P5)', () => {
     expect(() =>
       parseSubmitAnswer({ questionId: 'x', optionIndex: 1.5 }),
-    ).toThrow(expect.objectContaining({ code: ErrorCode.INVALID_OPTION }));
+    ).toThrow(expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }));
     expect(() =>
       parseSubmitAnswer({ questionId: 'x', optionIndex: 'a' }),
-    ).toThrow(expect.objectContaining({ code: ErrorCode.INVALID_OPTION }));
+    ).toThrow(expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }));
   });
 });
 
@@ -150,18 +169,18 @@ describe('parseReconnect', () => {
     });
   });
 
-  it('rejeita code mal-formado com RECONNECT_FAILED', () => {
+  it('rejeita code mal-formado com INVALID_PAYLOAD (P5)', () => {
     expect(() => parseReconnect({ code: '12', playerId: 'x' })).toThrow(
-      expect.objectContaining({ code: ErrorCode.RECONNECT_FAILED }),
+      expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
     );
     expect(() => parseReconnect({ code: 'abcde', playerId: 'x' })).toThrow(
-      expect.objectContaining({ code: ErrorCode.RECONNECT_FAILED }),
+      expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
     );
   });
 
-  it('rejeita playerId ausente com RECONNECT_FAILED', () => {
+  it('rejeita playerId ausente com INVALID_PAYLOAD (P5)', () => {
     expect(() => parseReconnect({ code: '12345' })).toThrow(
-      expect.objectContaining({ code: ErrorCode.RECONNECT_FAILED }),
+      expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
     );
   });
 });

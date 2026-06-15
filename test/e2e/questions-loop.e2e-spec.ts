@@ -9,6 +9,7 @@ import {
   RandomSource,
 } from '../../src/common/random/random.source';
 import { REDIS_CLIENT } from '../../src/redis/redis.constants';
+import { startMatch } from './helpers';
 
 // RNG roteirizado: int() devolve sempre o mínimo do intervalo → tabuleiro
 // determinístico (N=20, presídio na casa 1, perguntas nas casas 2..12, todas da
@@ -93,14 +94,16 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
       'sessionCreated',
     );
     const p1 = created.playerId;
-    await new Promise((r) =>
+    const joined = await new Promise<{ playerId: string }>((r) =>
       c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
     );
 
-    const firstTurn = once<{ playerId: string }>(c1, 'turnChanged');
-    c1.emit('startGame');
-    const current = (await firstTurn).playerId;
-    expect(current).toBe(p1); // ordem [p1, p2]
+    // Fase de ordem interativa (RF-04): roteiro [p1,p2] = [2,1] → p1 começa.
+    const { firstPlayerId } = await startMatch(c1, [
+      { socket: c1, playerId: p1 },
+      { socket: c2, playerId: joined.playerId },
+    ]);
+    expect(firstPlayerId).toBe(p1); // ordem [p1, p2]
 
     // p1 rola 2 → cai na casa 2 (pergunta) → recebe questionPrompt.
     const promptP = once<{
@@ -164,12 +167,13 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
       c1,
       'sessionCreated',
     );
-    await new Promise((r) =>
+    const joined = await new Promise<{ playerId: string }>((r) =>
       c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
     );
-    const firstTurn = once<{ playerId: string }>(c1, 'turnChanged');
-    c1.emit('startGame');
-    await firstTurn;
+    await startMatch(c1, [
+      { socket: c1, playerId: created.playerId },
+      { socket: c2, playerId: joined.playerId },
+    ]);
 
     // p1 ainda não rolou → não há pergunta pendente.
     const errP = once<{ code: string }>(c1, 'error');
