@@ -96,6 +96,57 @@ describe('SessionService.createSession', () => {
   });
 });
 
+describe('SessionService — saneamento do nome', () => {
+  const NAME_LIMIT = 24;
+
+  it('mantém um nome exatamente no limite de 24 caracteres', async () => {
+    const { service } = build();
+    const name = 'A'.repeat(NAME_LIMIT);
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    expect(state.players[0].name).toBe(name);
+    expect(state.players[0].name).toHaveLength(NAME_LIMIT);
+  });
+
+  it('trunca um nome acima do limite para 24 caracteres', async () => {
+    const { service } = build();
+    const name = 'A'.repeat(NAME_LIMIT + 10);
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    expect(state.players[0].name).toBe('A'.repeat(NAME_LIMIT));
+    expect(state.players[0].name).toHaveLength(NAME_LIMIT);
+  });
+
+  it('remove caracteres de controle, preservando espaços internos', async () => {
+    const { service } = build();
+    // NUL e BEL no meio, DEL no fim → removidos; o espaço entre nomes fica.
+    const { state } = await service.createSession(
+      'An\x00a \x07Bia\x7f',
+      'normal',
+      'sock-1',
+    );
+    expect(state.players[0].name).toBe('Ana Bia');
+  });
+
+  it('rejeita com INVALID_NAME um nome só com caracteres de controle', async () => {
+    const { service } = build();
+    await expect(
+      service.createSession('\x00\x07\x7f', 'normal', 'sock-1'),
+    ).rejects.toMatchObject({
+      code: ErrorCode.INVALID_NAME,
+    });
+  });
+
+  it('trunca por code points sem quebrar um par substituto (emoji)', async () => {
+    const { service } = build();
+    // 23 letras + emoji (2 unidades UTF-16) no exato limite, + sobra a descartar.
+    const name = 'A'.repeat(NAME_LIMIT - 1) + '😀' + 'BBB';
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    const result = state.players[0].name;
+    // 24 code points, com o emoji preservado inteiro (sem surrogate solitário).
+    expect(Array.from(result)).toHaveLength(NAME_LIMIT);
+    expect(result).toBe('A'.repeat(NAME_LIMIT - 1) + '😀');
+  });
+});
+
 describe('SessionService.joinSession', () => {
   async function withLobby() {
     const ctx = build([1, 2, 3, 4, 5]);
