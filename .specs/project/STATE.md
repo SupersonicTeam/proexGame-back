@@ -155,9 +155,43 @@ rodada em `orderResult` (re-rolls de empate invisíveis). Decisão do Murilo: **
 - **`CONTRACT.md` na raiz** — contrato WS consolidado e autoritativo p/ o frontend (supersede os
   CONTRACT-S1/S2/S3, mantidos como histórico).
 
-**Achados de code-review NÃO corrigidos (registrados):** P2 atomicidade (read-modify-write sem
-lock; risco baixo em ≤20 users/turnos alternados; double-click em `rollDice` etc.) · P4 nome sem
-`maxLength`/sanitização (risco de XSS no front se não escapar; limitar a ~24 chars).
+**Achados de code-review NÃO corrigidos (registrados):** ~~P2 atomicidade~~ **(RESOLVIDO em
+2026-06-15 — ver seção abaixo)** · P4 nome sem `maxLength`/sanitização (risco de XSS no front se
+não escapar; limitar a ~24 chars).
+
+## SPRINT 4 — Atomicidade/lock de sessão (P2) (2026-06-15)
+
+Corrigido o achado P2 do code-review: o `SessionState` sofria read-modify-write
+(`findByCode` → mutação em memória → `save`) sem lock/CAS, com risco de lost-update e ações
+duplicadas sob eventos concorrentes da mesma sessão (double-click em `rollDice`, `submitAnswer`
+duplicado, disconnect concorrente).
+
+**Decisão — estratégia (a): mutex in-process por `code`.** Escolhida sobre (b) versão otimista
+(CAS via WATCH/Lua) por simplicidade e por ser suficiente ao escopo: single-node, evento único,
+≤20 usuários, turnos alternados. CAS só agregaria complexidade para cobrir multi-instância, que
+está **fora do escopo** (SPEC.mc). **Limitação documentada:** o lock serializa apenas DENTRO do
+processo Node; multi-instância exigiria lock distribuído (Redis) ou CAS por `version`.
+
+**Entregue (TDD; build/lint/226 unit/13 e2e ✅):**
+- **`src/session/session.lock.ts` — `SessionLock`:** mutex por chave via encadeamento de Promises
+  (uma fila por `code`; chaves distintas correm em paralelo; limpa a entrada quando a fila esvazia).
+  Provido e exportado pelo `SessionModule`; o `GameModule` injeta a **mesma instância** (serialização
+  global entre `SessionService` e `GameService`).
+- **Serialização aplicada nas operações-folha de escrita** de `SessionService` (`joinSession`,
+  `startGame`, `leaveSession`, `returnToLobby`, `markDisconnected`, `reconnect`,
+  `expireDisconnectedPlayer`) e `GameService` (`setupBoard`, `beginOrdering`, `rollForOrder`,
+  `applyDiceRoll`, `submitAnswer`, `startTurnSkipIfNeeded`, `passTurnIfDisconnected`).
+  `createSession` permanece atômico via SET NX (sem lock). `autoRollPendingDisconnected` **não** é
+  travado — é orquestrador e chama `rollForOrder` (que já trava); travá-lo causaria deadlock reentrante.
+- **Guarda complementar `ANSWER_PENDING` em `applyDiceRoll`:** o lock sozinho não fecha o
+  double-click em `rollDice` quando a 1ª rolagem cai em casa-pergunta (o turno NÃO passa, então
+  `NOT_YOUR_TURN` não barra a 2ª). A guarda rejeita rolar com pergunta pendente (RF-08). Novo
+  `ErrorCode.ANSWER_PENDING` (aditivo ao contrato — registrado em `CONTRACT.md`).
+- **Testes:** `session.lock.spec.ts` (serialização FIFO, isolamento por chave, robustez a erro na
+  fila, sem vazamento de Map); unit de concorrência em `game.service.spec.ts` (duas `applyDiceRoll`
+  → 1 movimento + `NOT_YOUR_TURN`; dois `submitAnswer` → 1 processado + `NO_PENDING_QUESTION`;
+  guarda `ANSWER_PENDING`); e2e `concurrency.e2e-spec.ts` (double-click em `rollDice` → 1 `diceResult`
+  + 1 `error`, determinístico para qualquer tabuleiro). E2e validado 3× sem flakiness.
 
 ## Blockers
 

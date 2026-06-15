@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { RANDOM_SOURCE, RandomSource } from '../common/random/random.source';
 import { QuestionBankService } from '../questions/question-bank.service';
+import { SessionLock } from '../session/session.lock';
 import { SessionRepository } from '../session/session.repository';
 import {
   Player,
@@ -90,12 +91,20 @@ export interface SubmitAnswerResult {
 
 // Orquestra as regras puras (game.rules) com a persistência para os eventos
 // de jogo. Toda decisão aleatória vem do servidor (RF-16).
+//
+// Cada operação-folha de ESCRITA (setupBoard, beginOrdering, rollForOrder,
+// applyDiceRoll, submitAnswer, startTurnSkipIfNeeded, passTurnIfDisconnected)
+// roda sob SessionLock por `code` — a MESMA instância do SessionService, então a
+// serialização por código é global entre os dois serviços (achado P2).
+// autoRollPendingDisconnected é orquestrador e NÃO é envolvido: ele chama
+// rollForOrder (que já trava), e travá-lo de novo causaria deadlock reentrante.
 @Injectable()
 export class GameService {
   constructor(
     private readonly repo: SessionRepository,
     @Inject(RANDOM_SOURCE) private readonly rng: RandomSource,
     private readonly questionBank: QuestionBankService,
+    private readonly lock: SessionLock,
   ) {}
 
   // Gera o tabuleiro procedural da partida (RF-06/07/17/18) e persiste. Roda no
@@ -103,26 +112,30 @@ export class GameService {
   // banco para as casas-pergunta. Fica aqui (e não no SessionService) porque o
   // GameService já possui rng + QuestionBank — evita dependência circular.
   async setupBoard(code: string): Promise<SessionState> {
-    const state = await this.requireSession(code);
-    state.board = generateBoard(
-      state.difficulty,
-      this.questionBank.subjects(),
-      this.rng,
-    );
-    await this.repo.save(state);
-    return state;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      state.board = generateBoard(
+        state.difficulty,
+        this.questionBank.subjects(),
+        this.rng,
+      );
+      await this.repo.save(state);
+      return state;
+    });
   }
 
   // Inicia a fase interativa de ordem (RF-04): zera a ordem anterior e cria o
   // estado de ordenação com todos empatados na rodada 1. Roda após setupBoard.
   // Retorna quem precisa rolar agora para o gateway emitir o primeiro orderPhase.
   async beginOrdering(code: string): Promise<BeginOrderingResult> {
-    const state = await this.requireSession(code);
-    state.ordering = startOrdering(state.players.map((p) => p.id));
-    state.turnOrder = [];
-    state.currentTurnIndex = 0;
-    await this.repo.save(state);
-    return { state, playersToRoll: playersToRoll(state.ordering) };
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      state.ordering = startOrdering(state.players.map((p) => p.id));
+      state.turnOrder = [];
+      state.currentTurnIndex = 0;
+      await this.repo.save(state);
+      return { state, playersToRoll: playersToRoll(state.ordering) };
+    });
   }
 
   // Processa a rolagem de UM jogador na fase de ordem (RF-04). Valida que a fase
@@ -133,44 +146,46 @@ export class GameService {
     code: string,
     playerId: string,
   ): Promise<OrderRollOutcome> {
-    const state = await this.requireSession(code);
-    if (state.status !== 'ordering' || !state.ordering) {
-      throw new GameError(ErrorCode.ORDER_NOT_ACTIVE);
-    }
-    if (!playersToRoll(state.ordering).includes(playerId)) {
-      throw new GameError(ErrorCode.NOT_ROLLING_FOR_ORDER);
-    }
-    if (hasRolled(state.ordering, playerId)) {
-      throw new GameError(ErrorCode.ALREADY_ROLLED_FOR_ORDER);
-    }
-
-    const value = rollDie(this.rng);
-    state.ordering = recordOrderRoll(state.ordering, playerId, value);
-    const round = state.ordering.round;
-
-    let finalize: OrderRollOutcome['finalize'] = null;
-    let nextRound: OrderRollOutcome['nextRound'] = null;
-
-    if (isRoundComplete(state.ordering)) {
-      state.ordering = resolveRound(state.ordering);
-      if (isOrderingResolved(state.ordering)) {
-        const turnOrder = orderingTurnOrder(state.ordering);
-        const rounds = state.ordering.history;
-        state.turnOrder = turnOrder;
-        state.currentTurnIndex = 0;
-        state.status = 'playing';
-        state.ordering = null;
-        finalize = { rounds, turnOrder, firstPlayerId: turnOrder[0] };
-      } else {
-        nextRound = {
-          round: state.ordering.round,
-          playersToRoll: playersToRoll(state.ordering),
-        };
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      if (state.status !== 'ordering' || !state.ordering) {
+        throw new GameError(ErrorCode.ORDER_NOT_ACTIVE);
       }
-    }
+      if (!playersToRoll(state.ordering).includes(playerId)) {
+        throw new GameError(ErrorCode.NOT_ROLLING_FOR_ORDER);
+      }
+      if (hasRolled(state.ordering, playerId)) {
+        throw new GameError(ErrorCode.ALREADY_ROLLED_FOR_ORDER);
+      }
 
-    await this.repo.save(state);
-    return { state, playerId, value, round, finalize, nextRound };
+      const value = rollDie(this.rng);
+      state.ordering = recordOrderRoll(state.ordering, playerId, value);
+      const round = state.ordering.round;
+
+      let finalize: OrderRollOutcome['finalize'] = null;
+      let nextRound: OrderRollOutcome['nextRound'] = null;
+
+      if (isRoundComplete(state.ordering)) {
+        state.ordering = resolveRound(state.ordering);
+        if (isOrderingResolved(state.ordering)) {
+          const turnOrder = orderingTurnOrder(state.ordering);
+          const rounds = state.ordering.history;
+          state.turnOrder = turnOrder;
+          state.currentTurnIndex = 0;
+          state.status = 'playing';
+          state.ordering = null;
+          finalize = { rounds, turnOrder, firstPlayerId: turnOrder[0] };
+        } else {
+          nextRound = {
+            round: state.ordering.round,
+            playersToRoll: playersToRoll(state.ordering),
+          };
+        }
+      }
+
+      await this.repo.save(state);
+      return { state, playerId, value, round, finalize, nextRound };
+    });
   }
 
   // Robustez (RF-04): se um jogador desconecta durante a ordenação e ainda devia
@@ -204,68 +219,78 @@ export class GameService {
     code: string,
     playerId: string,
   ): Promise<ApplyDiceResult> {
-    const state = await this.requireSession(code);
-    // Não-ativo OU ordem ainda não resolvida → não há rolagem válida.
-    if (state.status !== 'playing' || state.turnOrder.length === 0) {
-      throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
-    }
-    const currentPlayerId = state.turnOrder[state.currentTurnIndex];
-    if (currentPlayerId !== playerId) {
-      throw new GameError(ErrorCode.NOT_YOUR_TURN);
-    }
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      // Não-ativo OU ordem ainda não resolvida → não há rolagem válida.
+      if (state.status !== 'playing' || state.turnOrder.length === 0) {
+        throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
+      }
+      const currentPlayerId = state.turnOrder[state.currentTurnIndex];
+      if (currentPlayerId !== playerId) {
+        throw new GameError(ErrorCode.NOT_YOUR_TURN);
+      }
 
-    const value = rollDie(this.rng);
-    const { fromSquare, toSquare, isWin, tileType } = resolveMovement(
-      state,
-      playerId,
-      value,
-    );
+      const player = state.players.find((p) => p.id === playerId)!;
+      // Pergunta pendente bloqueia novas rolagens (RF-08): o jogador deve
+      // responder antes de agir de novo. Fecha o double-click em rollDice
+      // quando a 1ª rolagem caiu em casa-pergunta — caso em que o turno NÃO
+      // passou, então a checagem de NOT_YOUR_TURN sozinha não barraria a 2ª.
+      if (player.pendingQuestion) {
+        throw new GameError(ErrorCode.ANSWER_PENDING);
+      }
 
-    const player = state.players.find((p) => p.id === playerId)!;
-    player.square = toSquare;
+      const value = rollDie(this.rng);
+      const { fromSquare, toSquare, isWin, tileType } = resolveMovement(
+        state,
+        playerId,
+        value,
+      );
 
-    // Vitória (chega-ou-passa): encerra a partida imediatamente (RF-12).
-    if (isWin) {
-      state.status = 'finished';
-      state.winner = playerId;
-      const ranking = buildRanking(state, playerId);
-      await this.repo.save(state);
-      return this.diceResult(state, playerId, value, fromSquare, toSquare, {
-        isWin: true,
-        nextPlayerId: null,
-        ranking,
-        prompt: null,
-      });
-    }
+      player.square = toSquare;
 
-    // Aterrissagem em casa-pergunta: dispara pergunta e NÃO passa o turno (RF-08).
-    if (tileType === 'question') {
-      const prompt = this.tryStartQuestion(state, player, toSquare);
-      if (prompt) {
+      // Vitória (chega-ou-passa): encerra a partida imediatamente (RF-12).
+      if (isWin) {
+        state.status = 'finished';
+        state.winner = playerId;
+        const ranking = buildRanking(state, playerId);
         await this.repo.save(state);
         return this.diceResult(state, playerId, value, fromSquare, toSquare, {
-          isWin: false,
-          nextPlayerId: null, // aguarda submitAnswer
-          ranking: null,
-          prompt,
+          isWin: true,
+          nextPlayerId: null,
+          ranking,
+          prompt: null,
         });
       }
-      // Banco esgotado para a matéria: trata como casa normal (não trava o jogo).
-    }
 
-    // Aterrissagem em presídio via dado: perde a próxima jogada (RF-19/20).
-    if (tileType === 'prison') {
-      player.skipTurns += 1;
-    }
+      // Aterrissagem em casa-pergunta: dispara pergunta e NÃO passa o turno (RF-08).
+      if (tileType === 'question') {
+        const prompt = this.tryStartQuestion(state, player, toSquare);
+        if (prompt) {
+          await this.repo.save(state);
+          return this.diceResult(state, playerId, value, fromSquare, toSquare, {
+            isWin: false,
+            nextPlayerId: null, // aguarda submitAnswer
+            ranking: null,
+            prompt,
+          });
+        }
+        // Banco esgotado para a matéria: trata como casa normal (não trava o jogo).
+      }
 
-    // Casa normal (ou fallbacks acima): passa o turno.
-    state.currentTurnIndex = nextConnectedTurnIndex(state);
-    await this.repo.save(state);
-    return this.diceResult(state, playerId, value, fromSquare, toSquare, {
-      isWin: false,
-      nextPlayerId: state.turnOrder[state.currentTurnIndex],
-      ranking: null,
-      prompt: null,
+      // Aterrissagem em presídio via dado: perde a próxima jogada (RF-19/20).
+      if (tileType === 'prison') {
+        player.skipTurns += 1;
+      }
+
+      // Casa normal (ou fallbacks acima): passa o turno.
+      state.currentTurnIndex = nextConnectedTurnIndex(state);
+      await this.repo.save(state);
+      return this.diceResult(state, playerId, value, fromSquare, toSquare, {
+        isWin: false,
+        nextPlayerId: state.turnOrder[state.currentTurnIndex],
+        ranking: null,
+        prompt: null,
+      });
     });
   }
 
@@ -278,35 +303,39 @@ export class GameService {
     questionId: string,
     optionIndex: number,
   ): Promise<SubmitAnswerResult> {
-    const state = await this.requireSession(code);
-    if (state.status !== 'playing' || state.turnOrder.length === 0) {
-      throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
-    }
-    const player = state.players.find((p) => p.id === playerId);
-    if (!player || !player.pendingQuestion) {
-      throw new GameError(ErrorCode.NO_PENDING_QUESTION);
-    }
-    const pending = player.pendingQuestion;
-    if (pending.questionId !== questionId) {
-      throw new GameError(ErrorCode.QUESTION_MISMATCH);
-    }
-    if (
-      !Number.isInteger(optionIndex) ||
-      optionIndex < 0 ||
-      optionIndex >= pending.options.length
-    ) {
-      throw new GameError(ErrorCode.INVALID_OPTION);
-    }
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      if (state.status !== 'playing' || state.turnOrder.length === 0) {
+        throw new GameError(ErrorCode.GAME_NOT_ACTIVE);
+      }
+      const player = state.players.find((p) => p.id === playerId);
+      if (!player || !player.pendingQuestion) {
+        throw new GameError(ErrorCode.NO_PENDING_QUESTION);
+      }
+      const pending = player.pendingQuestion;
+      if (pending.questionId !== questionId) {
+        throw new GameError(ErrorCode.QUESTION_MISMATCH);
+      }
+      if (
+        !Number.isInteger(optionIndex) ||
+        optionIndex < 0 ||
+        optionIndex >= pending.options.length
+      ) {
+        throw new GameError(ErrorCode.INVALID_OPTION);
+      }
 
-    const errorType = classifyAnswer(pending, optionIndex);
-    // Captura correctIndex antes de limpar — será incluído no answerResult (RF-16-safe).
-    const correctIndex = pending.correctIndex;
-    // Anti double-submit: limpa a pendência antes de aplicar o efeito.
-    player.pendingQuestion = null;
+      const errorType = classifyAnswer(pending, optionIndex);
+      // Captura correctIndex antes de limpar — incluído no answerResult (RF-16-safe).
+      const correctIndex = pending.correctIndex;
+      // Anti double-submit: limpa a pendência antes de aplicar o efeito. Sob o
+      // SessionLock, uma 2ª submissão concorrente lê o estado já salvo (pendência
+      // nula) e cai em NO_PENDING_QUESTION — uma única submissão é processada.
+      player.pendingQuestion = null;
 
-    return errorType === 'none'
-      ? this.applyCorrect(state, player, correctIndex)
-      : this.applyError(state, player, errorType, correctIndex);
+      return errorType === 'none'
+        ? this.applyCorrect(state, player, correctIndex)
+        : this.applyError(state, player, errorType, correctIndex);
+    });
   }
 
   // Acerto: avança (tier/dificuldade + nudge), vence, encadeia ou passa o turno.
@@ -447,19 +476,25 @@ export class GameService {
     remaining: number;
     nextPlayerId: string;
   } | null> {
-    const state = await this.repo.findByCode(code);
-    if (!state || state.status !== 'playing' || state.turnOrder.length === 0) {
-      return null;
-    }
-    const currentId = state.turnOrder[state.currentTurnIndex];
-    const current = state.players.find((p) => p.id === currentId);
-    if (!current || current.skipTurns <= 0) return null;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (
+        !state ||
+        state.status !== 'playing' ||
+        state.turnOrder.length === 0
+      ) {
+        return null;
+      }
+      const currentId = state.turnOrder[state.currentTurnIndex];
+      const current = state.players.find((p) => p.id === currentId);
+      if (!current || current.skipTurns <= 0) return null;
 
-    current.skipTurns -= 1;
-    const remaining = current.skipTurns;
-    const nextPlayerId = this.passTurn(state);
-    await this.repo.save(state);
-    return { state, playerId: currentId, remaining, nextPlayerId };
+      current.skipTurns -= 1;
+      const remaining = current.skipTurns;
+      const nextPlayerId = this.passTurn(state);
+      await this.repo.save(state);
+      return { state, playerId: currentId, remaining, nextPlayerId };
+    });
   }
 
   // Se o jogador da vez está desconectado, passa o turno para o próximo
@@ -467,17 +502,23 @@ export class GameService {
   async passTurnIfDisconnected(
     code: string,
   ): Promise<{ state: SessionState; nextPlayerId: string } | null> {
-    const state = await this.repo.findByCode(code);
-    // Sem partida ativa ou sem ordem definida → nada a passar (evita turnChanged{undefined}).
-    if (!state || state.status !== 'playing' || state.turnOrder.length === 0) {
-      return null;
-    }
-    const currentId = state.turnOrder[state.currentTurnIndex];
-    const current = state.players.find((p) => p.id === currentId);
-    if (current?.connected) return null; // ainda é a vez de alguém conectado
-    state.currentTurnIndex = nextConnectedTurnIndex(state);
-    await this.repo.save(state);
-    return { state, nextPlayerId: state.turnOrder[state.currentTurnIndex] };
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      // Sem partida ativa ou sem ordem definida → nada a passar (evita turnChanged{undefined}).
+      if (
+        !state ||
+        state.status !== 'playing' ||
+        state.turnOrder.length === 0
+      ) {
+        return null;
+      }
+      const currentId = state.turnOrder[state.currentTurnIndex];
+      const current = state.players.find((p) => p.id === currentId);
+      if (current?.connected) return null; // ainda é a vez de alguém conectado
+      state.currentTurnIndex = nextConnectedTurnIndex(state);
+      await this.repo.save(state);
+      return { state, nextPlayerId: state.turnOrder[state.currentTurnIndex] };
+    });
   }
 
   private async requireSession(code: string): Promise<SessionState> {

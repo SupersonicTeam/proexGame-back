@@ -2,6 +2,7 @@ import { ErrorCode } from '../common/errors/game-error';
 import { RandomSource } from '../common/random/random.source';
 import { QuestionBankService } from '../questions/question-bank.service';
 import { PendingQuestion, Question } from '../questions/question.types';
+import { SessionLock } from '../session/session.lock';
 import { SessionRepository } from '../session/session.repository';
 import { Player, SessionState } from '../session/session.types';
 import { GameService } from './game.service';
@@ -146,6 +147,7 @@ function build(rngValues: number[], questions: Question[] = SAMPLE_QUESTIONS) {
     repo as unknown as SessionRepository,
     rng,
     bank as unknown as QuestionBankService,
+    new SessionLock(),
   );
   return { repo, service, bank };
 }
@@ -659,5 +661,78 @@ describe('GameService.startTurnSkipIfNeeded', () => {
   it('retorna null para sessão inexistente', async () => {
     const { service } = build([]);
     expect(await service.startTurnSkipIfNeeded('00000')).toBeNull();
+  });
+});
+
+// Achado P2: serialização das escritas via SessionLock. Sem o lock, duas
+// chamadas concorrentes leem o mesmo estado antes do 1º save e ambas passam as
+// validações (lost-update / ação duplicada). O InMemoryRepo é genuinamente
+// assíncrono (Promise.resolve + structuredClone), então sem o lock estes testes
+// FALHARIAM (duas se intercalariam); com o lock, a 2ª lê o estado já salvo.
+describe('GameService — serialização concorrente (P2)', () => {
+  it('duas applyDiceRoll concorrentes do mesmo jogador → UM movimento; a 2ª recebe NOT_YOUR_TURN', async () => {
+    const { repo, service } = build([3]); // só a 1ª rola; a 2ª falha antes de rolar
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
+
+    const settled = await Promise.allSettled([
+      service.applyDiceRoll('12345', 'a'),
+      service.applyDiceRoll('12345', 'a'),
+    ]);
+    const fulfilled = settled.filter((s) => s.status === 'fulfilled');
+    const rejected = settled.filter((s) => s.status === 'rejected');
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({
+      code: ErrorCode.NOT_YOUR_TURN,
+    });
+
+    // Estado final: um único movimento e o turno passou exatamente uma vez.
+    const stored = (await repo.findByCode('12345'))!;
+    expect(stored.players.find((p) => p.id === 'a')!.square).toBe(3);
+    expect(stored.currentTurnIndex).toBe(1);
+  });
+
+  it('dois submitAnswer concorrentes da mesma pergunta → UM processado; o 2º recebe NO_PENDING_QUESTION', async () => {
+    const { repo, service } = build([]); // acerto leader em casa normal: sem nudge/rng
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 1, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b', square: 0 }),
+    ]);
+
+    const settled = await Promise.allSettled([
+      service.submitAnswer('12345', 'a', 'mat-0001', 0),
+      service.submitAnswer('12345', 'a', 'mat-0001', 0),
+    ]);
+    const fulfilled = settled.filter((s) => s.status === 'fulfilled');
+    const rejected = settled.filter((s) => s.status === 'rejected');
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({
+      code: ErrorCode.NO_PENDING_QUESTION,
+    });
+
+    // Movimento aplicado uma única vez (leader normal = +2 → casa 3) e pendência limpa.
+    const stored = (await repo.findByCode('12345'))!;
+    const a = stored.players.find((p) => p.id === 'a')!;
+    expect(a.square).toBe(3);
+    expect(a.pendingQuestion).toBeNull();
+    expect(stored.currentTurnIndex).toBe(1);
+  });
+
+  it('applyDiceRoll com pergunta pendente é rejeitada (ANSWER_PENDING) sem mover', async () => {
+    // Guarda complementar ao lock: fecha o double-click em rollDice quando a 1ª
+    // rolagem caiu em casa-pergunta (turno não passou, então NOT_YOUR_TURN não barraria).
+    const { repo, service } = build([3]);
+    seedState(repo, [
+      makePlayer({ id: 'a', pendingQuestion: makePending() }),
+      makePlayer({ id: 'b' }),
+    ]);
+    await expect(service.applyDiceRoll('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.ANSWER_PENDING,
+    });
+    // Não rolou nem moveu.
+    const stored = (await repo.findByCode('12345'))!;
+    expect(stored.players.find((p) => p.id === 'a')!.square).toBe(0);
+    expect(stored.currentTurnIndex).toBe(0);
   });
 });
