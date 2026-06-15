@@ -129,6 +129,17 @@ describe('SessionService — saneamento do nome', () => {
       code: ErrorCode.INVALID_NAME,
     });
   });
+
+  it('trunca por code points sem quebrar um par substituto (emoji)', async () => {
+    const { service } = build();
+    // 23 letras + emoji (2 unidades UTF-16) no exato limite, + sobra a descartar.
+    const name = 'A'.repeat(NAME_LIMIT - 1) + '😀' + 'BBB';
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    const result = state.players[0].name;
+    // 24 code points, com o emoji preservado inteiro (sem surrogate solitário).
+    expect(Array.from(result)).toHaveLength(NAME_LIMIT);
+    expect(result).toBe('A'.repeat(NAME_LIMIT - 1) + '😀');
+  });
 });
 
 describe('SessionService.joinSession', () => {
