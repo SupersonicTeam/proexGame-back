@@ -16,9 +16,18 @@ import {
   resolveCorrectMovement,
   resolveErrorMovement,
   resolveMovement,
-  resolveOrder,
   rollDie,
 } from './game.rules';
+import {
+  hasRolled,
+  isOrderingResolved,
+  isRoundComplete,
+  orderingTurnOrder,
+  playersToRoll,
+  recordOrderRoll,
+  resolveRound,
+  startOrdering,
+} from './ordering.rules';
 import {
   buildPendingQuestion,
   classifyAnswer,
@@ -26,9 +35,27 @@ import {
   toQuestionPrompt,
 } from './question.rules';
 
-export interface TurnOrderResult {
+export interface BeginOrderingResult {
   state: SessionState;
-  rolls: Roll[];
+  playersToRoll: string[];
+}
+
+// Resultado de uma rolagem da fase de ordem (RF-04). O gateway traduz em eventos:
+// sempre `orderRoll`; e, ao completar a rodada, `orderResult` (finalize) OU um novo
+// `orderPhase` (nextRound, quando ainda há empate a desfazer).
+export interface OrderRollOutcome {
+  state: SessionState;
+  playerId: string;
+  value: number;
+  round: number;
+  // Ordem totalmente resolvida → inicia a partida.
+  finalize: {
+    rounds: Roll[][];
+    turnOrder: string[];
+    firstPlayerId: string;
+  } | null;
+  // Rodada completou mas restou empate → nova rodada só entre os empatados.
+  nextRound: { round: number; playersToRoll: string[] } | null;
 }
 
 export interface ApplyDiceResult {
@@ -86,17 +113,90 @@ export class GameService {
     return state;
   }
 
-  // Resolve a ordem de turnos (RF-04) e posiciona o índice no primeiro jogador.
-  async resolveTurnOrder(code: string): Promise<TurnOrderResult> {
+  // Inicia a fase interativa de ordem (RF-04): zera a ordem anterior e cria o
+  // estado de ordenação com todos empatados na rodada 1. Roda após setupBoard.
+  // Retorna quem precisa rolar agora para o gateway emitir o primeiro orderPhase.
+  async beginOrdering(code: string): Promise<BeginOrderingResult> {
     const state = await this.requireSession(code);
-    const { turnOrder, rolls } = resolveOrder(
-      state.players.map((p) => p.id),
-      this.rng,
-    );
-    state.turnOrder = turnOrder;
+    state.ordering = startOrdering(state.players.map((p) => p.id));
+    state.turnOrder = [];
     state.currentTurnIndex = 0;
     await this.repo.save(state);
-    return { state, rolls };
+    return { state, playersToRoll: playersToRoll(state.ordering) };
+  }
+
+  // Processa a rolagem de UM jogador na fase de ordem (RF-04). Valida que a fase
+  // está ativa, que é a vez dele rolar e que ele ainda não rolou nesta rodada;
+  // rola o d6 (autoridade do servidor — RF-16) e, ao completar a rodada, ou
+  // finaliza a ordem (inicia a partida) ou abre nova rodada de desempate.
+  async rollForOrder(
+    code: string,
+    playerId: string,
+  ): Promise<OrderRollOutcome> {
+    const state = await this.requireSession(code);
+    if (state.status !== 'ordering' || !state.ordering) {
+      throw new GameError(ErrorCode.ORDER_NOT_ACTIVE);
+    }
+    if (!playersToRoll(state.ordering).includes(playerId)) {
+      throw new GameError(ErrorCode.NOT_ROLLING_FOR_ORDER);
+    }
+    if (hasRolled(state.ordering, playerId)) {
+      throw new GameError(ErrorCode.ALREADY_ROLLED_FOR_ORDER);
+    }
+
+    const value = rollDie(this.rng);
+    state.ordering = recordOrderRoll(state.ordering, playerId, value);
+    const round = state.ordering.round;
+
+    let finalize: OrderRollOutcome['finalize'] = null;
+    let nextRound: OrderRollOutcome['nextRound'] = null;
+
+    if (isRoundComplete(state.ordering)) {
+      state.ordering = resolveRound(state.ordering);
+      if (isOrderingResolved(state.ordering)) {
+        const turnOrder = orderingTurnOrder(state.ordering);
+        const rounds = state.ordering.history;
+        state.turnOrder = turnOrder;
+        state.currentTurnIndex = 0;
+        state.status = 'playing';
+        state.ordering = null;
+        finalize = { rounds, turnOrder, firstPlayerId: turnOrder[0] };
+      } else {
+        nextRound = {
+          round: state.ordering.round,
+          playersToRoll: playersToRoll(state.ordering),
+        };
+      }
+    }
+
+    await this.repo.save(state);
+    return { state, playerId, value, round, finalize, nextRound };
+  }
+
+  // Robustez (RF-04): se um jogador desconecta durante a ordenação e ainda devia
+  // rolar, o servidor rola por ele para a fase não travar. Drena em laço (uma
+  // auto-rolagem pode completar a rodada e expor novos pendentes desconectados).
+  // Retorna os outcomes na ordem para o gateway emitir.
+  async autoRollPendingDisconnected(code: string): Promise<OrderRollOutcome[]> {
+    const outcomes: OrderRollOutcome[] = [];
+    // Teto defensivo (nº de jogadores × rodadas) contra laço infinito teórico.
+    for (let guard = 0; guard < 64; guard++) {
+      const state = await this.repo.findByCode(code);
+      if (!state || state.status !== 'ordering' || !state.ordering) break;
+      const ordering = state.ordering;
+      const target = playersToRoll(ordering).find((id) => {
+        if (hasRolled(ordering, id)) return false;
+        const player = state.players.find((p) => p.id === id);
+        // Só auto-rola por quem AINDA está na sessão e desconectado. Um id que
+        // não está mais em players (ex.: removido por expiração de grace) NÃO é
+        // auto-rolado — senão a ordem resolveria com um fantasma no turnOrder.
+        // Esse caso é tratado reiniciando a ordem (gateway) com os restantes.
+        return player !== undefined && !player.connected;
+      });
+      if (!target) break;
+      outcomes.push(await this.rollForOrder(code, target));
+    }
+    return outcomes;
   }
 
   // Aplica a rolagem do jogador da vez: move, detecta vitória ou passa o turno.

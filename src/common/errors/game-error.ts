@@ -16,6 +16,12 @@ export enum ErrorCode {
   INVALID_OPTION = 'INVALID_OPTION',
   // --- Sprint 2: reconexão ---
   RECONNECT_FAILED = 'RECONNECT_FAILED',
+  // --- Sprint 4: ordem interativa (RF-04) ---
+  ORDER_NOT_ACTIVE = 'ORDER_NOT_ACTIVE',
+  NOT_ROLLING_FOR_ORDER = 'NOT_ROLLING_FOR_ORDER',
+  ALREADY_ROLLED_FOR_ORDER = 'ALREADY_ROLLED_FOR_ORDER',
+  // --- Sprint 4: validação de transporte (payload malformado) ---
+  INVALID_PAYLOAD = 'INVALID_PAYLOAD',
   // Erro inesperado/não-domínio. Mantido no enum para o payload `error` ser sempre tipado.
   INTERNAL = 'INTERNAL',
 }
@@ -36,6 +42,12 @@ const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
     'A pergunta enviada não corresponde à pendente.',
   [ErrorCode.INVALID_OPTION]: 'Alternativa inválida.',
   [ErrorCode.RECONNECT_FAILED]: 'Não foi possível reconectar à sessão.',
+  [ErrorCode.ORDER_NOT_ACTIVE]: 'A fase de definição de ordem não está ativa.',
+  [ErrorCode.NOT_ROLLING_FOR_ORDER]:
+    'Você não precisa rolar para a ordem agora.',
+  [ErrorCode.ALREADY_ROLLED_FOR_ORDER]:
+    'Você já rolou nesta rodada de definição de ordem.',
+  [ErrorCode.INVALID_PAYLOAD]: 'Dados da requisição inválidos.',
   [ErrorCode.INTERNAL]: 'Erro interno.',
 };
 

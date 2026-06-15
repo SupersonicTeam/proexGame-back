@@ -216,13 +216,14 @@ describe('SessionService.startGame', () => {
     return { ...ctx, code: host.state.code, hostId: host.playerId };
   }
 
-  it('host inicia: status playing e tabuleiro fixo inicializado', async () => {
+  it('host inicia: entra na fase de ordem (status ordering) e zera os peões', async () => {
     const { service, code, hostId } = await withTwoPlayers();
     const state = await service.startGame(code, hostId);
-    expect(state.status).toBe('playing');
-    expect(state.board.size).toBe(25);
+    // RF-04: o jogo entra na fase de ordem; vira 'playing' só após as rolagens.
+    expect(state.status).toBe('ordering');
+    // P3: startGame não gera board; o placeholder do lobby (size 25) persiste até
+    // o GameService.setupBoard gerar o procedural.
     expect(state.board.tileTypeBySquare[0]).toBe('start');
-    expect(state.board.tileTypeBySquare[25]).toBe('finish');
     expect(state.players.every((p) => p.square === 0)).toBe(true);
   });
 
@@ -242,6 +243,19 @@ describe('SessionService.startGame', () => {
     ).rejects.toMatchObject({
       code: ErrorCode.NOT_ENOUGH_PLAYERS,
     });
+  });
+});
+
+describe('SessionService.returnToLobby', () => {
+  it('volta de ordering para lobby limpando ordem e ordenação (RF-04)', async () => {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const host = await ctx.service.createSession('Ana', 'normal', 'sock-1');
+    await ctx.service.joinSession(host.state.code, 'Bia', 'sock-2');
+    await ctx.service.startGame(host.state.code, host.playerId); // → ordering
+    const state = await ctx.service.returnToLobby(host.state.code);
+    expect(state!.status).toBe('lobby');
+    expect(state!.ordering).toBeNull();
+    expect(state!.turnOrder).toEqual([]);
   });
 });
 

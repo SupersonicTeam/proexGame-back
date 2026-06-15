@@ -20,6 +20,7 @@ function makeState(code = '12345'): SessionState {
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
     servedQuestionIds: [],
+    ordering: null,
   };
 }
 

@@ -11,7 +11,6 @@ import {
   resolveCorrectMovement,
   resolveErrorMovement,
   resolveMovement,
-  resolveOrder,
   rollDie,
   tileTypeAt,
 } from './game.rules';
@@ -66,6 +65,7 @@ function makeState(
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
     servedQuestionIds: [],
+    ordering: null,
     ...over,
   };
 }
@@ -106,33 +106,8 @@ describe('resolveMovement', () => {
   });
 });
 
-describe('resolveOrder', () => {
-  it('ordena por maior valor sem empate', () => {
-    // a=2, b=6, c=4 → ordem b, c, a
-    const rng = new FakeRandomSource([2, 6, 4]);
-    const { turnOrder } = resolveOrder(['a', 'b', 'c'], rng);
-    expect(turnOrder).toEqual(['b', 'c', 'a']);
-  });
-
-  it('re-rola apenas entre os empatados no maior valor', () => {
-    // 1ª rolagem: a=6, b=6, c=3 → empate a/b no topo, c por último.
-    // desempate a/b: a=2, b=5 → b antes de a.
-    // ordem final: b, a, c
-    const rng = new FakeRandomSource([6, 6, 3, 2, 5]);
-    const { turnOrder } = resolveOrder(['a', 'b', 'c'], rng);
-    expect(turnOrder).toEqual(['b', 'a', 'c']);
-  });
-
-  it('retorna os rolls da primeira rolagem', () => {
-    const rng = new FakeRandomSource([2, 6, 4]);
-    const { rolls } = resolveOrder(['a', 'b', 'c'], rng);
-    expect(rolls).toEqual([
-      { playerId: 'a', value: 2 },
-      { playerId: 'b', value: 6 },
-      { playerId: 'c', value: 4 },
-    ]);
-  });
-});
+// A ordem de turnos (RF-04) passou para a fase interativa de ordenação —
+// testada em ordering.rules.spec.ts (regras puras) e game.service.spec.ts.
 
 describe('nextConnectedTurnIndex', () => {
   it('avança para o próximo jogador conectado', () => {
