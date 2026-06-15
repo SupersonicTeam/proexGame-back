@@ -48,6 +48,7 @@ export class SessionService {
         createdAt: now,
         lastActivityAt: now,
         servedQuestionIds: [],
+        ordering: null,
       };
       if (await this.repo.createIfAbsent(state)) {
         return { state, playerId };
@@ -90,8 +91,11 @@ export class SessionService {
     if (state.players.length < MIN_PLAYERS) {
       throw new GameError(ErrorCode.NOT_ENOUGH_PLAYERS);
     }
-    state.status = 'playing';
-    state.board = this.makeBoard();
+    // Entra na fase interativa de ordem (RF-04): os jogadores rolam o d6 para
+    // decidir quem começa antes de o jogo ir para 'playing'. O tabuleiro
+    // procedural é gerado pelo GameService.setupBoard (P3: não geramos um board
+    // fixo aqui que seria imediatamente sobrescrito).
+    state.status = 'ordering';
     state.players.forEach((p) => (p.square = 0));
     await this.repo.save(state);
     return state;
@@ -104,6 +108,20 @@ export class SessionService {
     const state = await this.repo.findByCode(code);
     if (!state) return null;
     state.players = state.players.filter((p) => p.id !== playerId);
+    await this.repo.save(state);
+    return state;
+  }
+
+  // Volta a sessão ao lobby (ex.: jogadores insuficientes para definir a ordem
+  // depois de uma saída na fase de ordem — RF-04). Limpa a ordem/ordenação e
+  // preserva os jogadores restantes para um novo início.
+  async returnToLobby(code: string): Promise<SessionState | null> {
+    const state = await this.repo.findByCode(code);
+    if (!state) return null;
+    state.status = 'lobby';
+    state.ordering = null;
+    state.turnOrder = [];
+    state.currentTurnIndex = 0;
     await this.repo.save(state);
     return state;
   }

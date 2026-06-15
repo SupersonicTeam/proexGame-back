@@ -131,6 +131,7 @@ function seedState(
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
     servedQuestionIds: [],
+    ordering: null,
     ...over,
   };
   repo.store.set(state.code, structuredClone(state));
@@ -149,14 +150,127 @@ function build(rngValues: number[], questions: Question[] = SAMPLE_QUESTIONS) {
   return { repo, service, bank };
 }
 
-describe('GameService.resolveTurnOrder', () => {
-  it('define a ordem de turnos por rolagem e zera o índice', async () => {
-    const { repo, service } = build([2, 6]); // a=2, b=6 → ordem b, a
-    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
-    const { state, rolls } = await service.resolveTurnOrder('12345');
-    expect(state.turnOrder).toEqual(['b', 'a']);
-    expect(state.currentTurnIndex).toBe(0);
-    expect(rolls).toHaveLength(2);
+describe('GameService.beginOrdering', () => {
+  it('cria o estado de ordem com todos pendentes e zera a ordem (RF-04)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      status: 'ordering',
+    });
+    const { state, playersToRoll } = await service.beginOrdering('12345');
+    expect(state.ordering).not.toBeNull();
+    expect(state.ordering!.round).toBe(1);
+    expect([...playersToRoll].sort()).toEqual(['a', 'b']);
+    expect(state.turnOrder).toEqual([]);
+  });
+});
+
+describe('GameService.rollForOrder (RF-04)', () => {
+  async function setupOrdering(
+    rngValues: number[],
+    ids: string[] = ['a', 'b'],
+  ) {
+    const ctx = build(rngValues);
+    seedState(
+      ctx.repo,
+      ids.map((id) => makePlayer({ id })),
+      { status: 'ordering' },
+    );
+    await ctx.service.beginOrdering('12345');
+    return ctx;
+  }
+
+  it('sem empate: ao todos rolarem, finaliza a ordem e inicia a partida', async () => {
+    const { service } = await setupOrdering([2, 6]); // a=2, b=6 → b, a
+    const r1 = await service.rollForOrder('12345', 'a');
+    expect(r1.value).toBe(2);
+    expect(r1.finalize).toBeNull(); // b ainda não rolou
+
+    const r2 = await service.rollForOrder('12345', 'b');
+    expect(r2.value).toBe(6);
+    expect(r2.finalize).not.toBeNull();
+    expect(r2.finalize!.turnOrder).toEqual(['b', 'a']);
+    expect(r2.finalize!.firstPlayerId).toBe('b');
+    expect(r2.state.status).toBe('playing');
+    expect(r2.state.ordering).toBeNull();
+    expect(r2.state.currentTurnIndex).toBe(0);
+  });
+
+  it('empate: abre nova rodada só entre os empatados e resolve depois', async () => {
+    // rodada1: a=4, b=4 (empate); rodada2: a=1, b=6 → b, a
+    const { service } = await setupOrdering([4, 4, 1, 6]);
+    await service.rollForOrder('12345', 'a');
+    const end1 = await service.rollForOrder('12345', 'b');
+    expect(end1.finalize).toBeNull();
+    expect(end1.nextRound).not.toBeNull();
+    expect(end1.nextRound!.round).toBe(2);
+    expect([...end1.nextRound!.playersToRoll].sort()).toEqual(['a', 'b']);
+
+    await service.rollForOrder('12345', 'a');
+    const end2 = await service.rollForOrder('12345', 'b');
+    expect(end2.finalize!.turnOrder).toEqual(['b', 'a']);
+  });
+
+  it('rejeita rolagem fora da fase de ordem (ORDER_NOT_ACTIVE)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      status: 'playing',
+    });
+    await expect(service.rollForOrder('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.ORDER_NOT_ACTIVE,
+    });
+  });
+
+  it('rejeita segunda rolagem do mesmo jogador na rodada (ALREADY_ROLLED_FOR_ORDER)', async () => {
+    const { service } = await setupOrdering([2, 6]);
+    await service.rollForOrder('12345', 'a');
+    await expect(service.rollForOrder('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.ALREADY_ROLLED_FOR_ORDER,
+    });
+  });
+
+  it('rejeita rolagem de quem já saiu do empate (NOT_ROLLING_FOR_ORDER)', async () => {
+    // a=6, b=6, c=1 → c resolvido por último; a/b empatam e vão p/ rodada 2.
+    const { service } = await setupOrdering([6, 6, 1], ['a', 'b', 'c']);
+    await service.rollForOrder('12345', 'a');
+    await service.rollForOrder('12345', 'b');
+    await service.rollForOrder('12345', 'c'); // completa rodada 1
+    await expect(service.rollForOrder('12345', 'c')).rejects.toMatchObject({
+      code: ErrorCode.NOT_ROLLING_FOR_ORDER,
+    });
+  });
+
+  it('auto-rola por jogador desconectado para a ordem não travar', async () => {
+    const { repo, service } = build([2, 6]); // a=2, depois auto b=6 → b, a
+    seedState(
+      repo,
+      [makePlayer({ id: 'a' }), makePlayer({ id: 'b', connected: false })],
+      { status: 'ordering' },
+    );
+    await service.beginOrdering('12345');
+    await service.rollForOrder('12345', 'a');
+
+    const outcomes = await service.autoRollPendingDisconnected('12345');
+    expect(outcomes).toHaveLength(1);
+    expect(outcomes[0].playerId).toBe('b');
+    expect(outcomes[0].finalize).not.toBeNull();
+    expect((await repo.findByCode('12345'))!.status).toBe('playing');
+  });
+
+  it('NÃO auto-rola por id que não está mais em players (evita fantasma no turnOrder)', async () => {
+    const { repo, service } = build([]);
+    // 'ghost' está no grupo de ordem mas não existe em players (ex.: removido por
+    // expiração de grace). 'a' está conectado. Ninguém deve ser auto-rolado.
+    seedState(repo, [makePlayer({ id: 'a' })], {
+      status: 'ordering',
+      ordering: {
+        groups: [['a', 'ghost']],
+        currentRolls: {},
+        round: 1,
+        history: [],
+      },
+    });
+    const outcomes = await service.autoRollPendingDisconnected('12345');
+    expect(outcomes).toEqual([]);
   });
 });
 
