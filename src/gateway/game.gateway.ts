@@ -13,6 +13,7 @@ import { GameService, OrderRollOutcome } from '../game/game.service';
 import { playersToRoll } from '../game/ordering.rules';
 import { ReconnectService } from '../session/reconnect.service';
 import { SessionService } from '../session/session.service';
+import { SessionState } from '../session/session.types';
 import {
   CreateSessionDto,
   JoinSessionDto,
@@ -92,16 +93,26 @@ export class GameGateway implements OnGatewayDisconnect {
       const withBoard = await this.games.setupBoard(code);
       this.server.to(code).emit('gameStarted', { board: withBoard.board });
       // Inicia a fase interativa de ordem (RF-04): cada jogador rolará o d6.
-      const { state, playersToRoll: toRoll } =
-        await this.games.beginOrdering(code);
-      // Snapshot já em status 'ordering' (front renderiza a tela de ordem).
-      this.server.to(code).emit('gameState', toGameState(state));
-      this.server
-        .to(code)
-        .emit('orderPhase', { round: 1, playersToRoll: toRoll });
+      await this.beginOrderingAndDrain(code);
     } catch (err) {
       this.emitError(client, err);
     }
+  }
+
+  // Entra na fase de ordem (RF-04): emite gameState('ordering') + orderPhase e,
+  // em seguida, DRENA jogadores que já estão desconectados no início (ex.: caíram
+  // no lobby antes do startGame, ou um restante após leaveSession/expiração). Sem
+  // isso a fase travaria esperando uma rolagem que nunca viria, pois o auto-roll
+  // por desconectado só roda no evento de disconnect.
+  private async beginOrderingAndDrain(code: string): Promise<void> {
+    const { state, playersToRoll: toRoll } =
+      await this.games.beginOrdering(code);
+    this.server.to(code).emit('gameState', toGameState(state));
+    this.server
+      .to(code)
+      .emit('orderPhase', { round: 1, playersToRoll: toRoll });
+    const outcomes = await this.games.autoRollPendingDisconnected(code);
+    for (const out of outcomes) this.emitOrderOutcome(code, out);
   }
 
   // Fase de ordem (RF-04): o jogador rola o d6. O servidor é a autoridade da
@@ -259,27 +270,31 @@ export class GameGateway implements OnGatewayDisconnect {
     const state = await this.sessions.leaveSession(code, playerId);
     await client.leave(code);
     if (!state) return;
-    // Saída durante a fase de ordem (RF-04): reinicia a ordem só com quem ficou;
-    // se sobrou menos de 2, volta ao lobby (não dá para definir ordem) — evita
-    // travar esperando a rolagem de quem saiu.
+    // Saída durante a fase de ordem (RF-04): recupera a ordem com os restantes.
     if (state.status === 'ordering') {
-      if (state.players.length >= 2) {
-        const { state: restarted, playersToRoll: toRoll } =
-          await this.games.beginOrdering(code);
-        this.server.to(code).emit('lobbyState', toLobbyState(restarted));
-        this.server.to(code).emit('gameState', toGameState(restarted));
-        this.server
-          .to(code)
-          .emit('orderPhase', { round: 1, playersToRoll: toRoll });
-      } else {
-        const lobby = await this.sessions.returnToLobby(code);
-        if (lobby) {
-          this.server.to(code).emit('lobbyState', toLobbyState(lobby));
-        }
-      }
+      await this.recoverOrderingAfterRemoval(code, state);
       return;
     }
     this.server.to(code).emit('lobbyState', toLobbyState(state));
+  }
+
+  // Após um jogador sair (leaveSession) ou ser removido por expiração de grace
+  // durante a fase de ordem (RF-04): reinicia a ordem só com os restantes (>=2,
+  // o que também drena já-desconectados) ou volta ao lobby (<2). Evita tanto o
+  // travamento quanto um turnOrder com ids que saíram da sessão.
+  private async recoverOrderingAfterRemoval(
+    code: string,
+    state: SessionState,
+  ): Promise<void> {
+    if (state.players.length >= 2) {
+      this.server.to(code).emit('lobbyState', toLobbyState(state));
+      await this.beginOrderingAndDrain(code);
+    } else {
+      const lobby = await this.sessions.returnToLobby(code);
+      if (lobby) {
+        this.server.to(code).emit('lobbyState', toLobbyState(lobby));
+      }
+    }
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
@@ -365,6 +380,10 @@ export class GameGateway implements OnGatewayDisconnect {
     if (!result.removed) return;
     if (result.sessionDeleted) {
       this.server.to(code).emit('sessionClosed', { reason: 'inactivity' });
+    } else if (result.state && result.state.status === 'ordering') {
+      // Removido durante a fase de ordem (RF-04): recupera com os restantes para
+      // não deixar a ordem presa a um id que não está mais na sessão.
+      await this.recoverOrderingAfterRemoval(code, result.state);
     } else if (result.state) {
       this.server.to(code).emit('lobbyState', toLobbyState(result.state));
     }

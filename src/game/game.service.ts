@@ -187,7 +187,11 @@ export class GameService {
       const target = playersToRoll(ordering).find((id) => {
         if (hasRolled(ordering, id)) return false;
         const player = state.players.find((p) => p.id === id);
-        return !player || !player.connected;
+        // Só auto-rola por quem AINDA está na sessão e desconectado. Um id que
+        // não está mais em players (ex.: removido por expiração de grace) NÃO é
+        // auto-rolado — senão a ordem resolveria com um fantasma no turnOrder.
+        // Esse caso é tratado reiniciando a ordem (gateway) com os restantes.
+        return player !== undefined && !player.connected;
       });
       if (!target) break;
       outcomes.push(await this.rollForOrder(code, target));

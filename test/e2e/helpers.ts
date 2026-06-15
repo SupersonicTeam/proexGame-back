@@ -1,20 +1,23 @@
 import { Socket } from 'socket.io-client';
 
-// Aguarda um evento do socket (com timeout) e resolve com o payload.
+// Aguarda um evento do socket (com timeout) e resolve com o payload. Remove o
+// listener tanto ao resolver quanto ao estourar o timeout — evita listeners
+// órfãos que vazariam para o próximo teste (flakiness).
 export function once<T = any>(
   socket: Socket,
   event: string,
   timeoutMs = 4000,
 ): Promise<T> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error(`timeout aguardando '${event}'`)),
-      timeoutMs,
-    );
-    socket.once(event, (payload: T) => {
+    const handler = (payload: T) => {
       clearTimeout(timer);
       resolve(payload);
-    });
+    };
+    const timer = setTimeout(() => {
+      socket.off(event, handler);
+      reject(new Error(`timeout aguardando '${event}'`));
+    }, timeoutMs);
+    socket.once(event, handler);
   });
 }
 
@@ -31,8 +34,8 @@ export interface OrderClient {
  * idêntico ao antigo resolveOrder que rolava em ordem de jogador). Suporta
  * múltiplas rodadas de desempate.
  *
- * Os listeners são registrados ANTES de emitir `startGame`. Retorna o board e a
- * ordem final de turnos.
+ * Os listeners são registrados ANTES de emitir `startGame` e SEMPRE removidos
+ * (resolução ou timeout) para não vazar entre testes. Retorna board e ordem final.
  */
 export async function startMatch(
   host: Socket,
@@ -42,11 +45,13 @@ export async function startMatch(
   const boardP = once<{ board: any }>(host, 'gameStarted', timeoutMs);
 
   const orderP = new Promise<{ turnOrder: string[] }>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error('timeout resolvendo a ordem (RF-04)')),
-      timeoutMs,
-    );
     const handledRounds = new Set<number>();
+
+    const cleanup = () => {
+      clearTimeout(timer);
+      host.off('orderPhase', onPhase);
+      host.off('orderResult', onResult);
+    };
 
     const onPhase = (p: { round: number; playersToRoll: string[] }) => {
       if (handledRounds.has(p.round)) return;
@@ -60,15 +65,24 @@ export async function startMatch(
           socket.emit('rollForOrder');
           await rolled;
         }
-      })().catch(reject);
+      })().catch((err: unknown) => {
+        cleanup();
+        reject(err instanceof Error ? err : new Error(String(err)));
+      });
     };
 
-    host.on('orderPhase', onPhase);
-    host.once('orderResult', (r: { turnOrder: string[] }) => {
-      clearTimeout(timer);
-      host.off('orderPhase', onPhase);
+    const onResult = (r: { turnOrder: string[] }) => {
+      cleanup();
       resolve(r);
-    });
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('timeout resolvendo a ordem (RF-04)'));
+    }, timeoutMs);
+
+    host.on('orderPhase', onPhase);
+    host.on('orderResult', onResult);
   });
 
   host.emit('startGame');

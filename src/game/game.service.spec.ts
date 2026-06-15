@@ -255,6 +255,23 @@ describe('GameService.rollForOrder (RF-04)', () => {
     expect(outcomes[0].finalize).not.toBeNull();
     expect((await repo.findByCode('12345'))!.status).toBe('playing');
   });
+
+  it('NÃO auto-rola por id que não está mais em players (evita fantasma no turnOrder)', async () => {
+    const { repo, service } = build([]);
+    // 'ghost' está no grupo de ordem mas não existe em players (ex.: removido por
+    // expiração de grace). 'a' está conectado. Ninguém deve ser auto-rolado.
+    seedState(repo, [makePlayer({ id: 'a' })], {
+      status: 'ordering',
+      ordering: {
+        groups: [['a', 'ghost']],
+        currentRolls: {},
+        round: 1,
+        history: [],
+      },
+    });
+    const outcomes = await service.autoRollPendingDisconnected('12345');
+    expect(outcomes).toEqual([]);
+  });
 });
 
 describe('GameService.setupBoard', () => {
