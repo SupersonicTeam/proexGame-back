@@ -1,5 +1,6 @@
 import { ErrorCode } from '../common/errors/game-error';
 import { RandomSource } from '../common/random/random.source';
+import { SessionLock } from './session.lock';
 import { SessionRepository } from './session.repository';
 import { SessionService } from './session.service';
 import { SessionState } from './session.types';
@@ -51,7 +52,11 @@ class FakeRandomSource implements RandomSource {
 function build(rngValues: number[] = [1, 2, 3, 4, 5]) {
   const repo = new InMemoryRepo();
   const rng = new FakeRandomSource(rngValues);
-  const service = new SessionService(repo as unknown as SessionRepository, rng);
+  const service = new SessionService(
+    repo as unknown as SessionRepository,
+    rng,
+    new SessionLock(),
+  );
   return { repo, service };
 }
 

@@ -202,13 +202,17 @@ reconnect{code,playerId} → playerReconnected → lobbyState
 ## ErrorCode (evento `error`)
 
 `SESSION_NOT_FOUND` · `SESSION_FULL` · `SESSION_ALREADY_STARTED` · `INVALID_NAME` · `NOT_HOST` ·
-`NOT_ENOUGH_PLAYERS` · `NOT_YOUR_TURN` · `GAME_NOT_ACTIVE` · `NOT_IN_SESSION` ·
+`NOT_ENOUGH_PLAYERS` · `NOT_YOUR_TURN` · `GAME_NOT_ACTIVE` · `NOT_IN_SESSION` · `ANSWER_PENDING` ·
 `NO_PENDING_QUESTION` · `QUESTION_MISMATCH` · `INVALID_OPTION` · `RECONNECT_FAILED` ·
 `ORDER_NOT_ACTIVE` · `NOT_ROLLING_FOR_ORDER` · `ALREADY_ROLLED_FOR_ORDER` ·
 `INVALID_PAYLOAD` · `INTERNAL`
 
 > `INVALID_PAYLOAD` (S4): payload malformado de `submitAnswer`/`reconnect` (erro de transporte),
 > separado dos códigos de regra de jogo.
+> `ANSWER_PENDING` (S4): `rollDice` recebido enquanto o jogador tem uma pergunta pendente — precisa
+> responder (`submitAnswer`) antes de rolar de novo. Surge tipicamente no double-click em `rollDice`
+> quando a 1ª rolagem caiu em casa-pergunta (o turno não passou). O front pode ignorá-lo (UI já
+> deve estar na tela de pergunta) ou exibir um aviso leve.
 
 ---
 

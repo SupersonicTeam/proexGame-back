@@ -10,6 +10,10 @@ export enum ErrorCode {
   NOT_YOUR_TURN = 'NOT_YOUR_TURN',
   GAME_NOT_ACTIVE = 'GAME_NOT_ACTIVE',
   NOT_IN_SESSION = 'NOT_IN_SESSION',
+  // Tentou rolar o dado com uma pergunta pendente (RF-08): precisa responder
+  // antes. Fecha o double-click em rollDice quando a 1ª rolagem caiu em
+  // casa-pergunta (o turno não passa) — ver P2/SessionLock.
+  ANSWER_PENDING = 'ANSWER_PENDING',
   // --- Sprint 2: fluxo de pergunta ---
   NO_PENDING_QUESTION = 'NO_PENDING_QUESTION',
   QUESTION_MISMATCH = 'QUESTION_MISMATCH',
@@ -37,6 +41,8 @@ const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.NOT_YOUR_TURN]: 'Não é a sua vez.',
   [ErrorCode.GAME_NOT_ACTIVE]: 'A partida não está em andamento.',
   [ErrorCode.NOT_IN_SESSION]: 'Você não faz parte desta sessão.',
+  [ErrorCode.ANSWER_PENDING]:
+    'Responda a pergunta pendente antes de rolar o dado.',
   [ErrorCode.NO_PENDING_QUESTION]: 'Não há pergunta pendente para responder.',
   [ErrorCode.QUESTION_MISMATCH]:
     'A pergunta enviada não corresponde à pendente.',

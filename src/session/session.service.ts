@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { ErrorCode, GameError } from '../common/errors/game-error';
 import { RANDOM_SOURCE, RandomSource } from '../common/random/random.source';
 import { generateCode } from './session.code';
+import { SessionLock } from './session.lock';
 import { SessionRepository } from './session.repository';
 import {
   Board,
@@ -17,11 +18,17 @@ const MAX_PLAYERS = 4;
 
 // Regras de lobby/presença: criar, entrar, iniciar, sair, desconectar.
 // Validações lançam GameError(code), traduzido pelo gateway em evento `error`.
+//
+// Toda operação de ESCRITA (read-modify-write) roda sob SessionLock por `code`
+// para evitar lost-update sob eventos concorrentes da mesma sessão (achado P2).
+// createSession é exceção: já é atômico via SET NX e não tem estado prévio a
+// proteger; getState é leitura pura.
 @Injectable()
 export class SessionService {
   constructor(
     private readonly repo: SessionRepository,
     @Inject(RANDOM_SOURCE) private readonly rng: RandomSource,
+    private readonly lock: SessionLock,
   ) {}
 
   async createSession(
@@ -63,67 +70,75 @@ export class SessionService {
     socketId: string,
   ): Promise<{ state: SessionState; playerId: string }> {
     const cleanName = this.validateName(name);
-    const state = await this.requireSession(code);
-    if (state.status !== 'lobby') {
-      throw new GameError(ErrorCode.SESSION_ALREADY_STARTED);
-    }
-    if (state.players.length >= MAX_PLAYERS) {
-      throw new GameError(ErrorCode.SESSION_FULL);
-    }
-    const playerId = randomUUID();
-    state.players.push(this.makePlayer(playerId, cleanName, socketId, false));
-    await this.repo.save(state);
-    return { state, playerId };
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      if (state.status !== 'lobby') {
+        throw new GameError(ErrorCode.SESSION_ALREADY_STARTED);
+      }
+      if (state.players.length >= MAX_PLAYERS) {
+        throw new GameError(ErrorCode.SESSION_FULL);
+      }
+      const playerId = randomUUID();
+      state.players.push(this.makePlayer(playerId, cleanName, socketId, false));
+      await this.repo.save(state);
+      return { state, playerId };
+    });
   }
 
   async startGame(
     code: string,
     requesterPlayerId: string,
   ): Promise<SessionState> {
-    const state = await this.requireSession(code);
-    if (state.status !== 'lobby') {
-      throw new GameError(ErrorCode.SESSION_ALREADY_STARTED);
-    }
-    const host = state.players.find((p) => p.isHost);
-    if (!host || host.id !== requesterPlayerId) {
-      throw new GameError(ErrorCode.NOT_HOST);
-    }
-    if (state.players.length < MIN_PLAYERS) {
-      throw new GameError(ErrorCode.NOT_ENOUGH_PLAYERS);
-    }
-    // Entra na fase interativa de ordem (RF-04): os jogadores rolam o d6 para
-    // decidir quem começa antes de o jogo ir para 'playing'. O tabuleiro
-    // procedural é gerado pelo GameService.setupBoard (P3: não geramos um board
-    // fixo aqui que seria imediatamente sobrescrito).
-    state.status = 'ordering';
-    state.players.forEach((p) => (p.square = 0));
-    await this.repo.save(state);
-    return state;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.requireSession(code);
+      if (state.status !== 'lobby') {
+        throw new GameError(ErrorCode.SESSION_ALREADY_STARTED);
+      }
+      const host = state.players.find((p) => p.isHost);
+      if (!host || host.id !== requesterPlayerId) {
+        throw new GameError(ErrorCode.NOT_HOST);
+      }
+      if (state.players.length < MIN_PLAYERS) {
+        throw new GameError(ErrorCode.NOT_ENOUGH_PLAYERS);
+      }
+      // Entra na fase interativa de ordem (RF-04): os jogadores rolam o d6 para
+      // decidir quem começa antes de o jogo ir para 'playing'. O tabuleiro
+      // procedural é gerado pelo GameService.setupBoard (P3: não geramos um
+      // board fixo aqui que seria imediatamente sobrescrito).
+      state.status = 'ordering';
+      state.players.forEach((p) => (p.square = 0));
+      await this.repo.save(state);
+      return state;
+    });
   }
 
   async leaveSession(
     code: string,
     playerId: string,
   ): Promise<SessionState | null> {
-    const state = await this.repo.findByCode(code);
-    if (!state) return null;
-    state.players = state.players.filter((p) => p.id !== playerId);
-    await this.repo.save(state);
-    return state;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (!state) return null;
+      state.players = state.players.filter((p) => p.id !== playerId);
+      await this.repo.save(state);
+      return state;
+    });
   }
 
   // Volta a sessão ao lobby (ex.: jogadores insuficientes para definir a ordem
   // depois de uma saída na fase de ordem — RF-04). Limpa a ordem/ordenação e
   // preserva os jogadores restantes para um novo início.
   async returnToLobby(code: string): Promise<SessionState | null> {
-    const state = await this.repo.findByCode(code);
-    if (!state) return null;
-    state.status = 'lobby';
-    state.ordering = null;
-    state.turnOrder = [];
-    state.currentTurnIndex = 0;
-    await this.repo.save(state);
-    return state;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (!state) return null;
+      state.status = 'lobby';
+      state.ordering = null;
+      state.turnOrder = [];
+      state.currentTurnIndex = 0;
+      await this.repo.save(state);
+      return state;
+    });
   }
 
   // Marca o jogador como desconectado, preservando-o no estado para reconexão (Sprint 2).
@@ -131,12 +146,14 @@ export class SessionService {
     code: string,
     playerId: string,
   ): Promise<SessionState | null> {
-    const state = await this.repo.findByCode(code);
-    if (!state) return null;
-    const player = state.players.find((p) => p.id === playerId);
-    if (player) player.connected = false;
-    await this.repo.save(state);
-    return state;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (!state) return null;
+      const player = state.players.find((p) => p.id === playerId);
+      if (player) player.connected = false;
+      await this.repo.save(state);
+      return state;
+    });
   }
 
   // Reconecta um jogador dentro da janela de grace (RF-14): revincula o novo
@@ -148,14 +165,16 @@ export class SessionService {
     playerId: string,
     socketId: string,
   ): Promise<SessionState> {
-    const state = await this.repo.findByCode(code);
-    if (!state) throw new GameError(ErrorCode.RECONNECT_FAILED);
-    const player = state.players.find((p) => p.id === playerId);
-    if (!player) throw new GameError(ErrorCode.RECONNECT_FAILED);
-    player.connected = true;
-    player.socketId = socketId;
-    await this.repo.save(state);
-    return state;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (!state) throw new GameError(ErrorCode.RECONNECT_FAILED);
+      const player = state.players.find((p) => p.id === playerId);
+      if (!player) throw new GameError(ErrorCode.RECONNECT_FAILED);
+      player.connected = true;
+      player.socketId = socketId;
+      await this.repo.save(state);
+      return state;
+    });
   }
 
   // Expira a janela de reconexão de um jogador (RF-14/15): se ele não reconectou,
@@ -169,33 +188,35 @@ export class SessionService {
     removed: boolean;
     sessionDeleted: boolean;
   }> {
-    const state = await this.repo.findByCode(code);
-    if (!state) return { state: null, removed: false, sessionDeleted: false };
-    const player = state.players.find((p) => p.id === playerId);
-    // Reconectou no intervalo → nada a fazer.
-    if (!player || player.connected) {
-      return { state, removed: false, sessionDeleted: false };
-    }
-    const removedIdx = state.turnOrder.indexOf(playerId);
-    state.players = state.players.filter((p) => p.id !== playerId);
-    if (state.players.length === 0) {
-      await this.repo.delete(code);
-      return { state: null, removed: true, sessionDeleted: true };
-    }
-    // Remove também da ordem de turnos e reajusta currentTurnIndex para não
-    // apontar para um jogador inexistente (evita turnChanged/rotação inconsistentes
-    // numa partida em andamento).
-    state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
-    if (state.turnOrder.length > 0) {
-      // Se removemos alguém antes do índice atual, recua um para preservar o alvo.
-      if (removedIdx !== -1 && removedIdx < state.currentTurnIndex) {
-        state.currentTurnIndex -= 1;
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (!state) return { state: null, removed: false, sessionDeleted: false };
+      const player = state.players.find((p) => p.id === playerId);
+      // Reconectou no intervalo → nada a fazer.
+      if (!player || player.connected) {
+        return { state, removed: false, sessionDeleted: false };
       }
-      // Mantém o índice dentro dos limites (wrap quando o removido era o último).
-      state.currentTurnIndex %= state.turnOrder.length;
-    }
-    await this.repo.save(state);
-    return { state, removed: true, sessionDeleted: false };
+      const removedIdx = state.turnOrder.indexOf(playerId);
+      state.players = state.players.filter((p) => p.id !== playerId);
+      if (state.players.length === 0) {
+        await this.repo.delete(code);
+        return { state: null, removed: true, sessionDeleted: true };
+      }
+      // Remove também da ordem de turnos e reajusta currentTurnIndex para não
+      // apontar para um jogador inexistente (evita turnChanged/rotação
+      // inconsistentes numa partida em andamento).
+      state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
+      if (state.turnOrder.length > 0) {
+        // Removemos alguém antes do índice atual → recua um p/ preservar o alvo.
+        if (removedIdx !== -1 && removedIdx < state.currentTurnIndex) {
+          state.currentTurnIndex -= 1;
+        }
+        // Mantém o índice dentro dos limites (wrap quando o removido era o último).
+        state.currentTurnIndex %= state.turnOrder.length;
+      }
+      await this.repo.save(state);
+      return { state, removed: true, sessionDeleted: false };
+    });
   }
 
   getState(code: string): Promise<SessionState | null> {
