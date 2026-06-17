@@ -106,5 +106,221 @@
     "correct": "Nos sólidos",
     "proximal": "No ar",
     "wrong": ["No vácuo", "Na mesma velocidade em todos"]
+  },
+  {
+    "id": "fis-0013",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "O que um relógio mede?",
+    "correct": "Tempo",
+    "proximal": "Velocidade",
+    "wrong": ["Temperatura", "Distância"]
+  },
+  {
+    "id": "fis-0014",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "Qual é a principal fonte de luz natural durante o dia?",
+    "correct": "O Sol",
+    "proximal": "A Lua",
+    "wrong": ["As estrelas", "As lâmpadas"]
+  },
+  {
+    "id": "fis-0015",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "A água se transforma em gelo quando é:",
+    "correct": "Resfriada",
+    "proximal": "Aquecida",
+    "wrong": ["Agitada", "Filtrada"]
+  },
+  {
+    "id": "fis-0016",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "Um ímã atrai objetos feitos de qual material?",
+    "correct": "Ferro",
+    "proximal": "Alumínio",
+    "wrong": ["Plástico", "Madeira"]
+  },
+  {
+    "id": "fis-0017",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "O que acontece com um objeto solto no ar perto do chão?",
+    "correct": "Cai por causa da gravidade",
+    "proximal": "Sobe",
+    "wrong": ["Fica parado no ar", "Desaparece"]
+  },
+  {
+    "id": "fis-0018",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "Em uma tempestade, vemos o relâmpago antes de ouvir o trovão porque:",
+    "correct": "A luz é mais rápida que o som",
+    "proximal": "O som é mais rápido que a luz",
+    "wrong": ["Têm a mesma velocidade", "Depende da cor do raio"]
+  },
+  {
+    "id": "fis-0019",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "Qual instrumento é usado para medir a massa de um corpo?",
+    "correct": "Balança",
+    "proximal": "Régua",
+    "wrong": ["Termômetro", "Relógio"]
+  },
+  {
+    "id": "fis-0020",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "A sombra se forma porque a luz:",
+    "correct": "Não atravessa objetos opacos",
+    "proximal": "Atravessa todos os objetos",
+    "wrong": ["É colorida", "É quente"]
+  },
+  {
+    "id": "fis-0021",
+    "subject": "fisica",
+    "difficulty": "easy",
+    "statement": "O Sol é classificado como uma:",
+    "correct": "Estrela",
+    "proximal": "Planeta",
+    "wrong": ["Lua", "Galáxia"]
+  },
+  {
+    "id": "fis-0022",
+    "subject": "fisica",
+    "difficulty": "normal",
+    "statement": "A 1ª Lei de Newton também é conhecida como Lei da:",
+    "correct": "Inércia",
+    "proximal": "Ação e reação",
+    "wrong": ["Gravidade", "Energia"]
+  },
+  {
+    "id": "fis-0023",
+    "subject": "fisica",
+    "difficulty": "normal",
+    "statement": "Qual é a unidade de temperatura no Sistema Internacional (SI)?",
+    "correct": "Kelvin (K)",
+    "proximal": "Grau Celsius (°C)",
+    "wrong": ["Joule (J)", "Newton (N)"]
+  },
+  {
+    "id": "fis-0024",
+    "subject": "fisica",
+    "difficulty": "normal",
+    "statement": "A energia potencial gravitacional de um corpo depende de:",
+    "correct": "Massa e altura",
+    "proximal": "Massa e velocidade",
+    "wrong": ["Apenas do tempo", "Apenas da força"]
+  },
+  {
+    "id": "fis-0025",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Um carro percorre 100 m em 10 s. Qual é a velocidade média?",
+    "correct": "10 m/s",
+    "proximal": "1000 m/s",
+    "wrong": ["0,1 m/s", "110 m/s"]
+  },
+  {
+    "id": "fis-0026",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Uma força de 10 N atua sobre uma massa de 2 kg. Qual é a aceleração? (F = m·a)",
+    "correct": "5 m/s²",
+    "proximal": "20 m/s²",
+    "wrong": ["12 m/s²", "0,2 m/s²"]
+  },
+  {
+    "id": "fis-0027",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "A 3ª Lei de Newton afirma o princípio da:",
+    "correct": "Ação e reação",
+    "proximal": "Inércia",
+    "wrong": ["Gravitação universal", "Conservação de energia"]
+  },
+  {
+    "id": "fis-0028",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Qual é a energia cinética de um corpo de 2 kg a 3 m/s? (Ec = m·v²/2)",
+    "correct": "9 J",
+    "proximal": "6 J",
+    "wrong": ["3 J", "18 J"]
+  },
+  {
+    "id": "fis-0029",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Um objeto cai livremente por 2 s. Qual é sua velocidade? (g ≈ 10 m/s²)",
+    "correct": "20 m/s",
+    "proximal": "5 m/s",
+    "wrong": ["10 m/s", "40 m/s"]
+  },
+  {
+    "id": "fis-0030",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Qual é o trabalho de uma força de 5 N que desloca um corpo por 4 m? (W = F·d)",
+    "correct": "20 J",
+    "proximal": "1,25 J",
+    "wrong": ["9 J", "5 J"]
+  },
+  {
+    "id": "fis-0031",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "A unidade Hertz (Hz) mede qual grandeza?",
+    "correct": "Frequência",
+    "proximal": "Período",
+    "wrong": ["Energia", "Potência"]
+  },
+  {
+    "id": "fis-0032",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Num circuito, V = 10 V e R = 2 Ω. Qual é a corrente? (Lei de Ohm: I = V/R)",
+    "correct": "5 A",
+    "proximal": "20 A",
+    "wrong": ["0,2 A", "12 A"]
+  },
+  {
+    "id": "fis-0033",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Um aparelho consome 100 J em 5 s. Qual é a potência? (P = E/t)",
+    "correct": "20 W",
+    "proximal": "500 W",
+    "wrong": ["105 W", "5 W"]
+  },
+  {
+    "id": "fis-0034",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Qual é a densidade de um corpo de 200 g e volume 100 cm³? (d = m/V)",
+    "correct": "2 g/cm³",
+    "proximal": "0,5 g/cm³",
+    "wrong": ["300 g/cm³", "20000 g/cm³"]
+  },
+  {
+    "id": "fis-0035",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Aproximadamente quanto tempo a luz do Sol leva para chegar à Terra?",
+    "correct": "8 minutos",
+    "proximal": "8 segundos",
+    "wrong": ["1 hora", "É instantâneo"]
+  },
+  {
+    "id": "fis-0036",
+    "subject": "fisica",
+    "difficulty": "hard",
+    "statement": "Qual destas é uma grandeza vetorial (tem direção e sentido)?",
+    "correct": "Velocidade",
+    "proximal": "Massa",
+    "wrong": ["Temperatura", "Tempo"]
   }
 ]
