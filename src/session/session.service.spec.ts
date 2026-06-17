@@ -316,7 +316,11 @@ describe('SessionService.markDisconnected / leaveSession', () => {
       'normal',
       's',
     );
-    const { playerId: b } = await ctx.service.joinSession(state.code, 'Bia', 's');
+    const { playerId: b } = await ctx.service.joinSession(
+      state.code,
+      'Bia',
+      's',
+    );
     const { playerId: c } = await ctx.service.joinSession(
       state.code,
       'Caio',
@@ -338,9 +342,7 @@ describe('SessionService.markDisconnected / leaveSession', () => {
     expect(out.state!.currentTurnIndex).toBeLessThan(
       out.state!.turnOrder.length,
     );
-    expect([b, c]).toContain(
-      out.state!.turnOrder[out.state!.currentTurnIndex],
-    );
+    expect([b, c]).toContain(out.state!.turnOrder[out.state!.currentTurnIndex]);
   });
 
   // Decisão de produto: partida em playing caindo para 1 → termina, restante vence.
@@ -351,7 +353,11 @@ describe('SessionService.markDisconnected / leaveSession', () => {
       'normal',
       's',
     );
-    const { playerId: b } = await ctx.service.joinSession(state.code, 'Bia', 's');
+    const { playerId: b } = await ctx.service.joinSession(
+      state.code,
+      'Bia',
+      's',
+    );
 
     const seeded = (await ctx.repo.findByCode(state.code))!;
     seeded.status = 'playing';

@@ -368,7 +368,10 @@ export class GameGateway
     state: SessionState,
   ): Promise<void> {
     this.server.to(code).emit('gameState', toGameState(state));
-    await this.advanceTurn(code, state.turnOrder[state.currentTurnIndex] ?? null);
+    await this.advanceTurn(
+      code,
+      state.turnOrder[state.currentTurnIndex] ?? null,
+    );
   }
 
   // Após um jogador sair (leaveSession) ou ser removido por expiração de grace
