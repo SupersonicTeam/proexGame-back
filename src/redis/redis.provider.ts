@@ -1,4 +1,4 @@
-import { Provider } from '@nestjs/common';
+import { Logger, Provider } from '@nestjs/common';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from './redis.constants';
 
@@ -10,11 +10,20 @@ export const redisProvider: Provider = {
   useFactory: (): Redis => {
     const host = process.env.REDIS_HOST ?? '127.0.0.1';
     const port = Number(process.env.REDIS_PORT ?? 6379);
-    return new Redis({
+    const client = new Redis({
       host,
       port,
       lazyConnect: false,
       maxRetriesPerRequest: 3,
     });
+    // ioredis EMITE 'error' de forma assíncrona; sem um listener a falha vira
+    // unhandled e some sem rastro. Logamos para o operador enxergar quedas do
+    // Redis (achado #5 do code-review). O reconnect automático do ioredis cuida
+    // da recuperação — aqui só observabilidade, não relançamos.
+    const logger = new Logger('RedisClient');
+    client.on('error', (err: Error) => {
+      logger.error(`Erro na conexão com o Redis: ${err.message}`);
+    });
+    return client;
   },
 };
