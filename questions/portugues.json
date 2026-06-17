@@ -38,5 +38,61 @@
     "correct": "exceção",
     "proximal": "excessão",
     "wrong": ["ecseção", "exeção"]
+  },
+  {
+    "id": "por-0006",
+    "subject": "portugues",
+    "statement": "Qual é o plural de \"cidadão\"?",
+    "correct": "cidadãos",
+    "proximal": "cidadões",
+    "wrong": ["cidadãoes", "cidadã"]
+  },
+  {
+    "id": "por-0007",
+    "subject": "portugues",
+    "statement": "Quantas sílabas tem a palavra \"casa\"?",
+    "correct": "2",
+    "proximal": "3",
+    "wrong": ["1", "4"]
+  },
+  {
+    "id": "por-0008",
+    "subject": "portugues",
+    "statement": "Na frase \"Os meninos correram\", qual é o sujeito?",
+    "correct": "Os meninos",
+    "proximal": "correram",
+    "wrong": ["correram rápido", "os"]
+  },
+  {
+    "id": "por-0009",
+    "subject": "portugues",
+    "statement": "Qual é o feminino de \"ator\"?",
+    "correct": "atriz",
+    "proximal": "atora",
+    "wrong": ["ator", "atrize"]
+  },
+  {
+    "id": "por-0010",
+    "subject": "portugues",
+    "statement": "A palavra \"rapidamente\" é um:",
+    "correct": "advérbio",
+    "proximal": "adjetivo",
+    "wrong": ["substantivo", "verbo"]
+  },
+  {
+    "id": "por-0011",
+    "subject": "portugues",
+    "statement": "Qual frase está na ordem direta (sujeito + verbo + complemento)?",
+    "correct": "O gato comeu o peixe",
+    "proximal": "O peixe o gato comeu",
+    "wrong": ["Comeu o gato o peixe", "Peixe gato comeu o"]
+  },
+  {
+    "id": "por-0012",
+    "subject": "portugues",
+    "statement": "Qual é o antônimo de \"claro\"?",
+    "correct": "escuro",
+    "proximal": "nublado",
+    "wrong": ["límpido", "transparente"]
   }
 ]

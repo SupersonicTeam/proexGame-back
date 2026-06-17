@@ -1,0 +1,98 @@
+[
+  {
+    "id": "web-0001",
+    "subject": "desenvolvimento-web",
+    "statement": "O que significa a sigla HTML?",
+    "correct": "HyperText Markup Language",
+    "proximal": "HighText Markup Language",
+    "wrong": ["Home Tool Markup Language", "Hyperlink Machine Language"]
+  },
+  {
+    "id": "web-0002",
+    "subject": "desenvolvimento-web",
+    "statement": "Qual tag HTML cria um parágrafo de texto?",
+    "correct": "<p>",
+    "proximal": "<par>",
+    "wrong": ["<text>", "<paragraph>"]
+  },
+  {
+    "id": "web-0003",
+    "subject": "desenvolvimento-web",
+    "statement": "Qual tag HTML cria um link clicável?",
+    "correct": "<a>",
+    "proximal": "<link>",
+    "wrong": ["<href>", "<url>"]
+  },
+  {
+    "id": "web-0004",
+    "subject": "desenvolvimento-web",
+    "statement": "Em CSS, qual propriedade altera a cor do texto?",
+    "correct": "color",
+    "proximal": "text-color",
+    "wrong": ["font-color", "background"]
+  },
+  {
+    "id": "web-0005",
+    "subject": "desenvolvimento-web",
+    "statement": "Em CSS, qual propriedade altera a cor de fundo de um elemento?",
+    "correct": "background-color",
+    "proximal": "color",
+    "wrong": ["bgcolor", "fill"]
+  },
+  {
+    "id": "web-0006",
+    "subject": "desenvolvimento-web",
+    "statement": "Qual tag HTML é usada para exibir uma imagem?",
+    "correct": "<img>",
+    "proximal": "<image>",
+    "wrong": ["<src>", "<photo>"]
+  },
+  {
+    "id": "web-0007",
+    "subject": "desenvolvimento-web",
+    "statement": "Em JavaScript, qual palavra-chave declara uma variável que pode mudar de valor?",
+    "correct": "let",
+    "proximal": "const",
+    "wrong": ["int", "variable"]
+  },
+  {
+    "id": "web-0008",
+    "subject": "desenvolvimento-web",
+    "statement": "Em JavaScript, o que o comando console.log() faz?",
+    "correct": "Exibe uma mensagem no console do navegador",
+    "proximal": "Cria uma variável chamada log",
+    "wrong": ["Apaga todo o console", "Conecta o site ao servidor"]
+  },
+  {
+    "id": "web-0009",
+    "subject": "desenvolvimento-web",
+    "statement": "Qual símbolo inicia um comentário de uma linha em JavaScript?",
+    "correct": "//",
+    "proximal": "/*",
+    "wrong": ["#", "<!--"]
+  },
+  {
+    "id": "web-0010",
+    "subject": "desenvolvimento-web",
+    "statement": "Em HTML, qual tag cria o título de maior destaque?",
+    "correct": "<h1>",
+    "proximal": "<h6>",
+    "wrong": ["<head>", "<title>"]
+  },
+  {
+    "id": "web-0011",
+    "subject": "desenvolvimento-web",
+    "statement": "Em JavaScript, qual operador compara valor E tipo (igualdade estrita)?",
+    "correct": "===",
+    "proximal": "==",
+    "wrong": ["=", "!="]
+  },
+  {
+    "id": "web-0012",
+    "subject": "desenvolvimento-web",
+    "statement": "Em CSS, qual seletor aplica estilo ao elemento com id=\"menu\"?",
+    "correct": "#menu",
+    "proximal": ".menu",
+    "wrong": ["menu", "*menu"]
+  }
+]
