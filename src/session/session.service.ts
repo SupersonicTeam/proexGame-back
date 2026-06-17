@@ -119,16 +119,35 @@ export class SessionService {
     });
   }
 
+  // Saída voluntária no meio da sessão (RF). Antes só filtrava de players[],
+  // deixando o id no turnOrder/currentTurnIndex — id fantasma travava a partida
+  // (achado #3). Agora reaproveita o helper removePlayer, que reconcilia o turno
+  // e aplica a regra do vencedor por abandono. Retorna o que ocorreu para o
+  // gateway emitir os eventos certos (gameOver/gameState/lobbyState).
   async leaveSession(
     code: string,
     playerId: string,
-  ): Promise<SessionState | null> {
+  ): Promise<{
+    state: SessionState | null;
+    gameEnded: boolean;
+    sessionDeleted: boolean;
+  }> {
     return this.lock.runExclusive(code, async () => {
       const state = await this.repo.findByCode(code);
-      if (!state) return null;
-      state.players = state.players.filter((p) => p.id !== playerId);
+      if (!state) {
+        return { state: null, gameEnded: false, sessionDeleted: false };
+      }
+      const result = this.removePlayer(state, playerId);
+      if (result.sessionDeleted) {
+        await this.repo.delete(code);
+        return { state: null, gameEnded: false, sessionDeleted: true };
+      }
       await this.repo.save(state);
-      return state;
+      return {
+        state,
+        gameEnded: result.gameEnded,
+        sessionDeleted: false,
+      };
     });
   }
 
@@ -203,27 +222,55 @@ export class SessionService {
       if (!player || player.connected) {
         return { state, removed: false, sessionDeleted: false };
       }
-      const removedIdx = state.turnOrder.indexOf(playerId);
-      state.players = state.players.filter((p) => p.id !== playerId);
-      if (state.players.length === 0) {
+      // Reaproveita a mesma reconciliação de turno/vencedor que leaveSession
+      // (achado #3): assim a queda para 1 jogador em playing também termina a
+      // partida e declara o restante vencedor (paridade entre os dois caminhos).
+      const result = this.removePlayer(state, playerId);
+      if (result.sessionDeleted) {
         await this.repo.delete(code);
         return { state: null, removed: true, sessionDeleted: true };
-      }
-      // Remove também da ordem de turnos e reajusta currentTurnIndex para não
-      // apontar para um jogador inexistente (evita turnChanged/rotação
-      // inconsistentes numa partida em andamento).
-      state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
-      if (state.turnOrder.length > 0) {
-        // Removemos alguém antes do índice atual → recua um p/ preservar o alvo.
-        if (removedIdx !== -1 && removedIdx < state.currentTurnIndex) {
-          state.currentTurnIndex -= 1;
-        }
-        // Mantém o índice dentro dos limites (wrap quando o removido era o último).
-        state.currentTurnIndex %= state.turnOrder.length;
       }
       await this.repo.save(state);
       return { state, removed: true, sessionDeleted: false };
     });
+  }
+
+  // Helper compartilhado por leaveSession e expireDisconnectedPlayer (achado #3).
+  // Remove o jogador de players[] e — mantendo a integridade do turno — também de
+  // turnOrder, reajustando currentTurnIndex para nunca apontar para um id fantasma.
+  // Regra de produto: se a partida está em 'playing' e sobra exatamente 1 jogador,
+  // a partida TERMINA e o restante é declarado vencedor (status 'finished',
+  // winner = id do restante). Muta `state` in place; NÃO persiste (cada chamador
+  // decide salvar ou apagar conforme sessionDeleted). Retorna sinais para o
+  // chamador montar a resposta/eventos.
+  private removePlayer(
+    state: SessionState,
+    playerId: string,
+  ): { gameEnded: boolean; sessionDeleted: boolean } {
+    const removedIdx = state.turnOrder.indexOf(playerId);
+    state.players = state.players.filter((p) => p.id !== playerId);
+    if (state.players.length === 0) {
+      return { gameEnded: false, sessionDeleted: true };
+    }
+    // Remove da ordem de turnos e reajusta currentTurnIndex para não apontar para
+    // um jogador inexistente (evita turnChanged/rotação inconsistentes em jogo).
+    state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
+    if (state.turnOrder.length > 0) {
+      // Removemos alguém antes do índice atual → recua um p/ preservar o alvo.
+      if (removedIdx !== -1 && removedIdx < state.currentTurnIndex) {
+        state.currentTurnIndex -= 1;
+      }
+      // Mantém o índice dentro dos limites (wrap quando o removido era o último).
+      state.currentTurnIndex %= state.turnOrder.length;
+    }
+    // Partida em andamento que cai para 1 jogador: termina por abandono, restante
+    // vence. Só vale em 'playing' — no lobby/ordering a saída não declara vencedor.
+    if (state.status === 'playing' && state.players.length === 1) {
+      state.status = 'finished';
+      state.winner = state.players[0].id;
+      return { gameEnded: true, sessionDeleted: false };
+    }
+    return { gameEnded: false, sessionDeleted: false };
   }
 
   // Define a aparência cosmética do jogador (CONTRACT-S5): cor (hex) e emoji,
@@ -252,6 +299,12 @@ export class SessionService {
 
   getState(code: string): Promise<SessionState | null> {
     return this.repo.findByCode(code);
+  }
+
+  // Lista os códigos de todas as sessões vivas no Redis (passthrough do SCAN do
+  // repositório). Usado pela reconciliação de grace no boot (achado #2).
+  listSessionCodes(): Promise<string[]> {
+    return this.repo.scanCodes();
   }
 
   private async requireSession(code: string): Promise<SessionState> {

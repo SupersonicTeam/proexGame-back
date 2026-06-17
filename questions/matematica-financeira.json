@@ -1,0 +1,98 @@
+[
+  {
+    "id": "fin-0001",
+    "subject": "matematica-financeira",
+    "statement": "Um produto custa R$ 100 e tem 10% de desconto. Qual é o valor final?",
+    "correct": "R$ 90",
+    "proximal": "R$ 80",
+    "wrong": ["R$ 110", "R$ 10"]
+  },
+  {
+    "id": "fin-0002",
+    "subject": "matematica-financeira",
+    "statement": "Juros simples de 10% ao mês sobre R$ 200, em 1 mês, geram quanto de juros?",
+    "correct": "R$ 20",
+    "proximal": "R$ 10",
+    "wrong": ["R$ 200", "R$ 2"]
+  },
+  {
+    "id": "fin-0003",
+    "subject": "matematica-financeira",
+    "statement": "Um produto de R$ 50 sofre um aumento de 20%. Qual é o novo preço?",
+    "correct": "R$ 60",
+    "proximal": "R$ 70",
+    "wrong": ["R$ 55", "R$ 100"]
+  },
+  {
+    "id": "fin-0004",
+    "subject": "matematica-financeira",
+    "statement": "O que significa pagar uma compra \"à vista\"?",
+    "correct": "Pagar o valor total no momento da compra",
+    "proximal": "Pagar parcelado sem juros",
+    "wrong": ["Pagar somente no próximo ano", "Levar o produto sem pagar"]
+  },
+  {
+    "id": "fin-0005",
+    "subject": "matematica-financeira",
+    "statement": "Comprar parcelado \"sem juros\" significa que você paga:",
+    "correct": "O mesmo valor total, dividido em parcelas",
+    "proximal": "Um valor maior, dividido em parcelas",
+    "wrong": ["Menos que o preço à vista", "Apenas a primeira parcela"]
+  },
+  {
+    "id": "fin-0006",
+    "subject": "matematica-financeira",
+    "statement": "Quanto é 25% de R$ 80?",
+    "correct": "R$ 20",
+    "proximal": "R$ 25",
+    "wrong": ["R$ 40", "R$ 16"]
+  },
+  {
+    "id": "fin-0007",
+    "subject": "matematica-financeira",
+    "statement": "Economizando R$ 50 por mês, quanto você terá em 1 ano (sem juros)?",
+    "correct": "R$ 600",
+    "proximal": "R$ 500",
+    "wrong": ["R$ 50", "R$ 1200"]
+  },
+  {
+    "id": "fin-0008",
+    "subject": "matematica-financeira",
+    "statement": "Uma compra de R$ 300 em 3 parcelas iguais sem juros. Qual é o valor de cada parcela?",
+    "correct": "R$ 100",
+    "proximal": "R$ 110",
+    "wrong": ["R$ 150", "R$ 90"]
+  },
+  {
+    "id": "fin-0009",
+    "subject": "matematica-financeira",
+    "statement": "O que é o \"lucro\" de uma venda?",
+    "correct": "A diferença entre o preço de venda e o custo",
+    "proximal": "O valor total recebido na venda",
+    "wrong": ["O valor do imposto pago", "O preço de custo do produto"]
+  },
+  {
+    "id": "fin-0010",
+    "subject": "matematica-financeira",
+    "statement": "Juros simples: capital de R$ 1000 a 5% ao mês, durante 2 meses. Qual é o total de juros?",
+    "correct": "R$ 100",
+    "proximal": "R$ 50",
+    "wrong": ["R$ 1100", "R$ 200"]
+  },
+  {
+    "id": "fin-0011",
+    "subject": "matematica-financeira",
+    "statement": "Se o dólar custa R$ 5, quantos reais valem 10 dólares?",
+    "correct": "R$ 50",
+    "proximal": "R$ 15",
+    "wrong": ["R$ 2", "R$ 5"]
+  },
+  {
+    "id": "fin-0012",
+    "subject": "matematica-financeira",
+    "statement": "Um produto de R$ 200 com 50% de desconto fica por quanto?",
+    "correct": "R$ 100",
+    "proximal": "R$ 150",
+    "wrong": ["R$ 50", "R$ 250"]
+  }
+]

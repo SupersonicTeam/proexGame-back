@@ -1,0 +1,98 @@
+[
+  {
+    "id": "qui-0001",
+    "subject": "quimica",
+    "statement": "Qual é a fórmula química da água?",
+    "correct": "H2O",
+    "proximal": "HO2",
+    "wrong": ["O2H", "H2O2"]
+  },
+  {
+    "id": "qui-0002",
+    "subject": "quimica",
+    "statement": "Qual é o símbolo químico do oxigênio?",
+    "correct": "O",
+    "proximal": "O2",
+    "wrong": ["Ox", "Og"]
+  },
+  {
+    "id": "qui-0003",
+    "subject": "quimica",
+    "statement": "Qual é o símbolo químico do carbono?",
+    "correct": "C",
+    "proximal": "Ca",
+    "wrong": ["Co", "Cr"]
+  },
+  {
+    "id": "qui-0004",
+    "subject": "quimica",
+    "statement": "O que é uma molécula?",
+    "correct": "A união de dois ou mais átomos",
+    "proximal": "Um único átomo isolado",
+    "wrong": ["Uma partícula de luz", "Um tipo de célula"]
+  },
+  {
+    "id": "qui-0005",
+    "subject": "quimica",
+    "statement": "Qual gás as plantas absorvem do ar na fotossíntese?",
+    "correct": "Gás carbônico (CO2)",
+    "proximal": "Oxigênio (O2)",
+    "wrong": ["Nitrogênio", "Hidrogênio"]
+  },
+  {
+    "id": "qui-0006",
+    "subject": "quimica",
+    "statement": "Qual é o pH aproximado de uma solução neutra?",
+    "correct": "7",
+    "proximal": "6",
+    "wrong": ["0", "14"]
+  },
+  {
+    "id": "qui-0007",
+    "subject": "quimica",
+    "statement": "Quais são os três estados físicos mais comuns da matéria?",
+    "correct": "Sólido, líquido e gasoso",
+    "proximal": "Sólido, líquido, gasoso e plasma",
+    "wrong": ["Apenas sólido e líquido", "Quente, morno e frio"]
+  },
+  {
+    "id": "qui-0008",
+    "subject": "quimica",
+    "statement": "Como se chama a passagem do estado líquido para o gasoso?",
+    "correct": "Vaporização (evaporação)",
+    "proximal": "Condensação",
+    "wrong": ["Fusão", "Solidificação"]
+  },
+  {
+    "id": "qui-0009",
+    "subject": "quimica",
+    "statement": "Qual é o símbolo químico do sódio?",
+    "correct": "Na",
+    "proximal": "So",
+    "wrong": ["Sd", "S"]
+  },
+  {
+    "id": "qui-0010",
+    "subject": "quimica",
+    "statement": "A que temperatura a água ferve ao nível do mar?",
+    "correct": "100 °C",
+    "proximal": "90 °C",
+    "wrong": ["50 °C", "0 °C"]
+  },
+  {
+    "id": "qui-0011",
+    "subject": "quimica",
+    "statement": "Qual destes é um elemento químico?",
+    "correct": "Ferro",
+    "proximal": "Aço",
+    "wrong": ["Água", "Vidro"]
+  },
+  {
+    "id": "qui-0012",
+    "subject": "quimica",
+    "statement": "O número atômico de um elemento indica a quantidade de:",
+    "correct": "Prótons",
+    "proximal": "Nêutrons",
+    "wrong": ["Moléculas", "Ligações"]
+  }
+]

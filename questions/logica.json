@@ -1,0 +1,98 @@
+[
+  {
+    "id": "log-0001",
+    "subject": "logica",
+    "statement": "Se \"todo A é B\" e \"todo B é C\", então o que se conclui?",
+    "correct": "Todo A é C",
+    "proximal": "Todo C é A",
+    "wrong": ["Nenhum A é C", "Algum A não é C"]
+  },
+  {
+    "id": "log-0002",
+    "subject": "logica",
+    "statement": "Qual é a negação de \"todos os gatos são pretos\"?",
+    "correct": "Pelo menos um gato não é preto",
+    "proximal": "Nenhum gato é preto",
+    "wrong": ["Todos os gatos são pretos", "Todos os gatos são brancos"]
+  },
+  {
+    "id": "log-0003",
+    "subject": "logica",
+    "statement": "O operador lógico \"E\" (AND) só é verdadeiro quando:",
+    "correct": "As duas condições são verdadeiras",
+    "proximal": "Pelo menos uma condição é verdadeira",
+    "wrong": ["As duas condições são falsas", "Nenhuma condição é verdadeira"]
+  },
+  {
+    "id": "log-0004",
+    "subject": "logica",
+    "statement": "O operador lógico \"OU\" (OR) só é falso quando:",
+    "correct": "As duas condições são falsas",
+    "proximal": "As duas condições são verdadeiras",
+    "wrong": ["Pelo menos uma é verdadeira", "Uma é verdadeira e a outra falsa"]
+  },
+  {
+    "id": "log-0005",
+    "subject": "logica",
+    "statement": "Complete a sequência: 2, 4, 6, 8, ...",
+    "correct": "10",
+    "proximal": "9",
+    "wrong": ["12", "16"]
+  },
+  {
+    "id": "log-0006",
+    "subject": "logica",
+    "statement": "Complete a sequência: 1, 2, 4, 8, ...",
+    "correct": "16",
+    "proximal": "10",
+    "wrong": ["12", "9"]
+  },
+  {
+    "id": "log-0007",
+    "subject": "logica",
+    "statement": "Se hoje é terça-feira, que dia da semana será daqui a 3 dias?",
+    "correct": "Sexta-feira",
+    "proximal": "Sábado",
+    "wrong": ["Quinta-feira", "Segunda-feira"]
+  },
+  {
+    "id": "log-0008",
+    "subject": "logica",
+    "statement": "Qual é a negação da frase \"está chovendo\"?",
+    "correct": "Não está chovendo",
+    "proximal": "Está fazendo sol",
+    "wrong": ["Está chovendo muito", "Vai chover amanhã"]
+  },
+  {
+    "id": "log-0009",
+    "subject": "logica",
+    "statement": "Complete a sequência: 3, 6, 9, 12, ...",
+    "correct": "15",
+    "proximal": "14",
+    "wrong": ["18", "16"]
+  },
+  {
+    "id": "log-0010",
+    "subject": "logica",
+    "statement": "Se \"A implica B\" é verdadeiro e A é verdadeiro, então B é:",
+    "correct": "Verdadeiro",
+    "proximal": "Falso",
+    "wrong": ["Indefinido", "Impossível de saber"]
+  },
+  {
+    "id": "log-0011",
+    "subject": "logica",
+    "statement": "Maçã está para fruta assim como cenoura está para:",
+    "correct": "Legume",
+    "proximal": "Verdura",
+    "wrong": ["Fruta", "Tempero"]
+  },
+  {
+    "id": "log-0012",
+    "subject": "logica",
+    "statement": "Um trem parte às 14h e chega às 17h. Quanto durou a viagem?",
+    "correct": "3 horas",
+    "proximal": "2 horas",
+    "wrong": ["4 horas", "31 horas"]
+  }
+]

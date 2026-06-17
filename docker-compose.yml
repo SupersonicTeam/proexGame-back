@@ -4,6 +4,12 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    # Persistência durável (achado #1 do code-review): sem volume nomeado + AOF, um
+    # recreate do container (deploy, `down && up`, troca de imagem) zera todas as
+    # sessões. AOF com fsync a cada 1s + volume garantem que o estado sobreviva.
+    command: ['redis-server', '--appendonly', 'yes', '--appendfsync', 'everysec']
+    volumes:
+      - redis_data:/data
     # Redis NÃO é exposto no host: o backend o acessa pela rede interna (redis:6379).
     # Isso evita conflito de porta e mantém o Redis fora da internet na VPS.
     # Para inspecionar via redis-cli no host, descomente (ajuste a porta se 6379 estiver em uso):
@@ -28,3 +34,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+# Volume nomeado do Redis: sobrevive a recreate de container e a deploys (achado #1).
+volumes:
+  redis_data:

@@ -38,5 +38,61 @@
     "correct": "56",
     "proximal": "54",
     "wrong": ["48", "63"]
+  },
+  {
+    "id": "mat-0006",
+    "subject": "matematica",
+    "statement": "Quanto é 15% de 200?",
+    "correct": "30",
+    "proximal": "20",
+    "wrong": ["15", "45"]
+  },
+  {
+    "id": "mat-0007",
+    "subject": "matematica",
+    "statement": "Qual é o valor de 5²?",
+    "correct": "25",
+    "proximal": "10",
+    "wrong": ["7", "20"]
+  },
+  {
+    "id": "mat-0008",
+    "subject": "matematica",
+    "statement": "Quanto é 1/2 + 1/4?",
+    "correct": "3/4",
+    "proximal": "2/6",
+    "wrong": ["1/6", "2/4"]
+  },
+  {
+    "id": "mat-0009",
+    "subject": "matematica",
+    "statement": "Qual é o perímetro de um quadrado de lado 5?",
+    "correct": "20",
+    "proximal": "25",
+    "wrong": ["10", "15"]
+  },
+  {
+    "id": "mat-0010",
+    "subject": "matematica",
+    "statement": "Quanto é 2³?",
+    "correct": "8",
+    "proximal": "6",
+    "wrong": ["9", "5"]
+  },
+  {
+    "id": "mat-0011",
+    "subject": "matematica",
+    "statement": "Qual é a área de um retângulo de base 4 e altura 3?",
+    "correct": "12",
+    "proximal": "14",
+    "wrong": ["7", "24"]
+  },
+  {
+    "id": "mat-0012",
+    "subject": "matematica",
+    "statement": "Quanto é 100 ÷ 4?",
+    "correct": "25",
+    "proximal": "20",
+    "wrong": ["40", "50"]
   }
 ]

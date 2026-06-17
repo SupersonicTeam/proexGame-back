@@ -61,22 +61,21 @@ pode ter até ~24 casas-pergunta, distribuídas entre as 10 matérias. Para uma 
 matéria** (mínimo confortável; "dezenas" do spec). Menos que isso funciona para o evento
 único de ≤20 usuários, mas reduz a folga.
 
-## As 10 matérias (a confirmar pelo Murilo)
+## As matérias (turma do 2º ano — curso de programação)
 
-Sugestão de conjunto + prefixo de `id` (ajuste à vontade ao decidir o conteúdo):
+Conjunto definido para o público (2º ano do ensino médio, curso de programação),
+12 perguntas cada nesta primeira leva — expandir para ~20 quando houver folga:
 
 | Matéria (`subject` / nome do arquivo) | Prefixo de `id` | Status |
 |---|---|---|
-| `matematica` | `mat` | ✅ existe (5 perguntas — expandir) |
-| `portugues` | `por` | ✅ existe (5 perguntas — expandir) |
-| `historia` | `his` | ⬜ a criar |
-| `geografia` | `geo` | ⬜ a criar |
-| `biologia` | `bio` | ⬜ a criar |
-| `fisica` | `fis` | ⬜ a criar |
-| `quimica` | `qui` | ⬜ a criar |
-| `ingles` | `ing` | ⬜ a criar |
-| `artes` | `art` | ⬜ a criar |
-| `filosofia` | `fil` | ⬜ a criar |
+| `desenvolvimento-web` (HTML + CSS + JS básico) | `web` | ✅ 12 perguntas |
+| `matematica` | `mat` | ✅ 12 perguntas |
+| `logica` | `log` | ✅ 12 perguntas |
+| `quimica` | `qui` | ✅ 12 perguntas |
+| `fisica` | `fis` | ✅ 12 perguntas |
+| `matematica-financeira` | `fin` | ✅ 12 perguntas |
+| `conhecimentos-gerais` | `ger` | ✅ 12 perguntas |
+| `portugues` | `por` | ✅ 12 perguntas |
 
 ## Como validar o que você escreveu
 
