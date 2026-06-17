@@ -66,25 +66,25 @@ Para uma matéria não "esgotar" um nível no meio da partida (`pickQuestion` re
 nível** (`easy`/`normal`/`hard`). O fallback evita softlock, mas pools magros tornam o
 modo afetado pobre em perguntas.
 
-> **Status da expansão:** `matematica` já tem os 3 níveis preenchidos (amostra de
-> calibração). As demais matérias ainda têm o nível `hard` magro — preencher na expansão
-> de conteúdo (ver `.specs/features/difficulty-scaling/spec.md`).
+> **Status da expansão:** concluída — as 8 matérias têm os 3 níveis preenchidos
+> (ver `.specs/features/difficulty-scaling/spec.md`).
 
 ## As matérias (turma do 2º ano — curso de programação)
 
 Conjunto definido para o público (2º ano do ensino médio, curso de programação).
-Meta por nível: **~12 perguntas por matéria por dificuldade**.
+Meta por nível: **~12 perguntas por matéria por dificuldade**. Exceto `matematica`
+(24 perguntas), todas têm 36 (12 easy / 12 normal / 12 hard).
 
 | Matéria (`subject` / nome do arquivo) | Prefixo de `id` | Status |
 |---|---|---|
-| `matematica` | `mat` | ✅ 24 (8 easy / 8 normal / 8 hard) — calibrada |
-| `desenvolvimento-web` (HTML + CSS + JS básico) | `web` | ⚠️ 12 (easy/normal) — falta `hard` |
-| `logica` | `log` | ⚠️ 12 (easy/normal) — falta `hard` |
-| `quimica` | `qui` | ⚠️ 12 (easy/normal) — falta `hard` |
-| `fisica` | `fis` | ⚠️ 12 (easy/normal) — falta `hard` |
-| `matematica-financeira` | `fin` | ⚠️ 12 (easy/normal) — falta `hard` |
-| `conhecimentos-gerais` | `ger` | ⚠️ 12 (easy/normal) — falta `hard` |
-| `portugues` | `por` | ⚠️ 12 (easy/normal) — falta `hard` |
+| `matematica` | `mat` | ✅ 24 (8 / 8 / 8) |
+| `desenvolvimento-web` (HTML + CSS + JS básico) | `web` | ✅ 36 (12 / 12 / 12) |
+| `logica` | `log` | ✅ 36 (12 / 12 / 12) |
+| `quimica` | `qui` | ✅ 36 (12 / 12 / 12) |
+| `fisica` | `fis` | ✅ 36 (12 / 12 / 12) |
+| `matematica-financeira` | `fin` | ✅ 36 (12 / 12 / 12) |
+| `conhecimentos-gerais` | `ger` | ✅ 36 (12 / 12 / 12) |
+| `portugues` | `por` | ✅ 36 (12 / 12 / 12) |
 
 ## Como validar o que você escreveu
 
