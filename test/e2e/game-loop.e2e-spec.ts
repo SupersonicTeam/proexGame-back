@@ -5,6 +5,7 @@ import RedisMock from 'ioredis-mock';
 import { io, Socket } from 'socket.io-client';
 import { AppModule } from '../../src/app.module';
 import { REDIS_CLIENT } from '../../src/redis/redis.constants';
+import { startMatch } from './helpers';
 
 // Helper: aguarda um evento do socket (com timeout) e resolve com o payload.
 function once<T = any>(
@@ -74,15 +75,16 @@ describe('Game loop (e2e)', () => {
 
     const byId: Record<string, Socket> = { [p1]: c1, [p2]: c2 };
 
-    // c1 (host) inicia; ambos recebem gameStarted e o primeiro turnChanged.
-    const startedBoard = once<{ board: { size: number } }>(c1, 'gameStarted');
-    const firstTurn = once<{ playerId: string }>(c1, 'turnChanged');
-    c1.emit('startGame');
-    const board = await startedBoard;
-    // Tabuleiro agora é procedural (RF-06): tamanho em [20, 30].
-    expect(board.board.size).toBeGreaterThanOrEqual(20);
-    expect(board.board.size).toBeLessThanOrEqual(30);
-    let current = (await firstTurn).playerId;
+    // c1 (host) inicia e a fase de ordem interativa (RF-04) é resolvida: cada
+    // jogador rola o d6; o vencedor começa. startMatch dirige as rolagens.
+    const { board, firstPlayerId } = await startMatch(c1, [
+      { socket: c1, playerId: p1 },
+      { socket: c2, playerId: p2 },
+    ]);
+    // Tabuleiro procedural por dificuldade (RF-NEW-01): 'normal' ∈ [60, 70].
+    expect(board.size).toBeGreaterThanOrEqual(60);
+    expect(board.size).toBeLessThanOrEqual(70);
+    let current = firstPlayerId;
 
     // Driver do loop: o jogador da vez rola; ao receber uma pergunta, responde
     // (índice 0); seguimos até gameOver. Cobre tabuleiro procedural com perguntas.
@@ -143,16 +145,17 @@ describe('Game loop (e2e)', () => {
       c1,
       'sessionCreated',
     );
-    await new Promise((r) =>
+    const joined = await new Promise<{ playerId: string }>((r) =>
       c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
     );
 
-    const firstTurn = once<{ playerId: string }>(c1, 'turnChanged');
-    c1.emit('startGame');
-    const current = (await firstTurn).playerId;
+    const { firstPlayerId } = await startMatch(c1, [
+      { socket: c1, playerId: created.playerId },
+      { socket: c2, playerId: joined.playerId },
+    ]);
 
     // O jogador que NÃO é o da vez tenta rolar.
-    const offTurnClient = current === created.playerId ? c2 : c1;
+    const offTurnClient = firstPlayerId === created.playerId ? c2 : c1;
     const errPromise = once<{ code: string }>(offTurnClient, 'error');
     offTurnClient.emit('rollDice');
     const err = await errPromise;

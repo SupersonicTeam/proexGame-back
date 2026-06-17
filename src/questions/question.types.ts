@@ -5,11 +5,19 @@
 // disponíveis são determinadas pelos arquivos JSON presentes no banco.
 export type Subject = string;
 
+// Nível de dificuldade de uma pergunta (RF-NEW-03/04). Espelha o Difficulty da
+// sessão (session.types) — declarado aqui para evitar dependência circular de
+// runtime entre os módulos de tipos.
+export type QuestionDifficulty = 'easy' | 'normal' | 'hard';
+
 // Pergunta crua do banco. `correct`/`proximal`/`wrong` NUNCA são enviados
 // ao client juntos: ao servir, as opções são embaralhadas em PendingQuestion.
 export interface Question {
   id: string;
   subject: Subject;
+  // Nível da pergunta: a sessão só sorteia perguntas do seu próprio nível
+  // (RF-NEW-04). Obrigatório — o boot falha (fail-fast) se ausente/ inválido.
+  difficulty: QuestionDifficulty;
   statement: string;
   correct: string;
   proximal: string;

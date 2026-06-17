@@ -66,4 +66,24 @@ export class SessionRepository {
   async delete(code: string): Promise<void> {
     await this.redis.del(this.key(code));
   }
+
+  // Lista os códigos de todas as sessões vivas no Redis (SCAN não-bloqueante,
+  // diferente de KEYS). Usado pela reconciliação de boot (achado #2).
+  async scanCodes(): Promise<string[]> {
+    const prefix = 'session:';
+    const codes: string[] = [];
+    let cursor = '0';
+    do {
+      const [next, keys] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        `${prefix}*`,
+        'COUNT',
+        100,
+      );
+      cursor = next;
+      for (const key of keys) codes.push(key.slice(prefix.length));
+    } while (cursor !== '0');
+    return codes;
+  }
 }

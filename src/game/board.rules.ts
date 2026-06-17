@@ -17,16 +17,32 @@ export const DENSITY: Record<Difficulty, number> = {
   hard: 0.8,
 };
 
+/**
+ * Faixa de tamanho N do tabuleiro por dificuldade (RF-NEW-01). O difícil tem
+ * tabuleiros maiores (mais casas, partida mais longa); o fácil, menores.
+ * As faixas podem se sobrepor (normal/hard) — é intencional.
+ */
+export const BOARD_SIZE_RANGE: Record<
+  Difficulty,
+  { min: number; max: number }
+> = {
+  easy: { min: 30, max: 45 },
+  normal: { min: 60, max: 70 },
+  hard: { min: 65, max: 85 },
+};
+
 // ---------------------------------------------------------------------------
 // Funções auxiliares exportadas
 // ---------------------------------------------------------------------------
 
 /**
- * Quantidade de presídios em função do tamanho N do tabuleiro.
- * N ∈ [20, 24] → 1 presídio; N ∈ [25, 30] → 2 presídios.
+ * Quantidade de presídios em função do tamanho N do tabuleiro (RF-NEW-02).
+ * Escala ~1 presídio a cada 25 casas, com mínimo de 1. Com as faixas atuais:
+ * fácil [30,45]→1-2, normal [60,70]→2-3, difícil [65,85]→3.
+ * O divisor 25 é um knob de balanceamento.
  */
 export function prisonCount(n: number): number {
-  return n <= 24 ? 1 : 2;
+  return Math.max(1, Math.round(n / 25));
 }
 
 // ---------------------------------------------------------------------------
@@ -67,7 +83,7 @@ function sampleWithoutReplacement(
 
 /**
  * Gera um tabuleiro procedural com as seguintes etapas (ordem obrigatória):
- * 1. Sorteia N ∈ [20, 30].
+ * 1. Sorteia N na faixa da dificuldade (BOARD_SIZE_RANGE).
  * 2. Reserva casa 0 (start) e casa N (finish).
  * 3. Aloca `prisonCount(N)` presídios distintos em [1, N-1].
  * 4. Aloca casas-pergunta com densidade DENSITY[difficulty] sobre o pool
@@ -82,8 +98,9 @@ export function generateBoard(
   subjects: Subject[],
   rng: RandomSource,
 ): Board {
-  // 1. Sorteia N.
-  const n = rng.int(20, 30);
+  // 1. Sorteia N na faixa da dificuldade.
+  const range = BOARD_SIZE_RANGE[difficulty];
+  const n = rng.int(range.min, range.max);
 
   // 2. Casas terminais.
   const tileTypeBySquare: Record<number, TileType> = {

@@ -1,3 +1,4 @@
+import { OnApplicationBootstrap } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,13 +10,17 @@ import {
 import { Server, Socket } from 'socket.io';
 import { resolveCorsOrigin } from '../common/config/cors';
 import { ErrorCode, GameError } from '../common/errors/game-error';
-import { GameService } from '../game/game.service';
+import { buildRanking } from '../game/game.rules';
+import { GameService, OrderRollOutcome } from '../game/game.service';
+import { playersToRoll } from '../game/ordering.rules';
 import { ReconnectService } from '../session/reconnect.service';
 import { SessionService } from '../session/session.service';
+import { SessionState } from '../session/session.types';
 import {
   CreateSessionDto,
   JoinSessionDto,
   parseReconnect,
+  parseSetAppearance,
   parseSubmitAnswer,
   SocketData,
   toGameState,
@@ -27,7 +32,9 @@ import {
 // serviço e emite os resultados para a sala (= código da sessão). Toda a
 // lógica autoritativa vive nos serviços; o gateway não decide nada do jogo.
 @WebSocketGateway({ cors: { origin: resolveCorsOrigin() } })
-export class GameGateway implements OnGatewayDisconnect {
+export class GameGateway
+  implements OnGatewayDisconnect, OnApplicationBootstrap
+{
   @WebSocketServer()
   private server!: Server;
 
@@ -36,6 +43,24 @@ export class GameGateway implements OnGatewayDisconnect {
     private readonly games: GameService,
     private readonly reconnects: ReconnectService,
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    // Reconciliação pós-restart (achado #2): os timers de grace são in-process e
+    // se perdem no restart; os sockets também. Marca todos os jogadores das sessões
+    // ativas como desconectados e rearma o grace — quem reconectar cancela o seu,
+    // quem não voltar é expirado normalmente, evitando turno travado.
+    const codes = await this.sessions.listSessionCodes();
+    for (const code of codes) {
+      const state = await this.sessions.getState(code);
+      if (!state || state.status === 'finished') continue;
+      for (const player of state.players) {
+        await this.sessions.markDisconnected(code, player.id);
+        this.reconnects.arm(code, player.id, () =>
+          this.handleGraceExpired(code, player.id),
+        );
+      }
+    }
+  }
 
   @SubscribeMessage('createSession')
   async handleCreateSession(
@@ -85,30 +110,47 @@ export class GameGateway implements OnGatewayDisconnect {
     const { code, playerId } = this.dataOf(client);
     try {
       if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      // Valida host/≥2 jogadores e entra na fase de ordem (status 'ordering').
       await this.sessions.startGame(code, playerId);
       // Gera o tabuleiro procedural (RF-06/07/17/18) e emite com gameStarted.
       const withBoard = await this.games.setupBoard(code);
       this.server.to(code).emit('gameStarted', { board: withBoard.board });
-
-      const { state, rolls } = await this.games.resolveTurnOrder(code);
-      // Emite snapshot completo após a ordem ser resolvida (turnOrder preenchido).
-      this.server.to(code).emit('gameState', toGameState(state));
-      this.server
-        .to(code)
-        .emit('orderResult', { rolls, turnOrder: state.turnOrder });
-      this.server.to(code).emit('turnChanged', {
-        playerId: state.turnOrder[state.currentTurnIndex],
-      });
+      // Inicia a fase interativa de ordem (RF-04): cada jogador rolará o d6.
+      await this.beginOrderingAndDrain(code);
     } catch (err) {
       this.emitError(client, err);
     }
   }
 
-  // Na Sprint 1 a ordem é resolvida automaticamente no startGame.
-  // O evento existe no contrato para evolução futura; aqui é um no-op seguro.
+  // Entra na fase de ordem (RF-04): emite gameState('ordering') + orderPhase e,
+  // em seguida, DRENA jogadores que já estão desconectados no início (ex.: caíram
+  // no lobby antes do startGame, ou um restante após leaveSession/expiração). Sem
+  // isso a fase travaria esperando uma rolagem que nunca viria, pois o auto-roll
+  // por desconectado só roda no evento de disconnect.
+  private async beginOrderingAndDrain(code: string): Promise<void> {
+    const { state, playersToRoll: toRoll } =
+      await this.games.beginOrdering(code);
+    this.server.to(code).emit('gameState', toGameState(state));
+    this.server
+      .to(code)
+      .emit('orderPhase', { round: 1, playersToRoll: toRoll });
+    const outcomes = await this.games.autoRollPendingDisconnected(code);
+    for (const out of outcomes) this.emitOrderOutcome(code, out);
+  }
+
+  // Fase de ordem (RF-04): o jogador rola o d6. O servidor é a autoridade da
+  // rolagem; ao completar a rodada, ou inicia a partida (orderResult) ou abre
+  // nova rodada de desempate só entre os empatados (orderPhase).
   @SubscribeMessage('rollForOrder')
-  handleRollForOrder() {
-    return { ok: true };
+  async handleRollForOrder(@ConnectedSocket() client: Socket) {
+    const { code, playerId } = this.dataOf(client);
+    try {
+      if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const outcome = await this.games.rollForOrder(code, playerId);
+      this.emitOrderOutcome(code, outcome);
+    } catch (err) {
+      this.emitError(client, err);
+    }
   }
 
   @SubscribeMessage('rollDice')
@@ -209,6 +251,12 @@ export class GameGateway implements OnGatewayDisconnect {
         client.emit('turnChanged', {
           playerId: state.turnOrder[state.currentTurnIndex],
         });
+      } else if (state.status === 'ordering' && state.ordering) {
+        // Reconectou durante a fase de ordem (RF-04): reenvia quem deve rolar.
+        client.emit('orderPhase', {
+          round: state.ordering.round,
+          playersToRoll: playersToRoll(state.ordering),
+        });
       }
       // Snapshot completo para o reconectado renderizar tabuleiro e posições (RF-14).
       client.emit('gameState', toGameState(state));
@@ -238,14 +286,110 @@ export class GameGateway implements OnGatewayDisconnect {
     }
   }
 
+  // Aparência cosmética do peão (CONTRACT-S5): o jogador escolhe cor + emoji e a
+  // sala inteira passa a enxergar a escolha. Lê o playerId do socket.data (anti-
+  // IDOR, como os demais comandos). Rebroadcast: lobbyState no lobby; gameState
+  // em ordering/playing (carrega players[] com os novos campos). Sem impacto em
+  // regras (RF-16): é só visual.
+  @SubscribeMessage('setAppearance')
+  async handleSetAppearance(
+    @MessageBody() body: unknown,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { code, playerId } = this.dataOf(client);
+    try {
+      if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const dto = parseSetAppearance(body);
+      const state = await this.sessions.setAppearance(
+        code,
+        playerId,
+        dto.color,
+        dto.emoji,
+      );
+      if (state.status === 'lobby') {
+        this.server.to(code).emit('lobbyState', toLobbyState(state));
+      } else {
+        this.server.to(code).emit('gameState', toGameState(state));
+      }
+    } catch (err) {
+      this.emitError(client, err);
+    }
+  }
+
   @SubscribeMessage('leaveSession')
   async handleLeaveSession(@ConnectedSocket() client: Socket) {
     const { code, playerId } = this.dataOf(client);
     if (!code || !playerId) return;
-    const state = await this.sessions.leaveSession(code, playerId);
+    const result = await this.sessions.leaveSession(code, playerId);
     await client.leave(code);
-    if (state) {
+    // Sessão esvaziou (último jogador saiu): apagada no serviço; avisa quem restar
+    // na sala (paridade com a expiração de grace que apaga a sessão — RF-15).
+    if (result.sessionDeleted) {
+      this.server.to(code).emit('sessionClosed', { reason: 'host_left' });
+      return;
+    }
+    const state = result.state;
+    if (!state) return;
+    // Partida terminou por abandono (caiu para 1 em playing): vencedor declarado.
+    if (result.gameEnded) {
+      this.emitGameOver(code, state);
+      return;
+    }
+    // Saída durante a fase de ordem (RF-04): recupera a ordem com os restantes.
+    if (state.status === 'ordering') {
+      await this.recoverOrderingAfterRemoval(code, state);
+      return;
+    }
+    // Partida em andamento que segue (>=2 jogadores): a vez pode ter trocado de
+    // dono pela remoção. Reenvia gameState + turnChanged para nenhum cliente ficar
+    // com turno fantasma, e drena presídios do novo jogador da vez (RF-20).
+    if (state.status === 'playing') {
+      await this.broadcastTurnAfterRemoval(code, state);
+      return;
+    }
+    this.server.to(code).emit('lobbyState', toLobbyState(state));
+  }
+
+  // Emite o fim de jogo por abandono (achado #3): a sessão já está em 'finished'
+  // com winner setado pelo serviço; monta o ranking e dispara gameOver à sala.
+  private emitGameOver(code: string, state: SessionState): void {
+    this.server.to(code).emit('gameState', toGameState(state));
+    this.server.to(code).emit('gameOver', {
+      winner: state.winner,
+      ranking: state.winner ? buildRanking(state, state.winner) : [],
+    });
+  }
+
+  // Após remover um jogador de uma partida em andamento que continua: ressincroniza
+  // o estado e o turno (o dono da vez pode ter mudado pela reconciliação do índice)
+  // e drena presídios do jogador da vez (RF-20).
+  private async broadcastTurnAfterRemoval(
+    code: string,
+    state: SessionState,
+  ): Promise<void> {
+    this.server.to(code).emit('gameState', toGameState(state));
+    await this.advanceTurn(
+      code,
+      state.turnOrder[state.currentTurnIndex] ?? null,
+    );
+  }
+
+  // Após um jogador sair (leaveSession) ou ser removido por expiração de grace
+  // durante a fase de ordem (RF-04): reinicia a ordem só com os restantes (>=2,
+  // o que também drena já-desconectados) ou volta ao lobby (<2). Evita tanto o
+  // travamento quanto um turnOrder com ids que saíram da sessão.
+  private async recoverOrderingAfterRemoval(
+    code: string,
+    state: SessionState,
+  ): Promise<void> {
+    if (state.players.length >= 2) {
       this.server.to(code).emit('lobbyState', toLobbyState(state));
+      await this.beginOrderingAndDrain(code);
+    } else {
+      const lobby = await this.sessions.returnToLobby(code);
+      if (lobby) {
+        this.server.to(code).emit('lobbyState', toLobbyState(lobby));
+      }
     }
   }
 
@@ -255,6 +399,12 @@ export class GameGateway implements OnGatewayDisconnect {
     const state = await this.sessions.markDisconnected(code, playerId);
     if (!state) return;
     this.server.to(code).emit('playerDisconnected', { playerId });
+    // Se caiu durante a fase de ordem (RF-04), o servidor rola por ele para a
+    // fase não travar esperando uma rolagem que nunca virá.
+    if (state.status === 'ordering') {
+      const outcomes = await this.games.autoRollPendingDisconnected(code);
+      for (const out of outcomes) this.emitOrderOutcome(code, out);
+    }
     // Se era a vez do jogador que caiu, passa o turno para não travar a partida.
     const passed = await this.games.passTurnIfDisconnected(code);
     if (passed) {
@@ -265,6 +415,34 @@ export class GameGateway implements OnGatewayDisconnect {
     this.reconnects.arm(code, playerId, () =>
       this.handleGraceExpired(code, playerId),
     );
+  }
+
+  // Traduz o resultado de uma rolagem de ordem (RF-04) em eventos para a sala:
+  // sempre `orderRoll`; ao finalizar, `orderResult` + `gameState` + `turnChanged`;
+  // se restou empate, um novo `orderPhase` só com os empatados.
+  private emitOrderOutcome(code: string, out: OrderRollOutcome): void {
+    this.server.to(code).emit('orderRoll', {
+      playerId: out.playerId,
+      value: out.value,
+      round: out.round,
+    });
+    if (out.finalize) {
+      this.server.to(code).emit('orderResult', {
+        rolls: out.finalize.rounds[0],
+        rounds: out.finalize.rounds,
+        turnOrder: out.finalize.turnOrder,
+      });
+      // Snapshot já em 'playing' (turnOrder preenchido) + quem começa.
+      this.server.to(code).emit('gameState', toGameState(out.state));
+      this.server
+        .to(code)
+        .emit('turnChanged', { playerId: out.finalize.firstPlayerId });
+    } else if (out.nextRound) {
+      this.server.to(code).emit('orderPhase', {
+        round: out.nextRound.round,
+        playersToRoll: out.nextRound.playersToRoll,
+      });
+    }
   }
 
   // Emite a troca de turno e drena presídios em sequência: enquanto o jogador da
@@ -298,6 +476,19 @@ export class GameGateway implements OnGatewayDisconnect {
     if (!result.removed) return;
     if (result.sessionDeleted) {
       this.server.to(code).emit('sessionClosed', { reason: 'inactivity' });
+    } else if (result.state && result.state.status === 'finished') {
+      // Expiração derrubou a partida para 1 jogador (achado #3): termina com o
+      // restante como vencedor (paridade com leaveSession).
+      this.emitGameOver(code, result.state);
+    } else if (result.state && result.state.status === 'ordering') {
+      // Removido durante a fase de ordem (RF-04): recupera com os restantes para
+      // não deixar a ordem presa a um id que não está mais na sessão.
+      await this.recoverOrderingAfterRemoval(code, result.state);
+    } else if (result.state && result.state.status === 'playing') {
+      // Partida segue em andamento: a vez pode ter passado de dono pela remoção.
+      // Reenvia gameState + turnChanged para nenhum cliente ficar com turno
+      // fantasma (e drena presídios do novo jogador da vez — RF-20).
+      await this.broadcastTurnAfterRemoval(code, result.state);
     } else if (result.state) {
       this.server.to(code).emit('lobbyState', toLobbyState(result.state));
     }

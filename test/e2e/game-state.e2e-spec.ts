@@ -9,6 +9,7 @@ import {
   RandomSource,
 } from '../../src/common/random/random.source';
 import { REDIS_CLIENT } from '../../src/redis/redis.constants';
+import { startMatch } from './helpers';
 
 // RNG roteirizado: int() retorna sempre o mínimo → tabuleiro determinístico.
 class ScriptedRandom implements RandomSource {
@@ -86,13 +87,14 @@ describe('requestState (e2e)', () => {
       c1,
       'sessionCreated',
     );
-    await new Promise((r) =>
+    const joined = await new Promise<{ playerId: string }>((r) =>
       c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
     );
-    // Aguarda gameState do startGame antes de pedir o resync.
-    const startedGs = once<{ code: string }>(c1, 'gameState');
-    c1.emit('startGame');
-    await startedGs;
+    // Inicia a partida e resolve a fase de ordem (RF-04) → status 'playing'.
+    await startMatch(c1, [
+      { socket: c1, playerId: created.playerId },
+      { socket: c2, playerId: joined.playerId },
+    ]);
 
     // Solicita resync sob demanda.
     const resyncP = once<{
@@ -185,7 +187,7 @@ describe('gameState snapshot (e2e)', () => {
     return io(url, { transports: ['websocket'], forceNew: true });
   }
 
-  it('emite gameState para a sala logo após startGame com board e players.square', async () => {
+  it('gameState (snapshot canônico) traz board procedural, players.square e turno', async () => {
     const c1 = connect();
     const c2 = connect();
     await Promise.all([once(c1, 'connect'), once(c2, 'connect')]);
@@ -195,12 +197,17 @@ describe('gameState snapshot (e2e)', () => {
       c1,
       'sessionCreated',
     );
-    await new Promise((r) =>
+    const joined = await new Promise<{ playerId: string }>((r) =>
       c2.emit('joinSession', { code: created.code, name: 'Bia' }, r),
     );
 
-    // Aguarda gameState em ambos os sockets da sala.
-    const gsP1 = once<{
+    // Inicia e resolve a ordem (RF-04); depois pede o snapshot canônico ('playing').
+    await startMatch(c1, [
+      { socket: c1, playerId: created.playerId },
+      { socket: c2, playerId: joined.playerId },
+    ]);
+
+    const snapP = once<{
       code: string;
       status: string;
       difficulty: string;
@@ -210,16 +217,14 @@ describe('gameState snapshot (e2e)', () => {
       winner: string | null;
       ranking: unknown[] | null;
     }>(c1, 'gameState');
-    const gsP2 = once<{ board: { size: number } }>(c2, 'gameState');
+    c1.emit('requestState');
+    const snap = await snapP;
 
-    c1.emit('startGame');
-
-    const snap = await gsP1;
-    await gsP2; // confirma recebimento pelo c2
-
+    expect(snap.status).toBe('playing');
     expect(typeof snap.board.size).toBe('number');
-    expect(snap.board.size).toBeGreaterThanOrEqual(20);
-    expect(snap.board.size).toBeLessThanOrEqual(30);
+    // Dificuldade 'normal' (RF-NEW-01): tamanho ∈ [60, 70].
+    expect(snap.board.size).toBeGreaterThanOrEqual(60);
+    expect(snap.board.size).toBeLessThanOrEqual(70);
     expect(snap.players).toHaveLength(2);
     for (const p of snap.players) {
       expect(typeof p.square).toBe('number');

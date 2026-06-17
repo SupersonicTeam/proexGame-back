@@ -11,7 +11,6 @@ import {
   resolveCorrectMovement,
   resolveErrorMovement,
   resolveMovement,
-  resolveOrder,
   rollDie,
   tileTypeAt,
 } from './game.rules';
@@ -66,6 +65,7 @@ function makeState(
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
     servedQuestionIds: [],
+    ordering: null,
     ...over,
   };
 }
@@ -106,33 +106,8 @@ describe('resolveMovement', () => {
   });
 });
 
-describe('resolveOrder', () => {
-  it('ordena por maior valor sem empate', () => {
-    // a=2, b=6, c=4 → ordem b, c, a
-    const rng = new FakeRandomSource([2, 6, 4]);
-    const { turnOrder } = resolveOrder(['a', 'b', 'c'], rng);
-    expect(turnOrder).toEqual(['b', 'c', 'a']);
-  });
-
-  it('re-rola apenas entre os empatados no maior valor', () => {
-    // 1ª rolagem: a=6, b=6, c=3 → empate a/b no topo, c por último.
-    // desempate a/b: a=2, b=5 → b antes de a.
-    // ordem final: b, a, c
-    const rng = new FakeRandomSource([6, 6, 3, 2, 5]);
-    const { turnOrder } = resolveOrder(['a', 'b', 'c'], rng);
-    expect(turnOrder).toEqual(['b', 'a', 'c']);
-  });
-
-  it('retorna os rolls da primeira rolagem', () => {
-    const rng = new FakeRandomSource([2, 6, 4]);
-    const { rolls } = resolveOrder(['a', 'b', 'c'], rng);
-    expect(rolls).toEqual([
-      { playerId: 'a', value: 2 },
-      { playerId: 'b', value: 6 },
-      { playerId: 'c', value: 4 },
-    ]);
-  });
-});
+// A ordem de turnos (RF-04) passou para a fase interativa de ordenação —
+// testada em ordering.rules.spec.ts (regras puras) e game.service.spec.ts.
 
 describe('nextConnectedTurnIndex', () => {
   it('avança para o próximo jogador conectado', () => {
@@ -286,6 +261,80 @@ describe('computeTier', () => {
       expect(computeTier(state, 'c')).toBe('middle');
       expect(computeTier(state, 'd')).toBe('last');
     });
+  });
+
+  // Achado #6: jogadores DESCONECTADOS não devem distorcer os tiers — o cálculo
+  // de máximo/mínimo considera apenas jogadores com connected === true.
+  describe('jogadores desconectados são ignorados no cálculo (achado #6)', () => {
+    it('o desconectado mais atrás não rouba o tier last do ativo mais atrasado', () => {
+      // A (con) em 10, B (con) em 15, C (DESCON) em 2. Entre conectados, o min é
+      // A (10) → A é last; B é leader. Com o código antigo, C (2) seria o min e A
+      // viraria middle — por isso este teste falhava antes da correção.
+      const state = makeState([
+        makePlayer({ id: 'a', square: 10 }),
+        makePlayer({ id: 'b', square: 15 }),
+        makePlayer({ id: 'c', square: 2, connected: false }),
+      ]);
+      expect(computeTier(state, 'a')).toBe('last');
+      expect(computeTier(state, 'b')).toBe('leader');
+    });
+
+    it('o desconectado à frente não rouba o tier leader do ativo mais avançado', () => {
+      // C (DESCON) em 30 está à frente, mas é ignorado: entre conectados, B (15)
+      // é leader e A (10) é last.
+      const state = makeState([
+        makePlayer({ id: 'a', square: 10 }),
+        makePlayer({ id: 'b', square: 15 }),
+        makePlayer({ id: 'c', square: 30, connected: false }),
+      ]);
+      expect(computeTier(state, 'a')).toBe('last');
+      expect(computeTier(state, 'b')).toBe('leader');
+    });
+
+    it('chamado para o próprio jogador desconectado, devolve tier coerente entre conectados', () => {
+      // C (DESCON) em 2 fica fora do conjunto de referência (conectados: A=10, B=15).
+      // Como seu square (2) não é nem o max (15) nem o min (10) dos conectados, ele
+      // cai no caso 'middle' — coerente: o desconectado não define os extremos nem
+      // ocupa um deles, então recebe o tier neutro. O que importa é que ele NÃO
+      // contamina o cálculo dos conectados (verificado nos testes acima).
+      const state = makeState([
+        makePlayer({ id: 'a', square: 10 }),
+        makePlayer({ id: 'b', square: 15 }),
+        makePlayer({ id: 'c', square: 2, connected: false }),
+      ]);
+      expect(computeTier(state, 'c')).toBe('middle');
+    });
+
+    it('guard: nenhum conectado → fallback para TODOS (comportamento atual)', () => {
+      // Todos desconectados: o conjunto de conectados é vazio, então o cálculo cai
+      // de volta para todos os jogadores. A (20) é leader, C (3) é last.
+      const state = makeState([
+        makePlayer({ id: 'a', square: 20, connected: false }),
+        makePlayer({ id: 'b', square: 9, connected: false }),
+        makePlayer({ id: 'c', square: 3, connected: false }),
+      ]);
+      expect(computeTier(state, 'a')).toBe('leader');
+      expect(computeTier(state, 'b')).toBe('middle');
+      expect(computeTier(state, 'c')).toBe('last');
+    });
+
+    it('empate total entre conectados → todos leader (desconectado ignorado)', () => {
+      // A e B (con) empatados em 7; C (DESCON) em 1 é ignorado → max === min → leader.
+      const state = makeState([
+        makePlayer({ id: 'a', square: 7 }),
+        makePlayer({ id: 'b', square: 7 }),
+        makePlayer({ id: 'c', square: 1, connected: false }),
+      ]);
+      expect(computeTier(state, 'a')).toBe('leader');
+      expect(computeTier(state, 'b')).toBe('leader');
+    });
+  });
+
+  it('lança erro quando o playerId não existe', () => {
+    const state = makeState([makePlayer({ id: 'a', square: 5 })]);
+    expect(() => computeTier(state, 'inexistente')).toThrow(
+      'Jogador inexistente não encontrado na sessão',
+    );
   });
 });
 

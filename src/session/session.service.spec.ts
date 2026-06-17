@@ -1,5 +1,6 @@
 import { ErrorCode } from '../common/errors/game-error';
 import { RandomSource } from '../common/random/random.source';
+import { SessionLock } from './session.lock';
 import { SessionRepository } from './session.repository';
 import { SessionService } from './session.service';
 import { SessionState } from './session.types';
@@ -51,7 +52,11 @@ class FakeRandomSource implements RandomSource {
 function build(rngValues: number[] = [1, 2, 3, 4, 5]) {
   const repo = new InMemoryRepo();
   const rng = new FakeRandomSource(rngValues);
-  const service = new SessionService(repo as unknown as SessionRepository, rng);
+  const service = new SessionService(
+    repo as unknown as SessionRepository,
+    rng,
+    new SessionLock(),
+  );
   return { repo, service };
 }
 
@@ -88,6 +93,57 @@ describe('SessionService.createSession', () => {
     ).rejects.toMatchObject({
       code: ErrorCode.INVALID_NAME,
     });
+  });
+});
+
+describe('SessionService — saneamento do nome', () => {
+  const NAME_LIMIT = 24;
+
+  it('mantém um nome exatamente no limite de 24 caracteres', async () => {
+    const { service } = build();
+    const name = 'A'.repeat(NAME_LIMIT);
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    expect(state.players[0].name).toBe(name);
+    expect(state.players[0].name).toHaveLength(NAME_LIMIT);
+  });
+
+  it('trunca um nome acima do limite para 24 caracteres', async () => {
+    const { service } = build();
+    const name = 'A'.repeat(NAME_LIMIT + 10);
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    expect(state.players[0].name).toBe('A'.repeat(NAME_LIMIT));
+    expect(state.players[0].name).toHaveLength(NAME_LIMIT);
+  });
+
+  it('remove caracteres de controle, preservando espaços internos', async () => {
+    const { service } = build();
+    // NUL e BEL no meio, DEL no fim → removidos; o espaço entre nomes fica.
+    const { state } = await service.createSession(
+      'An\x00a \x07Bia\x7f',
+      'normal',
+      'sock-1',
+    );
+    expect(state.players[0].name).toBe('Ana Bia');
+  });
+
+  it('rejeita com INVALID_NAME um nome só com caracteres de controle', async () => {
+    const { service } = build();
+    await expect(
+      service.createSession('\x00\x07\x7f', 'normal', 'sock-1'),
+    ).rejects.toMatchObject({
+      code: ErrorCode.INVALID_NAME,
+    });
+  });
+
+  it('trunca por code points sem quebrar um par substituto (emoji)', async () => {
+    const { service } = build();
+    // 23 letras + emoji (2 unidades UTF-16) no exato limite, + sobra a descartar.
+    const name = 'A'.repeat(NAME_LIMIT - 1) + '😀' + 'BBB';
+    const { state } = await service.createSession(name, 'normal', 'sock-1');
+    const result = state.players[0].name;
+    // 24 code points, com o emoji preservado inteiro (sem surrogate solitário).
+    expect(Array.from(result)).toHaveLength(NAME_LIMIT);
+    expect(result).toBe('A'.repeat(NAME_LIMIT - 1) + '😀');
   });
 });
 
@@ -165,13 +221,14 @@ describe('SessionService.startGame', () => {
     return { ...ctx, code: host.state.code, hostId: host.playerId };
   }
 
-  it('host inicia: status playing e tabuleiro fixo inicializado', async () => {
+  it('host inicia: entra na fase de ordem (status ordering) e zera os peões', async () => {
     const { service, code, hostId } = await withTwoPlayers();
     const state = await service.startGame(code, hostId);
-    expect(state.status).toBe('playing');
-    expect(state.board.size).toBe(25);
+    // RF-04: o jogo entra na fase de ordem; vira 'playing' só após as rolagens.
+    expect(state.status).toBe('ordering');
+    // P3: startGame não gera board; o placeholder do lobby (size 25) persiste até
+    // o GameService.setupBoard gerar o procedural.
     expect(state.board.tileTypeBySquare[0]).toBe('start');
-    expect(state.board.tileTypeBySquare[25]).toBe('finish');
     expect(state.players.every((p) => p.square === 0)).toBe(true);
   });
 
@@ -191,6 +248,19 @@ describe('SessionService.startGame', () => {
     ).rejects.toMatchObject({
       code: ErrorCode.NOT_ENOUGH_PLAYERS,
     });
+  });
+});
+
+describe('SessionService.returnToLobby', () => {
+  it('volta de ordering para lobby limpando ordem e ordenação (RF-04)', async () => {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const host = await ctx.service.createSession('Ana', 'normal', 'sock-1');
+    await ctx.service.joinSession(host.state.code, 'Bia', 'sock-2');
+    await ctx.service.startGame(host.state.code, host.playerId); // → ordering
+    const state = await ctx.service.returnToLobby(host.state.code);
+    expect(state!.status).toBe('lobby');
+    expect(state!.ordering).toBeNull();
+    expect(state!.turnOrder).toEqual([]);
   });
 });
 
@@ -222,8 +292,84 @@ describe('SessionService.markDisconnected / leaveSession', () => {
 
   it('leaveSession remove o jogador da sessão', async () => {
     const { service, code, joinerId } = await withTwoPlayers();
-    const state = await service.leaveSession(code, joinerId);
+    const { state } = await service.leaveSession(code, joinerId);
     expect(state!.players.some((p) => p.id === joinerId)).toBe(false);
+  });
+
+  it('leaveSession no lobby (não-playing): só remove, sem terminar partida', async () => {
+    const { service, code, joinerId } = await withTwoPlayers();
+    const out = await service.leaveSession(code, joinerId);
+    expect(out.gameEnded).toBe(false);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.status).toBe('lobby');
+    expect(out.state!.winner).toBeNull();
+    expect(out.state!.players.some((p) => p.id === joinerId)).toBe(false);
+  });
+
+  // Achado #3: o jogador-da-vez sai no meio da partida (3 jogadores). Seu id deve
+  // sair de turnOrder e currentTurnIndex deve apontar para um jogador válido — sem
+  // id fantasma travando a rotação.
+  it('leaveSession em playing: jogador-da-vez sai sem deixar id fantasma no turno', async () => {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const { state, playerId: a } = await ctx.service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await ctx.service.joinSession(
+      state.code,
+      'Bia',
+      's',
+    );
+    const { playerId: c } = await ctx.service.joinSession(
+      state.code,
+      'Caio',
+      's',
+    );
+
+    // Partida em andamento, ordem [a,b,c], vez de 'a' (índice 0).
+    const seeded = (await ctx.repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b, c];
+    seeded.currentTurnIndex = 0;
+    await ctx.repo.save(seeded);
+
+    const out = await ctx.service.leaveSession(state.code, a);
+    expect(out.gameEnded).toBe(false);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.turnOrder).toEqual([b, c]);
+    // Índice dentro dos limites, apontando para um jogador existente (sem fantasma).
+    expect(out.state!.currentTurnIndex).toBeLessThan(
+      out.state!.turnOrder.length,
+    );
+    expect([b, c]).toContain(out.state!.turnOrder[out.state!.currentTurnIndex]);
+  });
+
+  // Decisão de produto: partida em playing caindo para 1 → termina, restante vence.
+  it('leaveSession em playing caindo para 1: termina e declara vencedor', async () => {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const { state, playerId: a } = await ctx.service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await ctx.service.joinSession(
+      state.code,
+      'Bia',
+      's',
+    );
+
+    const seeded = (await ctx.repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b];
+    seeded.currentTurnIndex = 0;
+    await ctx.repo.save(seeded);
+
+    const out = await ctx.service.leaveSession(state.code, a);
+    expect(out.gameEnded).toBe(true);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.status).toBe('finished');
+    expect(out.state!.winner).toBe(b);
   });
 });
 
@@ -261,6 +407,60 @@ describe('SessionService.reconnect', () => {
     await expect(
       service.reconnect(state.code, 'fantasma', 'sock'),
     ).rejects.toMatchObject({ code: ErrorCode.RECONNECT_FAILED });
+  });
+});
+
+describe('SessionService.setAppearance (CONTRACT-S5)', () => {
+  async function withTwoPlayers() {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const host = await ctx.service.createSession('Ana', 'normal', 'sock-1');
+    const joiner = await ctx.service.joinSession(
+      host.state.code,
+      'Bia',
+      'sock-2',
+    );
+    return {
+      ...ctx,
+      code: host.state.code,
+      hostId: host.playerId,
+      joinerId: joiner.playerId,
+    };
+  }
+
+  it('grava cor e emoji do jogador e persiste no estado', async () => {
+    const { repo, service, code, joinerId } = await withTwoPlayers();
+    const state = await service.setAppearance(code, joinerId, '#ff8800', '🦊');
+    expect(state.players.find((p) => p.id === joinerId)!.color).toBe('#ff8800');
+    expect(state.players.find((p) => p.id === joinerId)!.emoji).toBe('🦊');
+    const stored = (await repo.findByCode(code))!.players.find(
+      (p) => p.id === joinerId,
+    )!;
+    expect(stored.color).toBe('#ff8800');
+    expect(stored.emoji).toBe('🦊');
+  });
+
+  it('funciona em jogo (status playing), não só no lobby', async () => {
+    const { repo, service, code, hostId } = await withTwoPlayers();
+    const seeded = (await repo.findByCode(code))!;
+    seeded.status = 'playing';
+    await repo.save(seeded);
+    const state = await service.setAppearance(code, hostId, '#00aa55', '🐸');
+    expect(state.status).toBe('playing');
+    expect(state.players.find((p) => p.id === hostId)!.emoji).toBe('🐸');
+  });
+
+  it('rejeita jogador fora da sessão com NOT_IN_SESSION', async () => {
+    const { service, code } = await withTwoPlayers();
+    await expect(
+      service.setAppearance(code, 'fantasma', '#000000', '😀'),
+    ).rejects.toMatchObject({ code: ErrorCode.NOT_IN_SESSION });
+  });
+
+  it('rejeita sessão inexistente com NOT_IN_SESSION (não vaza existência)', async () => {
+    const { service } = build();
+    await expect(
+      service.setAppearance('00000', 'x', '#000000', '😀'),
+    ).rejects.toMatchObject({ code: ErrorCode.NOT_IN_SESSION });
   });
 });
 
@@ -349,5 +549,30 @@ describe('SessionService.expireDisconnectedPlayer', () => {
       out.state!.turnOrder.length,
     );
     expect([b, c]).toContain(out.state!.turnOrder[out.state!.currentTurnIndex]);
+  });
+
+  // Decisão de produto: expiração de grace que derruba a partida para 1 jogador
+  // também termina o jogo e declara o restante vencedor (paridade com leaveSession).
+  it('declara vencedor quando a expiração derruba a partida para 1 (playing)', async () => {
+    const { repo, service } = build();
+    const { state, playerId: a } = await service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await service.joinSession(state.code, 'Bia', 's');
+
+    const seeded = (await repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b];
+    seeded.currentTurnIndex = 0;
+    await repo.save(seeded);
+    await service.markDisconnected(state.code, a);
+
+    const out = await service.expireDisconnectedPlayer(state.code, a);
+    expect(out.removed).toBe(true);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.status).toBe('finished');
+    expect(out.state!.winner).toBe(b);
   });
 });

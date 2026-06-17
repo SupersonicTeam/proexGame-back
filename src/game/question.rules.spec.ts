@@ -24,6 +24,7 @@ class FakeRandomSource implements RandomSource {
 const QUESTION: Question = {
   id: 'mat-0001',
   subject: 'matematica',
+  difficulty: 'easy',
   statement: 'Quanto é 2 + 2?',
   correct: '4',
   proximal: '3',

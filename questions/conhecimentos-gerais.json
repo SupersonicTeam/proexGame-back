@@ -1,0 +1,326 @@
+[
+  {
+    "id": "ger-0001",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é a capital do Brasil?",
+    "correct": "Brasília",
+    "proximal": "Rio de Janeiro",
+    "wrong": ["São Paulo", "Salvador"]
+  },
+  {
+    "id": "ger-0002",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Quantos continentes existem (modelo adotado no Brasil)?",
+    "correct": "6",
+    "proximal": "5",
+    "wrong": ["3", "8"]
+  },
+  {
+    "id": "ger-0003",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é o maior planeta do Sistema Solar?",
+    "correct": "Júpiter",
+    "proximal": "Saturno",
+    "wrong": ["Terra", "Marte"]
+  },
+  {
+    "id": "ger-0004",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Em que ano os portugueses chegaram ao Brasil?",
+    "correct": "1500",
+    "proximal": "1492",
+    "wrong": ["1822", "1700"]
+  },
+  {
+    "id": "ger-0005",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual oceano banha a costa leste do Brasil?",
+    "correct": "Oceano Atlântico",
+    "proximal": "Oceano Pacífico",
+    "wrong": ["Oceano Índico", "Oceano Ártico"]
+  },
+  {
+    "id": "ger-0006",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Quem foi o primeiro presidente do Brasil?",
+    "correct": "Deodoro da Fonseca",
+    "proximal": "Getúlio Vargas",
+    "wrong": ["Dom Pedro I", "Juscelino Kubitschek"]
+  },
+  {
+    "id": "ger-0007",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é o idioma oficial do Brasil?",
+    "correct": "Português",
+    "proximal": "Espanhol",
+    "wrong": ["Inglês", "Tupi"]
+  },
+  {
+    "id": "ger-0008",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é o rio mais volumoso do Brasil?",
+    "correct": "Rio Amazonas",
+    "proximal": "Rio São Francisco",
+    "wrong": ["Rio Tietê", "Rio Nilo"]
+  },
+  {
+    "id": "ger-0009",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Quantos dias tem um ano bissexto?",
+    "correct": "366",
+    "proximal": "365",
+    "wrong": ["364", "360"]
+  },
+  {
+    "id": "ger-0010",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Qual é o menor número primo?",
+    "correct": "2",
+    "proximal": "1",
+    "wrong": ["0", "3"]
+  },
+  {
+    "id": "ger-0011",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é a moeda oficial do Brasil?",
+    "correct": "Real",
+    "proximal": "Cruzeiro",
+    "wrong": ["Dólar", "Euro"]
+  },
+  {
+    "id": "ger-0012",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual planeta é conhecido como \"Planeta Vermelho\"?",
+    "correct": "Marte",
+    "proximal": "Júpiter",
+    "wrong": ["Vênus", "Saturno"]
+  },
+  {
+    "id": "ger-0013",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é a cor de fundo (predominante) da bandeira do Brasil?",
+    "correct": "Verde",
+    "proximal": "Amarelo",
+    "wrong": ["Azul", "Branco"]
+  },
+  {
+    "id": "ger-0014",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Quantos estados tem o Brasil?",
+    "correct": "26",
+    "proximal": "27",
+    "wrong": ["25", "50"]
+  },
+  {
+    "id": "ger-0015",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Qual é o maior animal terrestre atual?",
+    "correct": "Elefante",
+    "proximal": "Girafa",
+    "wrong": ["Leão", "Rinoceronte"]
+  },
+  {
+    "id": "ger-0016",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
+    "statement": "Em qual estação do ano costuma fazer mais calor no Brasil?",
+    "correct": "Verão",
+    "proximal": "Primavera",
+    "wrong": ["Inverno", "Outono"]
+  },
+  {
+    "id": "ger-0017",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Qual é o maior país do mundo em área territorial?",
+    "correct": "Rússia",
+    "proximal": "Canadá",
+    "wrong": ["China", "Brasil"]
+  },
+  {
+    "id": "ger-0018",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Qual é o planeta mais próximo do Sol?",
+    "correct": "Mercúrio",
+    "proximal": "Vênus",
+    "wrong": ["Terra", "Marte"]
+  },
+  {
+    "id": "ger-0019",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Quem pintou a Mona Lisa?",
+    "correct": "Leonardo da Vinci",
+    "proximal": "Michelangelo",
+    "wrong": ["Pablo Picasso", "Vincent van Gogh"]
+  },
+  {
+    "id": "ger-0020",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Qual é o oceano mais extenso do planeta?",
+    "correct": "Oceano Pacífico",
+    "proximal": "Oceano Atlântico",
+    "wrong": ["Oceano Índico", "Oceano Ártico"]
+  },
+  {
+    "id": "ger-0021",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Em qual continente fica o Egito?",
+    "correct": "África",
+    "proximal": "Ásia",
+    "wrong": ["Europa", "Oceania"]
+  },
+  {
+    "id": "ger-0022",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Qual gás os seres humanos precisam respirar para viver?",
+    "correct": "Oxigênio",
+    "proximal": "Gás carbônico",
+    "wrong": ["Hidrogênio", "Nitrogênio"]
+  },
+  {
+    "id": "ger-0023",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Qual é a capital da Argentina?",
+    "correct": "Buenos Aires",
+    "proximal": "Santiago",
+    "wrong": ["Lima", "Montevidéu"]
+  },
+  {
+    "id": "ger-0024",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
+    "statement": "Quantos minutos tem uma hora?",
+    "correct": "60",
+    "proximal": "100",
+    "wrong": ["30", "24"]
+  },
+  {
+    "id": "ger-0025",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Em que ano o Brasil se tornou independente de Portugal?",
+    "correct": "1822",
+    "proximal": "1500",
+    "wrong": ["1889", "1808"]
+  },
+  {
+    "id": "ger-0026",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual é a capital da Austrália?",
+    "correct": "Camberra",
+    "proximal": "Sydney",
+    "wrong": ["Melbourne", "Brisbane"]
+  },
+  {
+    "id": "ger-0027",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual é o maior deserto quente do mundo?",
+    "correct": "Saara",
+    "proximal": "Deserto de Gobi",
+    "wrong": ["Atacama", "Kalahari"]
+  },
+  {
+    "id": "ger-0028",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Quem é o autor do romance \"Dom Casmurro\"?",
+    "correct": "Machado de Assis",
+    "proximal": "José de Alencar",
+    "wrong": ["Jorge Amado", "Carlos Drummond de Andrade"]
+  },
+  {
+    "id": "ger-0029",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual foi a primeira capital do Brasil?",
+    "correct": "Salvador",
+    "proximal": "Rio de Janeiro",
+    "wrong": ["Brasília", "Recife"]
+  },
+  {
+    "id": "ger-0030",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual é a moeda oficial do Japão?",
+    "correct": "Iene",
+    "proximal": "Won",
+    "wrong": ["Yuan", "Dólar"]
+  },
+  {
+    "id": "ger-0031",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Em que ano caiu o Muro de Berlim?",
+    "correct": "1989",
+    "proximal": "1991",
+    "wrong": ["1945", "1961"]
+  },
+  {
+    "id": "ger-0032",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual metal é líquido à temperatura ambiente?",
+    "correct": "Mercúrio",
+    "proximal": "Chumbo",
+    "wrong": ["Ferro", "Alumínio"]
+  },
+  {
+    "id": "ger-0033",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual país sediou a primeira Copa do Mundo de futebol, em 1930?",
+    "correct": "Uruguai",
+    "proximal": "Brasil",
+    "wrong": ["Argentina", "Itália"]
+  },
+  {
+    "id": "ger-0034",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual é o maior planeta rochoso do Sistema Solar?",
+    "correct": "Terra",
+    "proximal": "Vênus",
+    "wrong": ["Júpiter", "Marte"]
+  },
+  {
+    "id": "ger-0035",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Quem desenvolveu a Teoria da Relatividade?",
+    "correct": "Albert Einstein",
+    "proximal": "Isaac Newton",
+    "wrong": ["Galileu Galilei", "Stephen Hawking"]
+  },
+  {
+    "id": "ger-0036",
+    "subject": "conhecimentos-gerais",
+    "difficulty": "hard",
+    "statement": "Qual é a língua com mais falantes nativos no mundo?",
+    "correct": "Mandarim (chinês)",
+    "proximal": "Inglês",
+    "wrong": ["Espanhol", "Hindi"]
+  }
+]

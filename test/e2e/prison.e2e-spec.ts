@@ -9,6 +9,7 @@ import {
   RandomSource,
 } from '../../src/common/random/random.source';
 import { REDIS_CLIENT } from '../../src/redis/redis.constants';
+import { startMatch } from './helpers';
 
 // int() sempre no mínimo → tabuleiro determinístico: N=20, presídio na casa 1.
 // rollD6: ordem [p1,p2] = [2,1]; depois cada jogador rola 1 → ambos caem na
@@ -94,16 +95,15 @@ describe('Casa de presídio (e2e)', () => {
       skipped.push(s),
     );
 
-    const startedBoard = once<{
-      board: { tileTypeBySquare: Record<string, string> };
-    }>(c1, 'gameStarted');
-    const firstTurn = once<{ playerId: string }>(c1, 'turnChanged');
-    c1.emit('startGame');
+    // Fase de ordem interativa (RF-04): ordem roteirizada [p1,p2] = [2,1] → p1.
+    const { board, firstPlayerId } = await startMatch(c1, [
+      { socket: c1, playerId: p1 },
+      { socket: c2, playerId: p2 },
+    ]);
 
     // Tabuleiro determinístico: casa 1 é presídio.
-    const board = await startedBoard;
-    expect(board.board.tileTypeBySquare['1']).toBe('prison');
-    expect((await firstTurn).playerId).toBe(p1);
+    expect(board.tileTypeBySquare['1']).toBe('prison');
+    expect(firstPlayerId).toBe(p1);
 
     // p1 rola 1 → casa 1 (presídio). NÃO recebe pergunta; turno passa para p2.
     const p1Dice = once<{ playerId: string; toSquare: number }>(

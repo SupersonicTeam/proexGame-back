@@ -20,6 +20,7 @@ function makeState(code = '12345'): SessionState {
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
     servedQuestionIds: [],
+    ordering: null,
   };
 }
 
@@ -81,6 +82,23 @@ describe('SessionRepository', () => {
     const ttl = await client.ttl('session:12345');
     expect(ttl).toBeGreaterThan(0);
     expect(ttl).toBeLessThanOrEqual(SESSION_TTL_SECONDS);
+  });
+
+  describe('scanCodes (reconciliação de boot — achado #2)', () => {
+    it('retorna [] quando não há nenhuma sessão', async () => {
+      expect(await repo.scanCodes()).toEqual([]);
+    });
+
+    it('retorna os códigos de todas as sessões vivas, sem o prefixo session:', async () => {
+      await repo.create(makeState('12345'));
+      await repo.create(makeState('67890'));
+      await repo.create(makeState('11111'));
+
+      const codes = await repo.scanCodes();
+      expect(codes.sort()).toEqual(['11111', '12345', '67890']);
+      // Nenhum código carrega o prefixo de chave do Redis.
+      expect(codes.every((c) => !c.startsWith('session:'))).toBe(true);
+    });
   });
 
   describe('createIfAbsent (atômico)', () => {

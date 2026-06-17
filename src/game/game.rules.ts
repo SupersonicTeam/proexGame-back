@@ -3,7 +3,6 @@ import {
   Board,
   Difficulty,
   RankingEntry,
-  Roll,
   SessionState,
   TileType,
 } from '../session/session.types';
@@ -65,48 +64,8 @@ export function resolveMovement(
   };
 }
 
-export interface OrderResult {
-  turnOrder: string[];
-  rolls: Roll[]; // rolls da primeira rolagem (para emitir em orderResult)
-}
-
-// Resolve a ordem de turnos: ordena por maior valor; empates são desfeitos
-// re-rolando recursivamente apenas entre os empatados (RF-04).
-export function resolveOrder(
-  playerIds: string[],
-  rng: RandomSource,
-): OrderResult {
-  const rolls: Roll[] = playerIds.map((playerId) => ({
-    playerId,
-    value: rollDie(rng),
-  }));
-  const turnOrder = orderByRolls(rolls, rng);
-  return { turnOrder, rolls };
-}
-
-// Ordena ids por valor desc; cada grupo empatado é re-rolado entre si.
-function orderByRolls(rolls: Roll[], rng: RandomSource): string[] {
-  // Agrupa ids por valor rolado.
-  const byValue = new Map<number, string[]>();
-  for (const { playerId, value } of rolls) {
-    const group = byValue.get(value) ?? [];
-    group.push(playerId);
-    byValue.set(value, group);
-  }
-  // Valores distintos do maior para o menor.
-  const values = [...byValue.keys()].sort((a, b) => b - a);
-  const ordered: string[] = [];
-  for (const value of values) {
-    const group = byValue.get(value) as string[];
-    if (group.length === 1) {
-      ordered.push(group[0]);
-    } else {
-      // Desempate: re-rola só entre os empatados.
-      ordered.push(...resolveOrder(group, rng).turnOrder);
-    }
-  }
-  return ordered;
-}
+// A ordem de turnos (RF-04) agora é resolvida na fase interativa de ordenação —
+// ver game/ordering.rules.ts (cada jogador rola; empates re-rolam entre si).
 
 // Próximo índice de turno cujo jogador está conectado (circular).
 // Se ninguém mais estiver conectado, mantém o índice atual (evita loop infinito).
@@ -159,11 +118,21 @@ export type Tier = 'leader' | 'middle' | 'last';
  * Determina o tier de um jogador com base nas casas (square) atuais.
  *
  * Regras:
- *  - leader: square === máximo de todos os jogadores.
- *  - last:   square === mínimo de todos os jogadores (e square < máximo).
+ *  - leader: square === máximo dos jogadores CONECTADOS.
+ *  - last:   square === mínimo dos jogadores CONECTADOS (e square < máximo).
  *  - middle: demais casos.
  *  - Em partida de 2 jogadores não existe middle — só leader e last.
  *  - Empate total (max === min) → leader para todos.
+ *
+ * Achado #6: jogadores DESCONECTADOS são excluídos do cálculo de máximo/mínimo.
+ * Um desconectado parado lá atrás (ou à frente) distorceria o balanceamento,
+ * "roubando" o tier last/leader do jogador ATIVO mais extremo. O tier é, portanto,
+ * relativo ao conjunto de conectados.
+ *
+ * Guard defensivo: se NENHUM jogador estiver conectado (conjunto vazio), faz
+ * fallback para TODOS os jogadores — evita `Math.max(...[])` = -Infinity. Na
+ * prática computeTier é chamado para o jogador que está agindo (conectado), então
+ * o conjunto raramente é vazio; o guard é só segurança.
  */
 export function computeTier(state: SessionState, playerId: string): Tier {
   const player = state.players.find((p) => p.id === playerId);
@@ -171,7 +140,11 @@ export function computeTier(state: SessionState, playerId: string): Tier {
     throw new Error(`Jogador ${playerId} não encontrado na sessão`);
   }
 
-  const squares = state.players.map((p) => p.square);
+  // Apenas conectados definem os extremos; fallback para todos se nenhum estiver
+  // conectado (guard contra conjunto vazio → -Infinity/Infinity).
+  const connected = state.players.filter((p) => p.connected);
+  const reference = connected.length > 0 ? connected : state.players;
+  const squares = reference.map((p) => p.square);
   const maxSquare = Math.max(...squares);
   const minSquare = Math.min(...squares);
 

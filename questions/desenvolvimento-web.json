@@ -1,0 +1,326 @@
+[
+  {
+    "id": "web-0001",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "O que significa a sigla HTML?",
+    "correct": "HyperText Markup Language",
+    "proximal": "HighText Markup Language",
+    "wrong": ["Home Tool Markup Language", "Hyperlink Machine Language"]
+  },
+  {
+    "id": "web-0002",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Qual tag HTML cria um parágrafo de texto?",
+    "correct": "<p>",
+    "proximal": "<par>",
+    "wrong": ["<text>", "<paragraph>"]
+  },
+  {
+    "id": "web-0003",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Qual tag HTML cria um link clicável?",
+    "correct": "<a>",
+    "proximal": "<link>",
+    "wrong": ["<href>", "<url>"]
+  },
+  {
+    "id": "web-0004",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Em CSS, qual propriedade altera a cor do texto?",
+    "correct": "color",
+    "proximal": "text-color",
+    "wrong": ["font-color", "background"]
+  },
+  {
+    "id": "web-0005",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em CSS, qual propriedade altera a cor de fundo de um elemento?",
+    "correct": "background-color",
+    "proximal": "color",
+    "wrong": ["bgcolor", "fill"]
+  },
+  {
+    "id": "web-0006",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Qual tag HTML é usada para exibir uma imagem?",
+    "correct": "<img>",
+    "proximal": "<image>",
+    "wrong": ["<src>", "<photo>"]
+  },
+  {
+    "id": "web-0007",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em JavaScript, qual palavra-chave declara uma variável que pode mudar de valor?",
+    "correct": "let",
+    "proximal": "const",
+    "wrong": ["int", "variable"]
+  },
+  {
+    "id": "web-0008",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Em JavaScript, o que o comando console.log() faz?",
+    "correct": "Exibe uma mensagem no console do navegador",
+    "proximal": "Cria uma variável chamada log",
+    "wrong": ["Apaga todo o console", "Conecta o site ao servidor"]
+  },
+  {
+    "id": "web-0009",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Qual símbolo inicia um comentário de uma linha em JavaScript?",
+    "correct": "//",
+    "proximal": "/*",
+    "wrong": ["#", "<!--"]
+  },
+  {
+    "id": "web-0010",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Em HTML, qual tag cria o título de maior destaque?",
+    "correct": "<h1>",
+    "proximal": "<h6>",
+    "wrong": ["<head>", "<title>"]
+  },
+  {
+    "id": "web-0011",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em JavaScript, qual operador compara valor E tipo (igualdade estrita)?",
+    "correct": "===",
+    "proximal": "==",
+    "wrong": ["=", "!="]
+  },
+  {
+    "id": "web-0012",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em CSS, qual seletor aplica estilo ao elemento com id=\"menu\"?",
+    "correct": "#menu",
+    "proximal": ".menu",
+    "wrong": ["menu", "*menu"]
+  },
+  {
+    "id": "web-0013",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Qual tag HTML cria uma lista não ordenada?",
+    "correct": "<ul>",
+    "proximal": "<ol>",
+    "wrong": ["<li>", "<list>"]
+  },
+  {
+    "id": "web-0014",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "O que significa a sigla CSS?",
+    "correct": "Cascading Style Sheets",
+    "proximal": "Computer Style Sheets",
+    "wrong": ["Creative Style System", "Colorful Style Sheets"]
+  },
+  {
+    "id": "web-0015",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Qual tag HTML insere uma quebra de linha?",
+    "correct": "<br>",
+    "proximal": "<break>",
+    "wrong": ["<lb>", "<newline>"]
+  },
+  {
+    "id": "web-0016",
+    "subject": "desenvolvimento-web",
+    "difficulty": "easy",
+    "statement": "Em HTML, qual tag define um item de lista?",
+    "correct": "<li>",
+    "proximal": "<list>",
+    "wrong": ["<ul>", "<item>"]
+  },
+  {
+    "id": "web-0017",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em JavaScript, qual palavra-chave declara uma constante?",
+    "correct": "const",
+    "proximal": "let",
+    "wrong": ["var", "final"]
+  },
+  {
+    "id": "web-0018",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Qual atributo HTML define o destino de um link <a>?",
+    "correct": "href",
+    "proximal": "src",
+    "wrong": ["link", "url"]
+  },
+  {
+    "id": "web-0019",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Qual atributo HTML define o caminho (fonte) de uma imagem <img>?",
+    "correct": "src",
+    "proximal": "href",
+    "wrong": ["link", "alt"]
+  },
+  {
+    "id": "web-0020",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em CSS, qual seletor aplica estilo a elementos com class=\"btn\"?",
+    "correct": ".btn",
+    "proximal": "#btn",
+    "wrong": ["btn", "*btn"]
+  },
+  {
+    "id": "web-0021",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em JavaScript, qual operador significa \"diferente de\"?",
+    "correct": "!=",
+    "proximal": "<>",
+    "wrong": ["==", "=!"]
+  },
+  {
+    "id": "web-0022",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Qual tag HTML cria uma tabela?",
+    "correct": "<table>",
+    "proximal": "<tab>",
+    "wrong": ["<grid>", "<tr>"]
+  },
+  {
+    "id": "web-0023",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Em CSS, qual propriedade controla o espaçamento interno de um elemento?",
+    "correct": "padding",
+    "proximal": "margin",
+    "wrong": ["border", "spacing"]
+  },
+  {
+    "id": "web-0024",
+    "subject": "desenvolvimento-web",
+    "difficulty": "normal",
+    "statement": "Qual função JavaScript exibe uma caixa de alerta no navegador?",
+    "correct": "alert()",
+    "proximal": "prompt()",
+    "wrong": ["log()", "print()"]
+  },
+  {
+    "id": "web-0025",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em CSS, qual propriedade controla o espaçamento externo de um elemento?",
+    "correct": "margin",
+    "proximal": "padding",
+    "wrong": ["border", "gap"]
+  },
+  {
+    "id": "web-0026",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em JavaScript, qual método adiciona um elemento ao FINAL de um array?",
+    "correct": "push()",
+    "proximal": "pop()",
+    "wrong": ["shift()", "add()"]
+  },
+  {
+    "id": "web-0027",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em JavaScript, o que `typeof 42` retorna?",
+    "correct": "\"number\"",
+    "proximal": "\"integer\"",
+    "wrong": ["\"int\"", "42"]
+  },
+  {
+    "id": "web-0028",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Qual tag HTML5 representa o conteúdo principal da página?",
+    "correct": "<main>",
+    "proximal": "<body>",
+    "wrong": ["<section>", "<content>"]
+  },
+  {
+    "id": "web-0029",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em CSS, `display: none` faz o elemento:",
+    "correct": "Desaparecer e não ocupar espaço",
+    "proximal": "Ficar invisível, mas ocupar espaço",
+    "wrong": ["Mudar de cor", "Aumentar de tamanho"]
+  },
+  {
+    "id": "web-0030",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em JavaScript, qual é o resultado de `2 + '2'`?",
+    "correct": "\"22\"",
+    "proximal": "4",
+    "wrong": ["22", "\"4\""]
+  },
+  {
+    "id": "web-0031",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Qual método JavaScript converte uma string em número inteiro?",
+    "correct": "parseInt()",
+    "proximal": "parseFloat()",
+    "wrong": ["toString()", "valueOf()"]
+  },
+  {
+    "id": "web-0032",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em CSS, qual unidade é relativa ao tamanho da fonte do elemento?",
+    "correct": "em",
+    "proximal": "px",
+    "wrong": ["cm", "pt"]
+  },
+  {
+    "id": "web-0033",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em JavaScript, qual estrutura repete um bloco enquanto uma condição for verdadeira?",
+    "correct": "while",
+    "proximal": "if",
+    "wrong": ["switch", "function"]
+  },
+  {
+    "id": "web-0034",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em JavaScript, qual método remove o ÚLTIMO elemento de um array?",
+    "correct": "pop()",
+    "proximal": "push()",
+    "wrong": ["shift()", "slice()"]
+  },
+  {
+    "id": "web-0035",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em HTML, o atributo `alt` de uma imagem serve para:",
+    "correct": "Fornecer um texto alternativo (acessibilidade)",
+    "proximal": "Definir o tamanho da imagem",
+    "wrong": ["Mudar a cor", "Criar um link"]
+  },
+  {
+    "id": "web-0036",
+    "subject": "desenvolvimento-web",
+    "difficulty": "hard",
+    "statement": "Em JavaScript, qual valor representa a \"ausência intencional de valor\"?",
+    "correct": "null",
+    "proximal": "undefined",
+    "wrong": ["0", "NaN"]
+  }
+]

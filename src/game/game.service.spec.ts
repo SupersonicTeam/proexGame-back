@@ -2,6 +2,7 @@ import { ErrorCode } from '../common/errors/game-error';
 import { RandomSource } from '../common/random/random.source';
 import { QuestionBankService } from '../questions/question-bank.service';
 import { PendingQuestion, Question } from '../questions/question.types';
+import { SessionLock } from '../session/session.lock';
 import { SessionRepository } from '../session/session.repository';
 import { Player, SessionState } from '../session/session.types';
 import { GameService } from './game.service';
@@ -49,9 +50,13 @@ class FakeQuestionBank {
     subject: string,
     excludedIds: Set<string>,
     rng: RandomSource,
+    difficulty: Question['difficulty'],
   ): Question | null {
     const available = this.questions.filter(
-      (q) => q.subject === subject && !excludedIds.has(q.id),
+      (q) =>
+        q.subject === subject &&
+        q.difficulty === difficulty &&
+        !excludedIds.has(q.id),
     );
     if (available.length === 0) return null;
     return available[rng.int(0, available.length - 1)];
@@ -64,10 +69,13 @@ class FakeQuestionBank {
   }
 }
 
+// Nível 'normal' para casar com a dificuldade padrão de seedState (RF-NEW-04):
+// assim os testes de fluxo de pergunta continuam recebendo perguntas servidas.
 const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 'mat-0001',
     subject: 'matematica',
+    difficulty: 'normal',
     statement: '2 + 2?',
     correct: '4',
     proximal: '3',
@@ -76,6 +84,7 @@ const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 'mat-0002',
     subject: 'matematica',
+    difficulty: 'normal',
     statement: '3 + 3?',
     correct: '6',
     proximal: '5',
@@ -131,6 +140,7 @@ function seedState(
     createdAt: '2026-06-03T00:00:00.000Z',
     lastActivityAt: '2026-06-03T00:00:00.000Z',
     servedQuestionIds: [],
+    ordering: null,
     ...over,
   };
   repo.store.set(state.code, structuredClone(state));
@@ -145,32 +155,146 @@ function build(rngValues: number[], questions: Question[] = SAMPLE_QUESTIONS) {
     repo as unknown as SessionRepository,
     rng,
     bank as unknown as QuestionBankService,
+    new SessionLock(),
   );
   return { repo, service, bank };
 }
 
-describe('GameService.resolveTurnOrder', () => {
-  it('define a ordem de turnos por rolagem e zera o índice', async () => {
-    const { repo, service } = build([2, 6]); // a=2, b=6 → ordem b, a
-    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
-    const { state, rolls } = await service.resolveTurnOrder('12345');
-    expect(state.turnOrder).toEqual(['b', 'a']);
-    expect(state.currentTurnIndex).toBe(0);
-    expect(rolls).toHaveLength(2);
+describe('GameService.beginOrdering', () => {
+  it('cria o estado de ordem com todos pendentes e zera a ordem (RF-04)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      status: 'ordering',
+    });
+    const { state, playersToRoll } = await service.beginOrdering('12345');
+    expect(state.ordering).not.toBeNull();
+    expect(state.ordering!.round).toBe(1);
+    expect([...playersToRoll].sort()).toEqual(['a', 'b']);
+    expect(state.turnOrder).toEqual([]);
+  });
+});
+
+describe('GameService.rollForOrder (RF-04)', () => {
+  async function setupOrdering(
+    rngValues: number[],
+    ids: string[] = ['a', 'b'],
+  ) {
+    const ctx = build(rngValues);
+    seedState(
+      ctx.repo,
+      ids.map((id) => makePlayer({ id })),
+      { status: 'ordering' },
+    );
+    await ctx.service.beginOrdering('12345');
+    return ctx;
+  }
+
+  it('sem empate: ao todos rolarem, finaliza a ordem e inicia a partida', async () => {
+    const { service } = await setupOrdering([2, 6]); // a=2, b=6 → b, a
+    const r1 = await service.rollForOrder('12345', 'a');
+    expect(r1.value).toBe(2);
+    expect(r1.finalize).toBeNull(); // b ainda não rolou
+
+    const r2 = await service.rollForOrder('12345', 'b');
+    expect(r2.value).toBe(6);
+    expect(r2.finalize).not.toBeNull();
+    expect(r2.finalize!.turnOrder).toEqual(['b', 'a']);
+    expect(r2.finalize!.firstPlayerId).toBe('b');
+    expect(r2.state.status).toBe('playing');
+    expect(r2.state.ordering).toBeNull();
+    expect(r2.state.currentTurnIndex).toBe(0);
+  });
+
+  it('empate: abre nova rodada só entre os empatados e resolve depois', async () => {
+    // rodada1: a=4, b=4 (empate); rodada2: a=1, b=6 → b, a
+    const { service } = await setupOrdering([4, 4, 1, 6]);
+    await service.rollForOrder('12345', 'a');
+    const end1 = await service.rollForOrder('12345', 'b');
+    expect(end1.finalize).toBeNull();
+    expect(end1.nextRound).not.toBeNull();
+    expect(end1.nextRound!.round).toBe(2);
+    expect([...end1.nextRound!.playersToRoll].sort()).toEqual(['a', 'b']);
+
+    await service.rollForOrder('12345', 'a');
+    const end2 = await service.rollForOrder('12345', 'b');
+    expect(end2.finalize!.turnOrder).toEqual(['b', 'a']);
+  });
+
+  it('rejeita rolagem fora da fase de ordem (ORDER_NOT_ACTIVE)', async () => {
+    const { repo, service } = build([]);
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
+      status: 'playing',
+    });
+    await expect(service.rollForOrder('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.ORDER_NOT_ACTIVE,
+    });
+  });
+
+  it('rejeita segunda rolagem do mesmo jogador na rodada (ALREADY_ROLLED_FOR_ORDER)', async () => {
+    const { service } = await setupOrdering([2, 6]);
+    await service.rollForOrder('12345', 'a');
+    await expect(service.rollForOrder('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.ALREADY_ROLLED_FOR_ORDER,
+    });
+  });
+
+  it('rejeita rolagem de quem já saiu do empate (NOT_ROLLING_FOR_ORDER)', async () => {
+    // a=6, b=6, c=1 → c resolvido por último; a/b empatam e vão p/ rodada 2.
+    const { service } = await setupOrdering([6, 6, 1], ['a', 'b', 'c']);
+    await service.rollForOrder('12345', 'a');
+    await service.rollForOrder('12345', 'b');
+    await service.rollForOrder('12345', 'c'); // completa rodada 1
+    await expect(service.rollForOrder('12345', 'c')).rejects.toMatchObject({
+      code: ErrorCode.NOT_ROLLING_FOR_ORDER,
+    });
+  });
+
+  it('auto-rola por jogador desconectado para a ordem não travar', async () => {
+    const { repo, service } = build([2, 6]); // a=2, depois auto b=6 → b, a
+    seedState(
+      repo,
+      [makePlayer({ id: 'a' }), makePlayer({ id: 'b', connected: false })],
+      { status: 'ordering' },
+    );
+    await service.beginOrdering('12345');
+    await service.rollForOrder('12345', 'a');
+
+    const outcomes = await service.autoRollPendingDisconnected('12345');
+    expect(outcomes).toHaveLength(1);
+    expect(outcomes[0].playerId).toBe('b');
+    expect(outcomes[0].finalize).not.toBeNull();
+    expect((await repo.findByCode('12345'))!.status).toBe('playing');
+  });
+
+  it('NÃO auto-rola por id que não está mais em players (evita fantasma no turnOrder)', async () => {
+    const { repo, service } = build([]);
+    // 'ghost' está no grupo de ordem mas não existe em players (ex.: removido por
+    // expiração de grace). 'a' está conectado. Ninguém deve ser auto-rolado.
+    seedState(repo, [makePlayer({ id: 'a' })], {
+      status: 'ordering',
+      ordering: {
+        groups: [['a', 'ghost']],
+        currentRolls: {},
+        round: 1,
+        history: [],
+      },
+    });
+    const outcomes = await service.autoRollPendingDisconnected('12345');
+    expect(outcomes).toEqual([]);
   });
 });
 
 describe('GameService.setupBoard', () => {
-  it('gera tabuleiro procedural (20-30, com presídio e pergunta) e persiste', async () => {
-    // Fake int devolve o valor da fila: N=20, depois 0s → presídio na casa 1 e
-    // perguntas nas casas seguintes (suficiente p/ haver 'prison' e 'question').
-    const { repo, service } = build([20, ...Array<number>(60).fill(0)]);
+  it('gera tabuleiro procedural (faixa do normal, com presídio e pergunta) e persiste', async () => {
+    // Fake int devolve o valor da fila: N=60 (faixa normal), depois 0s → presídios
+    // e perguntas nas casas seguintes (suficiente p/ haver 'prison' e 'question').
+    const { repo, service } = build([60, ...Array<number>(200).fill(0)]);
     seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
       difficulty: 'normal',
     });
     const state = await service.setupBoard('12345');
-    expect(state.board.size).toBeGreaterThanOrEqual(20);
-    expect(state.board.size).toBeLessThanOrEqual(30);
+    expect(state.board.size).toBeGreaterThanOrEqual(60);
+    expect(state.board.size).toBeLessThanOrEqual(70);
     const types = Object.values(state.board.tileTypeBySquare);
     expect(types).toContain('prison');
     expect(types).toContain('question');
@@ -545,5 +669,78 @@ describe('GameService.startTurnSkipIfNeeded', () => {
   it('retorna null para sessão inexistente', async () => {
     const { service } = build([]);
     expect(await service.startTurnSkipIfNeeded('00000')).toBeNull();
+  });
+});
+
+// Achado P2: serialização das escritas via SessionLock. Sem o lock, duas
+// chamadas concorrentes leem o mesmo estado antes do 1º save e ambas passam as
+// validações (lost-update / ação duplicada). O InMemoryRepo é genuinamente
+// assíncrono (Promise.resolve + structuredClone), então sem o lock estes testes
+// FALHARIAM (duas se intercalariam); com o lock, a 2ª lê o estado já salvo.
+describe('GameService — serialização concorrente (P2)', () => {
+  it('duas applyDiceRoll concorrentes do mesmo jogador → UM movimento; a 2ª recebe NOT_YOUR_TURN', async () => {
+    const { repo, service } = build([3]); // só a 1ª rola; a 2ª falha antes de rolar
+    seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })]);
+
+    const settled = await Promise.allSettled([
+      service.applyDiceRoll('12345', 'a'),
+      service.applyDiceRoll('12345', 'a'),
+    ]);
+    const fulfilled = settled.filter((s) => s.status === 'fulfilled');
+    const rejected = settled.filter((s) => s.status === 'rejected');
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({
+      code: ErrorCode.NOT_YOUR_TURN,
+    });
+
+    // Estado final: um único movimento e o turno passou exatamente uma vez.
+    const stored = (await repo.findByCode('12345'))!;
+    expect(stored.players.find((p) => p.id === 'a')!.square).toBe(3);
+    expect(stored.currentTurnIndex).toBe(1);
+  });
+
+  it('dois submitAnswer concorrentes da mesma pergunta → UM processado; o 2º recebe NO_PENDING_QUESTION', async () => {
+    const { repo, service } = build([]); // acerto leader em casa normal: sem nudge/rng
+    seedState(repo, [
+      makePlayer({ id: 'a', square: 1, pendingQuestion: makePending() }),
+      makePlayer({ id: 'b', square: 0 }),
+    ]);
+
+    const settled = await Promise.allSettled([
+      service.submitAnswer('12345', 'a', 'mat-0001', 0),
+      service.submitAnswer('12345', 'a', 'mat-0001', 0),
+    ]);
+    const fulfilled = settled.filter((s) => s.status === 'fulfilled');
+    const rejected = settled.filter((s) => s.status === 'rejected');
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({
+      code: ErrorCode.NO_PENDING_QUESTION,
+    });
+
+    // Movimento aplicado uma única vez (leader normal = +2 → casa 3) e pendência limpa.
+    const stored = (await repo.findByCode('12345'))!;
+    const a = stored.players.find((p) => p.id === 'a')!;
+    expect(a.square).toBe(3);
+    expect(a.pendingQuestion).toBeNull();
+    expect(stored.currentTurnIndex).toBe(1);
+  });
+
+  it('applyDiceRoll com pergunta pendente é rejeitada (ANSWER_PENDING) sem mover', async () => {
+    // Guarda complementar ao lock: fecha o double-click em rollDice quando a 1ª
+    // rolagem caiu em casa-pergunta (turno não passou, então NOT_YOUR_TURN não barraria).
+    const { repo, service } = build([3]);
+    seedState(repo, [
+      makePlayer({ id: 'a', pendingQuestion: makePending() }),
+      makePlayer({ id: 'b' }),
+    ]);
+    await expect(service.applyDiceRoll('12345', 'a')).rejects.toMatchObject({
+      code: ErrorCode.ANSWER_PENDING,
+    });
+    // Não rolou nem moveu.
+    const stored = (await repo.findByCode('12345'))!;
+    expect(stored.players.find((p) => p.id === 'a')!.square).toBe(0);
+    expect(stored.currentTurnIndex).toBe(0);
   });
 });

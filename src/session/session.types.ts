@@ -7,7 +7,19 @@ import { PendingQuestion, Subject } from '../questions/question.types';
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
-export type SessionStatus = 'lobby' | 'playing' | 'finished';
+// 'ordering' = fase interativa de definição da ordem de turnos (RF-04), entre o
+// lobby e o jogo: os jogadores rolam o d6 para decidir quem começa.
+export type SessionStatus = 'lobby' | 'ordering' | 'playing' | 'finished';
+
+// Estado da fase de ordenação interativa (RF-04). Ver game/ordering.rules.ts.
+// `groups` é uma partição ORDENADA: grupos com >1 jogador ainda estão empatados
+// e precisam rolar; resolvido quando todos têm tamanho 1.
+export interface OrderingState {
+  groups: string[][];
+  currentRolls: Record<string, number>; // rolagens da rodada atual (playerId → valor)
+  round: number; // rodada atual (1-based)
+  history: Roll[][]; // rolagens das rodadas concluídas (para orderResult)
+}
 
 // Tipos de casa, mutuamente exclusivos (RF-17). 'start' = casa 0, 'finish' = casa N.
 // 'question' e 'prison' entram na Sprint 2.
@@ -29,6 +41,12 @@ export interface Player {
   // Pergunta pendente de resposta (estado autoritativo do servidor). null quando
   // não há pergunta aberta para o jogador.
   pendingQuestion: PendingQuestion | null;
+  // --- Sprint 5: aparência cosmética (CONTRACT-S5) ---
+  // Cor (hex "#rrggbb") e emoji escolhidos pelo jogador para o próprio peão.
+  // Opcionais e puramente cosméticos (não afetam regras / RF-16): ausentes
+  // significam "sem escolha" — o front cai no fallback determinístico por índice.
+  color?: string;
+  emoji?: string;
 }
 
 export interface Board {
@@ -53,6 +71,9 @@ export interface SessionState {
   // --- Sprint 2 ---
   // União global das perguntas servidas na sessão (não-repetição global — D3 / RF-09).
   servedQuestionIds: string[];
+  // --- Sprint 4 ---
+  // Estado da fase de ordenação interativa (RF-04); null fora dessa fase.
+  ordering: OrderingState | null;
 }
 
 export interface Roll {

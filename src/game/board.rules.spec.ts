@@ -4,20 +4,28 @@
 
 import { RandomSource } from '../common/random/random.source';
 import { Board, Difficulty } from '../session/session.types';
-import { DENSITY, generateBoard, prisonCount } from './board.rules';
+import {
+  BOARD_SIZE_RANGE,
+  DENSITY,
+  generateBoard,
+  prisonCount,
+} from './board.rules';
 
 // ---------------------------------------------------------------------------
-// Fonte fake determinística — mesma abordagem de game.rules.spec.ts
+// Fonte fake determinística — mesma abordagem de game.rules.spec.ts.
+// Registra os pares [min, max] de cada chamada a int() em `calls`, para que os
+// testes possam afirmar a faixa usada no sorteio de N (RF-NEW-01).
 // ---------------------------------------------------------------------------
 class FakeRandomSource implements RandomSource {
   private queue: number[];
+  readonly calls: [number, number][] = [];
 
   constructor(values: number[]) {
     this.queue = [...values];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  int(_min: number, _max: number): number {
+  int(min: number, max: number): number {
+    this.calls.push([min, max]);
     if (this.queue.length === 0) throw new Error('FakeRandomSource esgotada');
     return this.queue.shift() as number;
   }
@@ -48,20 +56,54 @@ function squaresOfType(board: Board, type: string): number[] {
 // ---------------------------------------------------------------------------
 
 describe('prisonCount', () => {
-  it('retorna 1 para N = 20', () => {
-    expect(prisonCount(20)).toBe(1);
+  // RF-NEW-02: prisonCount(n) = max(1, round(n / 25)).
+  it('garante o mínimo de 1 presídio nas faixas baixas', () => {
+    expect(prisonCount(10)).toBe(1);
+    expect(prisonCount(30)).toBe(1); // round(1.2) = 1
+    expect(prisonCount(37)).toBe(1); // round(1.48) = 1
   });
 
-  it('retorna 1 para N = 24', () => {
-    expect(prisonCount(24)).toBe(1);
+  it('retorna 2 ao redor de 38-62 casas', () => {
+    expect(prisonCount(45)).toBe(2); // round(1.8) = 2
+    expect(prisonCount(60)).toBe(2); // round(2.4) = 2
   });
 
-  it('retorna 2 para N = 25', () => {
-    expect(prisonCount(25)).toBe(2);
+  it('retorna 3 ao redor de 63-87 casas', () => {
+    expect(prisonCount(65)).toBe(3); // round(2.6) = 3
+    expect(prisonCount(70)).toBe(3); // round(2.8) = 3
+    expect(prisonCount(85)).toBe(3); // round(3.4) = 3
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Faixa de tamanho N por dificuldade (RF-NEW-01)
+// ---------------------------------------------------------------------------
+
+describe('BOARD_SIZE_RANGE', () => {
+  it('define [30,45] para easy', () => {
+    expect(BOARD_SIZE_RANGE['easy']).toEqual({ min: 30, max: 45 });
   });
 
-  it('retorna 2 para N = 30', () => {
-    expect(prisonCount(30)).toBe(2);
+  it('define [60,70] para normal', () => {
+    expect(BOARD_SIZE_RANGE['normal']).toEqual({ min: 60, max: 70 });
+  });
+
+  it('define [65,85] para hard', () => {
+    expect(BOARD_SIZE_RANGE['hard']).toEqual({ min: 65, max: 85 });
+  });
+});
+
+describe('generateBoard — sorteio de N usa a faixa da dificuldade', () => {
+  // O primeiro int() é o sorteio de N: a faixa [min,max] deve casar com a
+  // dificuldade. O fake registra os pares passados em `calls`.
+  it.each<[Difficulty, [number, number]]>([
+    ['easy', [30, 45]],
+    ['normal', [60, 70]],
+    ['hard', [65, 85]],
+  ])('%s sorteia N na faixa %j', (difficulty, expectedRange) => {
+    const rng = new FakeRandomSource([expectedRange[0], ...Array(200).fill(0)]);
+    generateBoard(difficulty, ['mat'], rng);
+    expect(rng.calls[0]).toEqual(expectedRange);
   });
 });
 
@@ -88,9 +130,9 @@ describe('DENSITY', () => {
 // ---------------------------------------------------------------------------
 
 describe('generateBoard — tamanho N', () => {
-  // A primeira chamada ao rng é int(20,30) para sortear N.
-  // Para gerar o tabuleiro completo, precisamos de mais valores —
-  // fornecemos um buffer longo para não esgotar o fake.
+  // A primeira chamada ao rng sorteia N na faixa da dificuldade; o fake ignora
+  // os limites e devolve o valor enfileirado, então injetamos N diretamente.
+  // Buffer longo de zeros para não esgotar o fake nos sorteios seguintes.
 
   it('usa o valor do rng para definir o tamanho (N=20)', () => {
     // N=20 → prisonCount=1 → pools restantes pequenos
@@ -121,11 +163,11 @@ describe('generateBoard — tamanho N', () => {
   });
 
   it('usa o valor do rng para definir o tamanho (N=30)', () => {
-    // N=30 → prisonCount=2 → mais sorteios
+    // N=30 → prisonCount(30)=1; buffer de zeros cobre presídio + perguntas.
     const rng = new FakeRandomSource([
       30, // N
       0,
-      0, // 2 índices de presídio
+      0, // índices de presídio (sobra)
       0,
       0,
       0,
@@ -208,32 +250,32 @@ describe('generateBoard — casas terminais', () => {
 // ---------------------------------------------------------------------------
 
 describe('generateBoard — presídios', () => {
-  it('gera 1 presídio para N=20 (limite inferior N<=24)', () => {
+  it('gera 1 presídio para N=20 (round(0.8)=1)', () => {
     const rng = new FakeRandomSource([20, ...Array(50).fill(0)]);
     const board = generateBoard('easy', ['mat'], rng);
     expect(countTileType(board, 'prison')).toBe(1);
   });
 
-  it('gera 1 presídio para N=24 (limite superior N<=24)', () => {
-    const rng = new FakeRandomSource([24, ...Array(50).fill(0)]);
+  it('gera 1 presídio para N=30 (round(1.2)=1)', () => {
+    const rng = new FakeRandomSource([30, ...Array(50).fill(0)]);
     const board = generateBoard('easy', ['mat'], rng);
     expect(countTileType(board, 'prison')).toBe(1);
   });
 
-  it('gera 2 presídios para N=25 (limite inferior N>=25)', () => {
-    const rng = new FakeRandomSource([25, ...Array(50).fill(0)]);
+  it('gera 2 presídios para N=45 (round(1.8)=2)', () => {
+    const rng = new FakeRandomSource([45, ...Array(100).fill(0)]);
     const board = generateBoard('easy', ['mat'], rng);
     expect(countTileType(board, 'prison')).toBe(2);
   });
 
-  it('gera 2 presídios para N=30 (limite superior N>=25)', () => {
-    const rng = new FakeRandomSource([30, ...Array(50).fill(0)]);
+  it('gera 3 presídios para N=70 (round(2.8)=3)', () => {
+    const rng = new FakeRandomSource([70, ...Array(200).fill(0)]);
     const board = generateBoard('easy', ['mat'], rng);
-    expect(countTileType(board, 'prison')).toBe(2);
+    expect(countTileType(board, 'prison')).toBe(3);
   });
 
   it('presídios ficam apenas em [1, N-1]', () => {
-    const rng = new FakeRandomSource([25, ...Array(50).fill(0)]);
+    const rng = new FakeRandomSource([70, ...Array(200).fill(0)]);
     const board = generateBoard('easy', ['mat'], rng);
     const prisons = squaresOfType(board, 'prison');
     for (const sq of prisons) {
@@ -243,9 +285,8 @@ describe('generateBoard — presídios', () => {
   });
 
   it('presídios são casas distintas', () => {
-    // N=25: 2 presídios; com rng controlado, verificamos sem repetição.
-    // Usamos valores que não se sobreponham no pool de candidatos.
-    const rng = new FakeRandomSource([25, 0, 1, ...Array(50).fill(0)]);
+    // N=45: 2 presídios; com rng controlado, verificamos sem repetição.
+    const rng = new FakeRandomSource([45, 0, 0, ...Array(100).fill(0)]);
     const board = generateBoard('easy', ['mat'], rng);
     const prisons = squaresOfType(board, 'prison');
     const unique = new Set(prisons);
@@ -259,10 +300,10 @@ describe('generateBoard — presídios', () => {
 
 describe('generateBoard — casas-pergunta (densidade)', () => {
   // Para verificar densidade, fixamos N e contamos.
-  // N=25: pool não-terminal = [1..24] = 24 casas. prisonCount=2 → 22 livres.
-  // easy:   round(0.4 * 22) = round(8.8) = 9
-  // normal: round(0.6 * 22) = round(13.2) = 13
-  // hard:   round(0.8 * 22) = round(17.6) = 18
+  // N=25: pool não-terminal = [1..24] = 24 casas. prisonCount(25)=1 → 23 livres.
+  // easy:   round(0.4 * 23) = round(9.2)  = 9
+  // normal: round(0.6 * 23) = round(13.8) = 14
+  // hard:   round(0.8 * 23) = round(18.4) = 18
 
   it('contagem correta de perguntas para easy (N=25)', () => {
     const rng = new FakeRandomSource([25, ...Array(100).fill(0)]);
@@ -273,7 +314,7 @@ describe('generateBoard — casas-pergunta (densidade)', () => {
   it('contagem correta de perguntas para normal (N=25)', () => {
     const rng = new FakeRandomSource([25, ...Array(100).fill(0)]);
     const board = generateBoard('normal', ['mat'], rng);
-    expect(countTileType(board, 'question')).toBe(13);
+    expect(countTileType(board, 'question')).toBe(14);
   });
 
   it('contagem correta de perguntas para hard (N=25)', () => {
@@ -400,11 +441,12 @@ describe('generateBoard — subjectBySquare', () => {
 
 describe('generateBoard — reprodutibilidade', () => {
   it('gera tabuleiro idêntico para a mesma sequência de rng', () => {
-    // N=25, normal: 1 (N) + 2 (prisões) + 13 (casas-pergunta) + 13 (subjects) = 29 valores.
+    // N=25, normal: 1 (N) + 1 (prisão) + 14 (casas-pergunta) + 14 (subjects) = 30 valores.
+    // A semente é fixa e fornecida com folga; o teste só compara b1 === b2.
     const seq = [
       25, // N
-      3,
-      7, // presídios (índices no partial Fisher-Yates)
+      3, // presídio (índice no partial Fisher-Yates)
+      7,
       0,
       1,
       2,
@@ -417,7 +459,7 @@ describe('generateBoard — reprodutibilidade', () => {
       11,
       12,
       0,
-      1, // 13 índices de casas-pergunta
+      1, // índices de casas-pergunta
       0,
       1,
       0,
@@ -430,7 +472,9 @@ describe('generateBoard — reprodutibilidade', () => {
       1,
       0,
       1,
-      0, // 13 índices de subject
+      0,
+      1, // índices de subject
+      ...Array(10).fill(0), // folga
     ];
     const b1 = generateBoard(
       'normal',

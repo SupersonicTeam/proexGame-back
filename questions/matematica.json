@@ -2,6 +2,7 @@
   {
     "id": "mat-0001",
     "subject": "matematica",
+    "difficulty": "easy",
     "statement": "Quanto é 2 + 2?",
     "correct": "4",
     "proximal": "3",
@@ -10,6 +11,7 @@
   {
     "id": "mat-0002",
     "subject": "matematica",
+    "difficulty": "easy",
     "statement": "Quanto é 3 × 3?",
     "correct": "9",
     "proximal": "6",
@@ -18,6 +20,7 @@
   {
     "id": "mat-0003",
     "subject": "matematica",
+    "difficulty": "easy",
     "statement": "Qual é a raiz quadrada de 16?",
     "correct": "4",
     "proximal": "8",
@@ -26,6 +29,7 @@
   {
     "id": "mat-0004",
     "subject": "matematica",
+    "difficulty": "easy",
     "statement": "Qual é o resultado de 10 ÷ 2?",
     "correct": "5",
     "proximal": "4",
@@ -34,9 +38,181 @@
   {
     "id": "mat-0005",
     "subject": "matematica",
+    "difficulty": "normal",
     "statement": "Quanto é 7 × 8?",
     "correct": "56",
     "proximal": "54",
     "wrong": ["48", "63"]
+  },
+  {
+    "id": "mat-0006",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Quanto é 15% de 200?",
+    "correct": "30",
+    "proximal": "20",
+    "wrong": ["15", "45"]
+  },
+  {
+    "id": "mat-0007",
+    "subject": "matematica",
+    "difficulty": "easy",
+    "statement": "Qual é o valor de 5²?",
+    "correct": "25",
+    "proximal": "10",
+    "wrong": ["7", "20"]
+  },
+  {
+    "id": "mat-0008",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Quanto é 1/2 + 1/4?",
+    "correct": "3/4",
+    "proximal": "2/6",
+    "wrong": ["1/6", "2/4"]
+  },
+  {
+    "id": "mat-0009",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Qual é o perímetro de um quadrado de lado 5?",
+    "correct": "20",
+    "proximal": "25",
+    "wrong": ["10", "15"]
+  },
+  {
+    "id": "mat-0010",
+    "subject": "matematica",
+    "difficulty": "easy",
+    "statement": "Quanto é 2³?",
+    "correct": "8",
+    "proximal": "6",
+    "wrong": ["9", "5"]
+  },
+  {
+    "id": "mat-0011",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Qual é a área de um retângulo de base 4 e altura 3?",
+    "correct": "12",
+    "proximal": "14",
+    "wrong": ["7", "24"]
+  },
+  {
+    "id": "mat-0012",
+    "subject": "matematica",
+    "difficulty": "easy",
+    "statement": "Quanto é 100 ÷ 4?",
+    "correct": "25",
+    "proximal": "20",
+    "wrong": ["40", "50"]
+  },
+  {
+    "id": "mat-0013",
+    "subject": "matematica",
+    "difficulty": "easy",
+    "statement": "Quanto é 6 × 7?",
+    "correct": "42",
+    "proximal": "48",
+    "wrong": ["36", "13"]
+  },
+  {
+    "id": "mat-0014",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Qual é 20% de 150?",
+    "correct": "30",
+    "proximal": "20",
+    "wrong": ["15", "45"]
+  },
+  {
+    "id": "mat-0015",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Quanto é 3² + 4²?",
+    "correct": "25",
+    "proximal": "49",
+    "wrong": ["12", "14"]
+  },
+  {
+    "id": "mat-0016",
+    "subject": "matematica",
+    "difficulty": "normal",
+    "statement": "Quanto é 144 ÷ 12?",
+    "correct": "12",
+    "proximal": "14",
+    "wrong": ["11", "24"]
+  },
+  {
+    "id": "mat-0017",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Resolva a equação do 1º grau: 2x + 4 = 20.",
+    "correct": "8",
+    "proximal": "12",
+    "wrong": ["10", "16"]
+  },
+  {
+    "id": "mat-0018",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Resolva a equação do 1º grau: 3x - 6 = 9.",
+    "correct": "5",
+    "proximal": "1",
+    "wrong": ["15", "3"]
+  },
+  {
+    "id": "mat-0019",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Resolva a equação do 1º grau: x/2 + 3 = 7.",
+    "correct": "8",
+    "proximal": "4",
+    "wrong": ["5", "14"]
+  },
+  {
+    "id": "mat-0020",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Se x² = 49 e x é positivo, qual é o valor de x?",
+    "correct": "7",
+    "proximal": "24,5",
+    "wrong": ["98", "9"]
+  },
+  {
+    "id": "mat-0021",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Quais são as raízes da equação do 2º grau x² - 5x + 6 = 0?",
+    "correct": "2 e 3",
+    "proximal": "-2 e -3",
+    "wrong": ["1 e 6", "5 e 6"]
+  },
+  {
+    "id": "mat-0022",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Na fórmula de Bhaskara, qual é o discriminante (Δ)?",
+    "correct": "b² - 4ac",
+    "proximal": "b² + 4ac",
+    "wrong": ["2a", "4ac - b²"]
+  },
+  {
+    "id": "mat-0023",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Qual é a soma das raízes da equação do 2º grau x² - 7x + 10 = 0?",
+    "correct": "7",
+    "proximal": "10",
+    "wrong": ["-7", "17"]
+  },
+  {
+    "id": "mat-0024",
+    "subject": "matematica",
+    "difficulty": "hard",
+    "statement": "Quantas raízes reais tem a equação do 2º grau x² + 1 = 0?",
+    "correct": "Nenhuma",
+    "proximal": "Uma",
+    "wrong": ["Duas", "Infinitas"]
   }
 ]
