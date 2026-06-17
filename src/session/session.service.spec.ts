@@ -292,8 +292,78 @@ describe('SessionService.markDisconnected / leaveSession', () => {
 
   it('leaveSession remove o jogador da sessão', async () => {
     const { service, code, joinerId } = await withTwoPlayers();
-    const state = await service.leaveSession(code, joinerId);
+    const { state } = await service.leaveSession(code, joinerId);
     expect(state!.players.some((p) => p.id === joinerId)).toBe(false);
+  });
+
+  it('leaveSession no lobby (não-playing): só remove, sem terminar partida', async () => {
+    const { service, code, joinerId } = await withTwoPlayers();
+    const out = await service.leaveSession(code, joinerId);
+    expect(out.gameEnded).toBe(false);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.status).toBe('lobby');
+    expect(out.state!.winner).toBeNull();
+    expect(out.state!.players.some((p) => p.id === joinerId)).toBe(false);
+  });
+
+  // Achado #3: o jogador-da-vez sai no meio da partida (3 jogadores). Seu id deve
+  // sair de turnOrder e currentTurnIndex deve apontar para um jogador válido — sem
+  // id fantasma travando a rotação.
+  it('leaveSession em playing: jogador-da-vez sai sem deixar id fantasma no turno', async () => {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const { state, playerId: a } = await ctx.service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await ctx.service.joinSession(state.code, 'Bia', 's');
+    const { playerId: c } = await ctx.service.joinSession(
+      state.code,
+      'Caio',
+      's',
+    );
+
+    // Partida em andamento, ordem [a,b,c], vez de 'a' (índice 0).
+    const seeded = (await ctx.repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b, c];
+    seeded.currentTurnIndex = 0;
+    await ctx.repo.save(seeded);
+
+    const out = await ctx.service.leaveSession(state.code, a);
+    expect(out.gameEnded).toBe(false);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.turnOrder).toEqual([b, c]);
+    // Índice dentro dos limites, apontando para um jogador existente (sem fantasma).
+    expect(out.state!.currentTurnIndex).toBeLessThan(
+      out.state!.turnOrder.length,
+    );
+    expect([b, c]).toContain(
+      out.state!.turnOrder[out.state!.currentTurnIndex],
+    );
+  });
+
+  // Decisão de produto: partida em playing caindo para 1 → termina, restante vence.
+  it('leaveSession em playing caindo para 1: termina e declara vencedor', async () => {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const { state, playerId: a } = await ctx.service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await ctx.service.joinSession(state.code, 'Bia', 's');
+
+    const seeded = (await ctx.repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b];
+    seeded.currentTurnIndex = 0;
+    await ctx.repo.save(seeded);
+
+    const out = await ctx.service.leaveSession(state.code, a);
+    expect(out.gameEnded).toBe(true);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.status).toBe('finished');
+    expect(out.state!.winner).toBe(b);
   });
 });
 
@@ -473,5 +543,30 @@ describe('SessionService.expireDisconnectedPlayer', () => {
       out.state!.turnOrder.length,
     );
     expect([b, c]).toContain(out.state!.turnOrder[out.state!.currentTurnIndex]);
+  });
+
+  // Decisão de produto: expiração de grace que derruba a partida para 1 jogador
+  // também termina o jogo e declara o restante vencedor (paridade com leaveSession).
+  it('declara vencedor quando a expiração derruba a partida para 1 (playing)', async () => {
+    const { repo, service } = build();
+    const { state, playerId: a } = await service.createSession(
+      'Ana',
+      'normal',
+      's',
+    );
+    const { playerId: b } = await service.joinSession(state.code, 'Bia', 's');
+
+    const seeded = (await repo.findByCode(state.code))!;
+    seeded.status = 'playing';
+    seeded.turnOrder = [a, b];
+    seeded.currentTurnIndex = 0;
+    await repo.save(seeded);
+    await service.markDisconnected(state.code, a);
+
+    const out = await service.expireDisconnectedPlayer(state.code, a);
+    expect(out.removed).toBe(true);
+    expect(out.sessionDeleted).toBe(false);
+    expect(out.state!.status).toBe('finished');
+    expect(out.state!.winner).toBe(b);
   });
 });

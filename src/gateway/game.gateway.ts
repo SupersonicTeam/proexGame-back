@@ -9,6 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { resolveCorsOrigin } from '../common/config/cors';
 import { ErrorCode, GameError } from '../common/errors/game-error';
+import { buildRanking } from '../game/game.rules';
 import { GameService, OrderRollOutcome } from '../game/game.service';
 import { playersToRoll } from '../game/ordering.rules';
 import { ReconnectService } from '../session/reconnect.service';
@@ -298,15 +299,55 @@ export class GameGateway implements OnGatewayDisconnect {
   async handleLeaveSession(@ConnectedSocket() client: Socket) {
     const { code, playerId } = this.dataOf(client);
     if (!code || !playerId) return;
-    const state = await this.sessions.leaveSession(code, playerId);
+    const result = await this.sessions.leaveSession(code, playerId);
     await client.leave(code);
+    // Sessão esvaziou (último jogador saiu): apagada no serviço; avisa quem restar
+    // na sala (paridade com a expiração de grace que apaga a sessão — RF-15).
+    if (result.sessionDeleted) {
+      this.server.to(code).emit('sessionClosed', { reason: 'host_left' });
+      return;
+    }
+    const state = result.state;
     if (!state) return;
+    // Partida terminou por abandono (caiu para 1 em playing): vencedor declarado.
+    if (result.gameEnded) {
+      this.emitGameOver(code, state);
+      return;
+    }
     // Saída durante a fase de ordem (RF-04): recupera a ordem com os restantes.
     if (state.status === 'ordering') {
       await this.recoverOrderingAfterRemoval(code, state);
       return;
     }
+    // Partida em andamento que segue (>=2 jogadores): a vez pode ter trocado de
+    // dono pela remoção. Reenvia gameState + turnChanged para nenhum cliente ficar
+    // com turno fantasma, e drena presídios do novo jogador da vez (RF-20).
+    if (state.status === 'playing') {
+      await this.broadcastTurnAfterRemoval(code, state);
+      return;
+    }
     this.server.to(code).emit('lobbyState', toLobbyState(state));
+  }
+
+  // Emite o fim de jogo por abandono (achado #3): a sessão já está em 'finished'
+  // com winner setado pelo serviço; monta o ranking e dispara gameOver à sala.
+  private emitGameOver(code: string, state: SessionState): void {
+    this.server.to(code).emit('gameState', toGameState(state));
+    this.server.to(code).emit('gameOver', {
+      winner: state.winner,
+      ranking: state.winner ? buildRanking(state, state.winner) : [],
+    });
+  }
+
+  // Após remover um jogador de uma partida em andamento que continua: ressincroniza
+  // o estado e o turno (o dono da vez pode ter mudado pela reconciliação do índice)
+  // e drena presídios do jogador da vez (RF-20).
+  private async broadcastTurnAfterRemoval(
+    code: string,
+    state: SessionState,
+  ): Promise<void> {
+    this.server.to(code).emit('gameState', toGameState(state));
+    await this.advanceTurn(code, state.turnOrder[state.currentTurnIndex] ?? null);
   }
 
   // Após um jogador sair (leaveSession) ou ser removido por expiração de grace
@@ -411,10 +452,19 @@ export class GameGateway implements OnGatewayDisconnect {
     if (!result.removed) return;
     if (result.sessionDeleted) {
       this.server.to(code).emit('sessionClosed', { reason: 'inactivity' });
+    } else if (result.state && result.state.status === 'finished') {
+      // Expiração derrubou a partida para 1 jogador (achado #3): termina com o
+      // restante como vencedor (paridade com leaveSession).
+      this.emitGameOver(code, result.state);
     } else if (result.state && result.state.status === 'ordering') {
       // Removido durante a fase de ordem (RF-04): recupera com os restantes para
       // não deixar a ordem presa a um id que não está mais na sessão.
       await this.recoverOrderingAfterRemoval(code, result.state);
+    } else if (result.state && result.state.status === 'playing') {
+      // Partida segue em andamento: a vez pode ter passado de dono pela remoção.
+      // Reenvia gameState + turnChanged para nenhum cliente ficar com turno
+      // fantasma (e drena presídios do novo jogador da vez — RF-20).
+      await this.broadcastTurnAfterRemoval(code, result.state);
     } else if (result.state) {
       this.server.to(code).emit('lobbyState', toLobbyState(result.state));
     }
