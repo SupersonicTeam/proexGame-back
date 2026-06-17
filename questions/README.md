@@ -28,6 +28,7 @@ O topo do arquivo é um **array JSON**. Cada item:
 |---|---|---|
 | `id` | string | Não-vazio. **Único em todo o banco** (ids repetidos se sobrescrevem silenciosamente). Convenção: `<prefixo>-NNNN` (ex.: `his-0001`). |
 | `subject` | string | Deve ser **igual ao nome do arquivo**. |
+| `difficulty` | string | **Obrigatório.** Um de `easy` \| `normal` \| `hard`. A partida só serve perguntas do nível da sessão (RF-NEW-04). |
 | `statement` | string | Não-vazio. O enunciado (texto público, vai no `questionPrompt`). |
 | `correct` | string | Não-vazio. A alternativa correta. |
 | `proximal` | string | Não-vazio. O **distrator proximal** (ver abaixo). |
@@ -55,27 +56,35 @@ tabuada), `wrong: ["48", "63"]`.
 
 ## Volume recomendado
 
-O banco **não repete perguntas dentro de uma sessão** (`servedQuestionIds`). Um tabuleiro
-pode ter até ~24 casas-pergunta, distribuídas entre as 10 matérias. Para uma matéria não
-"esgotar" no meio da partida (`pickQuestion` retorna `null`), mire em **~20 perguntas por
-matéria** (mínimo confortável; "dezenas" do spec). Menos que isso funciona para o evento
-único de ≤20 usuários, mas reduz a folga.
+O banco **não repete perguntas dentro de uma sessão** (`servedQuestionIds`) e **filtra
+pelo nível da sessão** (RF-NEW-04): só contam perguntas cuja `difficulty` bate com a
+dificuldade da partida. Com tabuleiros maiores no difícil (até [65,85], densidade 80%),
+um tabuleiro pode ter dezenas de casas-pergunta distribuídas entre as matérias.
+
+Para uma matéria não "esgotar" um nível no meio da partida (`pickQuestion` retorna `null`
+→ a casa vira `normal`, sem travar a partida), mire em **~12 perguntas por matéria por
+nível** (`easy`/`normal`/`hard`). O fallback evita softlock, mas pools magros tornam o
+modo afetado pobre em perguntas.
+
+> **Status da expansão:** concluída — as 8 matérias têm os 3 níveis preenchidos
+> (ver `.specs/features/difficulty-scaling/spec.md`).
 
 ## As matérias (turma do 2º ano — curso de programação)
 
-Conjunto definido para o público (2º ano do ensino médio, curso de programação),
-12 perguntas cada nesta primeira leva — expandir para ~20 quando houver folga:
+Conjunto definido para o público (2º ano do ensino médio, curso de programação).
+Meta por nível: **~12 perguntas por matéria por dificuldade**. Exceto `matematica`
+(24 perguntas), todas têm 36 (12 easy / 12 normal / 12 hard).
 
 | Matéria (`subject` / nome do arquivo) | Prefixo de `id` | Status |
 |---|---|---|
-| `desenvolvimento-web` (HTML + CSS + JS básico) | `web` | ✅ 12 perguntas |
-| `matematica` | `mat` | ✅ 12 perguntas |
-| `logica` | `log` | ✅ 12 perguntas |
-| `quimica` | `qui` | ✅ 12 perguntas |
-| `fisica` | `fis` | ✅ 12 perguntas |
-| `matematica-financeira` | `fin` | ✅ 12 perguntas |
-| `conhecimentos-gerais` | `ger` | ✅ 12 perguntas |
-| `portugues` | `por` | ✅ 12 perguntas |
+| `matematica` | `mat` | ✅ 24 (8 / 8 / 8) |
+| `desenvolvimento-web` (HTML + CSS + JS básico) | `web` | ✅ 36 (12 / 12 / 12) |
+| `logica` | `log` | ✅ 36 (12 / 12 / 12) |
+| `quimica` | `qui` | ✅ 36 (12 / 12 / 12) |
+| `fisica` | `fis` | ✅ 36 (12 / 12 / 12) |
+| `matematica-financeira` | `fin` | ✅ 36 (12 / 12 / 12) |
+| `conhecimentos-gerais` | `ger` | ✅ 36 (12 / 12 / 12) |
+| `portugues` | `por` | ✅ 36 (12 / 12 / 12) |
 
 ## Como validar o que você escreveu
 

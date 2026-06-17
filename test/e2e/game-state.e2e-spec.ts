@@ -222,8 +222,9 @@ describe('gameState snapshot (e2e)', () => {
 
     expect(snap.status).toBe('playing');
     expect(typeof snap.board.size).toBe('number');
-    expect(snap.board.size).toBeGreaterThanOrEqual(20);
-    expect(snap.board.size).toBeLessThanOrEqual(30);
+    // Dificuldade 'normal' (RF-NEW-01): tamanho ∈ [60, 70].
+    expect(snap.board.size).toBeGreaterThanOrEqual(60);
+    expect(snap.board.size).toBeLessThanOrEqual(70);
     expect(snap.players).toHaveLength(2);
     for (const p of snap.players) {
       expect(typeof p.square).toBe('number');

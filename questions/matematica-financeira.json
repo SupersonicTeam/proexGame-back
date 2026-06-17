@@ -2,6 +2,7 @@
   {
     "id": "fin-0001",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "Um produto custa R$ 100 e tem 10% de desconto. Qual é o valor final?",
     "correct": "R$ 90",
     "proximal": "R$ 80",
@@ -10,6 +11,7 @@
   {
     "id": "fin-0002",
     "subject": "matematica-financeira",
+    "difficulty": "normal",
     "statement": "Juros simples de 10% ao mês sobre R$ 200, em 1 mês, geram quanto de juros?",
     "correct": "R$ 20",
     "proximal": "R$ 10",
@@ -18,6 +20,7 @@
   {
     "id": "fin-0003",
     "subject": "matematica-financeira",
+    "difficulty": "normal",
     "statement": "Um produto de R$ 50 sofre um aumento de 20%. Qual é o novo preço?",
     "correct": "R$ 60",
     "proximal": "R$ 70",
@@ -26,6 +29,7 @@
   {
     "id": "fin-0004",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "O que significa pagar uma compra \"à vista\"?",
     "correct": "Pagar o valor total no momento da compra",
     "proximal": "Pagar parcelado sem juros",
@@ -34,6 +38,7 @@
   {
     "id": "fin-0005",
     "subject": "matematica-financeira",
+    "difficulty": "normal",
     "statement": "Comprar parcelado \"sem juros\" significa que você paga:",
     "correct": "O mesmo valor total, dividido em parcelas",
     "proximal": "Um valor maior, dividido em parcelas",
@@ -42,6 +47,7 @@
   {
     "id": "fin-0006",
     "subject": "matematica-financeira",
+    "difficulty": "normal",
     "statement": "Quanto é 25% de R$ 80?",
     "correct": "R$ 20",
     "proximal": "R$ 25",
@@ -50,6 +56,7 @@
   {
     "id": "fin-0007",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "Economizando R$ 50 por mês, quanto você terá em 1 ano (sem juros)?",
     "correct": "R$ 600",
     "proximal": "R$ 500",
@@ -58,6 +65,7 @@
   {
     "id": "fin-0008",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "Uma compra de R$ 300 em 3 parcelas iguais sem juros. Qual é o valor de cada parcela?",
     "correct": "R$ 100",
     "proximal": "R$ 110",
@@ -66,6 +74,7 @@
   {
     "id": "fin-0009",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "O que é o \"lucro\" de uma venda?",
     "correct": "A diferença entre o preço de venda e o custo",
     "proximal": "O valor total recebido na venda",
@@ -74,6 +83,7 @@
   {
     "id": "fin-0010",
     "subject": "matematica-financeira",
+    "difficulty": "normal",
     "statement": "Juros simples: capital de R$ 1000 a 5% ao mês, durante 2 meses. Qual é o total de juros?",
     "correct": "R$ 100",
     "proximal": "R$ 50",
@@ -82,6 +92,7 @@
   {
     "id": "fin-0011",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "Se o dólar custa R$ 5, quantos reais valem 10 dólares?",
     "correct": "R$ 50",
     "proximal": "R$ 15",
@@ -90,9 +101,226 @@
   {
     "id": "fin-0012",
     "subject": "matematica-financeira",
+    "difficulty": "easy",
     "statement": "Um produto de R$ 200 com 50% de desconto fica por quanto?",
     "correct": "R$ 100",
     "proximal": "R$ 150",
     "wrong": ["R$ 50", "R$ 250"]
+  },
+  {
+    "id": "fin-0013",
+    "subject": "matematica-financeira",
+    "difficulty": "easy",
+    "statement": "Quanto é 10% de R$ 50?",
+    "correct": "R$ 5",
+    "proximal": "R$ 10",
+    "wrong": ["R$ 50", "R$ 0,50"]
+  },
+  {
+    "id": "fin-0014",
+    "subject": "matematica-financeira",
+    "difficulty": "easy",
+    "statement": "Se você tem R$ 20 e gasta R$ 8, quanto sobra?",
+    "correct": "R$ 12",
+    "proximal": "R$ 8",
+    "wrong": ["R$ 28", "R$ 10"]
+  },
+  {
+    "id": "fin-0015",
+    "subject": "matematica-financeira",
+    "difficulty": "easy",
+    "statement": "O que é uma \"despesa\"?",
+    "correct": "Um gasto (saída de dinheiro)",
+    "proximal": "Uma entrada de dinheiro",
+    "wrong": ["Um tipo de imposto", "Um empréstimo"]
+  },
+  {
+    "id": "fin-0016",
+    "subject": "matematica-financeira",
+    "difficulty": "easy",
+    "statement": "Comprar 3 itens de R$ 10 cada custa quanto no total?",
+    "correct": "R$ 30",
+    "proximal": "R$ 13",
+    "wrong": ["R$ 10", "R$ 33"]
+  },
+  {
+    "id": "fin-0017",
+    "subject": "matematica-financeira",
+    "difficulty": "easy",
+    "statement": "Receber o salário do trabalho é uma:",
+    "correct": "Receita (entrada)",
+    "proximal": "Despesa",
+    "wrong": ["Dívida", "Multa"]
+  },
+  {
+    "id": "fin-0018",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "Um produto de R$ 80 com 25% de desconto sai por quanto?",
+    "correct": "R$ 60",
+    "proximal": "R$ 55",
+    "wrong": ["R$ 20", "R$ 100"]
+  },
+  {
+    "id": "fin-0019",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "Juros simples: R$ 500 a 2% ao mês por 3 meses geram quanto de juros?",
+    "correct": "R$ 30",
+    "proximal": "R$ 10",
+    "wrong": ["R$ 530", "R$ 100"]
+  },
+  {
+    "id": "fin-0020",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "Comparando o preço à vista com o parcelado COM juros, normalmente:",
+    "correct": "O parcelado custa mais no total",
+    "proximal": "Os dois custam o mesmo",
+    "wrong": ["O à vista custa mais", "Não há diferença"]
+  },
+  {
+    "id": "fin-0021",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "Se algo aumenta de R$ 100 para R$ 120, qual foi o aumento percentual?",
+    "correct": "20%",
+    "proximal": "12%",
+    "wrong": ["120%", "2%"]
+  },
+  {
+    "id": "fin-0022",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "R$ 1000 divididos igualmente entre 4 pessoas dá quanto para cada uma?",
+    "correct": "R$ 250",
+    "proximal": "R$ 400",
+    "wrong": ["R$ 200", "R$ 2500"]
+  },
+  {
+    "id": "fin-0023",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "O que é um \"orçamento doméstico\"?",
+    "correct": "O planejamento de receitas e despesas",
+    "proximal": "Apenas a lista de dívidas",
+    "wrong": ["O salário bruto", "O extrato bancário"]
+  },
+  {
+    "id": "fin-0024",
+    "subject": "matematica-financeira",
+    "difficulty": "normal",
+    "statement": "Quanto é 30% de R$ 200?",
+    "correct": "R$ 60",
+    "proximal": "R$ 30",
+    "wrong": ["R$ 70", "R$ 6"]
+  },
+  {
+    "id": "fin-0025",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Juros compostos: R$ 100 a 10% ao mês. Qual é o montante após 2 meses?",
+    "correct": "R$ 121",
+    "proximal": "R$ 120",
+    "wrong": ["R$ 110", "R$ 100"]
+  },
+  {
+    "id": "fin-0026",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Um produto sobe 10% e depois cai 10%. O preço final, em relação ao original, fica:",
+    "correct": "Menor que o original",
+    "proximal": "Igual ao original",
+    "wrong": ["Maior que o original", "O dobro do original"]
+  },
+  {
+    "id": "fin-0027",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Descontos sucessivos de 20% e depois 10% sobre R$ 100 resultam em:",
+    "correct": "R$ 72",
+    "proximal": "R$ 70",
+    "wrong": ["R$ 30", "R$ 68"]
+  },
+  {
+    "id": "fin-0028",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Em juros simples, o que rende mais em 1 mês: 12% ao ano ou 1% ao mês?",
+    "correct": "São equivalentes",
+    "proximal": "12% ao ano rende mais",
+    "wrong": ["1% ao mês rende mais", "Depende do banco"]
+  },
+  {
+    "id": "fin-0029",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Comprei por R$ 80 e vendi por R$ 100. Qual foi o lucro percentual sobre o custo?",
+    "correct": "25%",
+    "proximal": "20%",
+    "wrong": ["80%", "125%"]
+  },
+  {
+    "id": "fin-0030",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "R$ 200 a juros simples de 5% ao mês rendem quanto de juros em 6 meses?",
+    "correct": "R$ 60",
+    "proximal": "R$ 10",
+    "wrong": ["R$ 260", "R$ 600"]
+  },
+  {
+    "id": "fin-0031",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Se a inflação foi 10% e seu salário subiu 5%, seu poder de compra:",
+    "correct": "Diminuiu",
+    "proximal": "Aumentou",
+    "wrong": ["Ficou igual", "Dobrou"]
+  },
+  {
+    "id": "fin-0032",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Parcelar R$ 1200 em 12x com \"juros zero\" significa parcelas de:",
+    "correct": "R$ 100",
+    "proximal": "R$ 120",
+    "wrong": ["R$ 1200", "R$ 144"]
+  },
+  {
+    "id": "fin-0033",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Qual é o montante de R$ 1000 a juros simples de 10% ao mês em 3 meses?",
+    "correct": "R$ 1300",
+    "proximal": "R$ 1331",
+    "wrong": ["R$ 1100", "R$ 300"]
+  },
+  {
+    "id": "fin-0034",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Aplicar dinheiro na poupança é um exemplo de:",
+    "correct": "Investimento",
+    "proximal": "Despesa",
+    "wrong": ["Empréstimo", "Dívida"]
+  },
+  {
+    "id": "fin-0035",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Comprar à vista com 5% de desconto em R$ 200 economiza quanto?",
+    "correct": "R$ 10",
+    "proximal": "R$ 5",
+    "wrong": ["R$ 20", "R$ 50"]
+  },
+  {
+    "id": "fin-0036",
+    "subject": "matematica-financeira",
+    "difficulty": "hard",
+    "statement": "Uma dívida de R$ 100 a 10% ao mês, sem pagamento, após 1 mês passa a:",
+    "correct": "R$ 110",
+    "proximal": "R$ 100",
+    "wrong": ["R$ 90", "R$ 200"]
   }
 ]

@@ -2,6 +2,7 @@
   {
     "id": "log-0001",
     "subject": "logica",
+    "difficulty": "normal",
     "statement": "Se \"todo A é B\" e \"todo B é C\", então o que se conclui?",
     "correct": "Todo A é C",
     "proximal": "Todo C é A",
@@ -10,6 +11,7 @@
   {
     "id": "log-0002",
     "subject": "logica",
+    "difficulty": "normal",
     "statement": "Qual é a negação de \"todos os gatos são pretos\"?",
     "correct": "Pelo menos um gato não é preto",
     "proximal": "Nenhum gato é preto",
@@ -18,6 +20,7 @@
   {
     "id": "log-0003",
     "subject": "logica",
+    "difficulty": "normal",
     "statement": "O operador lógico \"E\" (AND) só é verdadeiro quando:",
     "correct": "As duas condições são verdadeiras",
     "proximal": "Pelo menos uma condição é verdadeira",
@@ -26,6 +29,7 @@
   {
     "id": "log-0004",
     "subject": "logica",
+    "difficulty": "normal",
     "statement": "O operador lógico \"OU\" (OR) só é falso quando:",
     "correct": "As duas condições são falsas",
     "proximal": "As duas condições são verdadeiras",
@@ -34,6 +38,7 @@
   {
     "id": "log-0005",
     "subject": "logica",
+    "difficulty": "easy",
     "statement": "Complete a sequência: 2, 4, 6, 8, ...",
     "correct": "10",
     "proximal": "9",
@@ -42,6 +47,7 @@
   {
     "id": "log-0006",
     "subject": "logica",
+    "difficulty": "normal",
     "statement": "Complete a sequência: 1, 2, 4, 8, ...",
     "correct": "16",
     "proximal": "10",
@@ -50,6 +56,7 @@
   {
     "id": "log-0007",
     "subject": "logica",
+    "difficulty": "easy",
     "statement": "Se hoje é terça-feira, que dia da semana será daqui a 3 dias?",
     "correct": "Sexta-feira",
     "proximal": "Sábado",
@@ -58,6 +65,7 @@
   {
     "id": "log-0008",
     "subject": "logica",
+    "difficulty": "easy",
     "statement": "Qual é a negação da frase \"está chovendo\"?",
     "correct": "Não está chovendo",
     "proximal": "Está fazendo sol",
@@ -66,6 +74,7 @@
   {
     "id": "log-0009",
     "subject": "logica",
+    "difficulty": "easy",
     "statement": "Complete a sequência: 3, 6, 9, 12, ...",
     "correct": "15",
     "proximal": "14",
@@ -74,6 +83,7 @@
   {
     "id": "log-0010",
     "subject": "logica",
+    "difficulty": "normal",
     "statement": "Se \"A implica B\" é verdadeiro e A é verdadeiro, então B é:",
     "correct": "Verdadeiro",
     "proximal": "Falso",
@@ -82,6 +92,7 @@
   {
     "id": "log-0011",
     "subject": "logica",
+    "difficulty": "easy",
     "statement": "Maçã está para fruta assim como cenoura está para:",
     "correct": "Legume",
     "proximal": "Verdura",
@@ -90,9 +101,226 @@
   {
     "id": "log-0012",
     "subject": "logica",
+    "difficulty": "easy",
     "statement": "Um trem parte às 14h e chega às 17h. Quanto durou a viagem?",
     "correct": "3 horas",
     "proximal": "2 horas",
     "wrong": ["4 horas", "31 horas"]
+  },
+  {
+    "id": "log-0013",
+    "subject": "logica",
+    "difficulty": "easy",
+    "statement": "Complete a sequência: 5, 10, 15, 20, ...",
+    "correct": "25",
+    "proximal": "30",
+    "wrong": ["21", "24"]
+  },
+  {
+    "id": "log-0014",
+    "subject": "logica",
+    "difficulty": "easy",
+    "statement": "Se hoje é segunda-feira, que dia foi ontem?",
+    "correct": "Domingo",
+    "proximal": "Terça-feira",
+    "wrong": ["Sábado", "Sexta-feira"]
+  },
+  {
+    "id": "log-0015",
+    "subject": "logica",
+    "difficulty": "easy",
+    "statement": "Qual número vem imediatamente antes de 100?",
+    "correct": "99",
+    "proximal": "101",
+    "wrong": ["90", "98"]
+  },
+  {
+    "id": "log-0016",
+    "subject": "logica",
+    "difficulty": "easy",
+    "statement": "Pão está para padaria assim como carne está para:",
+    "correct": "Açougue",
+    "proximal": "Mercado",
+    "wrong": ["Feira", "Cozinha"]
+  },
+  {
+    "id": "log-0017",
+    "subject": "logica",
+    "difficulty": "easy",
+    "statement": "Complete a sequência: A, B, C, D, ...",
+    "correct": "E",
+    "proximal": "F",
+    "wrong": ["D", "Z"]
+  },
+  {
+    "id": "log-0018",
+    "subject": "logica",
+    "difficulty": "easy",
+    "statement": "Complete a sequência: 20, 18, 16, 14, ...",
+    "correct": "12",
+    "proximal": "10",
+    "wrong": ["13", "16"]
+  },
+  {
+    "id": "log-0019",
+    "subject": "logica",
+    "difficulty": "normal",
+    "statement": "Complete a sequência: 1, 3, 6, 10, ...",
+    "correct": "15",
+    "proximal": "14",
+    "wrong": ["13", "16"]
+  },
+  {
+    "id": "log-0020",
+    "subject": "logica",
+    "difficulty": "normal",
+    "statement": "Qual é a negação de \"algum aluno passou\"?",
+    "correct": "Nenhum aluno passou",
+    "proximal": "Algum aluno não passou",
+    "wrong": ["Todos os alunos passaram", "Muitos alunos passaram"]
+  },
+  {
+    "id": "log-0021",
+    "subject": "logica",
+    "difficulty": "normal",
+    "statement": "Se \"A ou B\" é verdadeiro e A é falso, então B é:",
+    "correct": "Verdadeiro",
+    "proximal": "Falso",
+    "wrong": ["Indefinido", "Não se pode saber"]
+  },
+  {
+    "id": "log-0022",
+    "subject": "logica",
+    "difficulty": "normal",
+    "statement": "Complete a sequência: 2, 6, 18, 54, ...",
+    "correct": "162",
+    "proximal": "108",
+    "wrong": ["216", "60"]
+  },
+  {
+    "id": "log-0023",
+    "subject": "logica",
+    "difficulty": "normal",
+    "statement": "Complete a sequência: 100, 50, 25, ...",
+    "correct": "12,5",
+    "proximal": "20",
+    "wrong": ["15", "0"]
+  },
+  {
+    "id": "log-0024",
+    "subject": "logica",
+    "difficulty": "normal",
+    "statement": "Qual é a negação de \"nenhum carro é azul\"?",
+    "correct": "Pelo menos um carro é azul",
+    "proximal": "Todos os carros são azuis",
+    "wrong": ["Nenhum carro é azul", "Alguns carros não são azuis"]
+  },
+  {
+    "id": "log-0025",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Qual é a contrapositiva de \"se chove, então a rua molha\"?",
+    "correct": "Se a rua não molha, então não chove",
+    "proximal": "Se não chove, então a rua não molha",
+    "wrong": ["Se a rua molha, então chove", "Se chove, então a rua não molha"]
+  },
+  {
+    "id": "log-0026",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Complete a sequência de Fibonacci: 1, 1, 2, 3, 5, 8, ...",
+    "correct": "13",
+    "proximal": "11",
+    "wrong": ["10", "16"]
+  },
+  {
+    "id": "log-0027",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Qual é a negação de \"se estudo, então passo\"?",
+    "correct": "Estudo e não passo",
+    "proximal": "Não estudo e não passo",
+    "wrong": ["Se não estudo, então não passo", "Não estudo ou passo"]
+  },
+  {
+    "id": "log-0028",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "\"Nenhum peixe voa\" e \"a truta é um peixe\". Logo:",
+    "correct": "A truta não voa",
+    "proximal": "A truta voa",
+    "wrong": ["Alguns peixes voam", "A truta não é peixe"]
+  },
+  {
+    "id": "log-0029",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Se A→B e B→C são verdadeiras e C é falso, o que se conclui sobre A?",
+    "correct": "A é falso",
+    "proximal": "A é verdadeiro",
+    "wrong": ["Nada se conclui", "B é verdadeiro"]
+  },
+  {
+    "id": "log-0030",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Pedro é mais alto que Ana, e Ana é mais alta que Lia. Quem é a mais baixa?",
+    "correct": "Lia",
+    "proximal": "Ana",
+    "wrong": ["Pedro", "Não dá para saber"]
+  },
+  {
+    "id": "log-0031",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Complete a sequência: 3, 5, 9, 17, ...",
+    "correct": "33",
+    "proximal": "31",
+    "wrong": ["25", "34"]
+  },
+  {
+    "id": "log-0032",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Quantas vezes o algarismo 1 aparece ao escrever os números de 1 a 20?",
+    "correct": "12",
+    "proximal": "11",
+    "wrong": ["13", "10"]
+  },
+  {
+    "id": "log-0033",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Complete a sequência: 81, 27, 9, 3, ...",
+    "correct": "1",
+    "proximal": "0",
+    "wrong": ["2", "1,5"]
+  },
+  {
+    "id": "log-0034",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Todo quadrado é um retângulo. Logo, sobre os retângulos é correto dizer:",
+    "correct": "Alguns retângulos são quadrados",
+    "proximal": "Todo retângulo é um quadrado",
+    "wrong": ["Nenhum retângulo é quadrado", "Quadrado não é retângulo"]
+  },
+  {
+    "id": "log-0035",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "\"Todos que estudam passam. João passou.\" Pode-se concluir que João estudou?",
+    "correct": "Não necessariamente",
+    "proximal": "Sim, com certeza",
+    "wrong": ["João não passou", "Ninguém estudou"]
+  },
+  {
+    "id": "log-0036",
+    "subject": "logica",
+    "difficulty": "hard",
+    "statement": "Complete a sequência: 1, 4, 9, 16, 25, ...",
+    "correct": "36",
+    "proximal": "35",
+    "wrong": ["30", "49"]
   }
 ]

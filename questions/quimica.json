@@ -2,6 +2,7 @@
   {
     "id": "qui-0001",
     "subject": "quimica",
+    "difficulty": "easy",
     "statement": "Qual é a fórmula química da água?",
     "correct": "H2O",
     "proximal": "HO2",
@@ -10,6 +11,7 @@
   {
     "id": "qui-0002",
     "subject": "quimica",
+    "difficulty": "easy",
     "statement": "Qual é o símbolo químico do oxigênio?",
     "correct": "O",
     "proximal": "O2",
@@ -18,6 +20,7 @@
   {
     "id": "qui-0003",
     "subject": "quimica",
+    "difficulty": "easy",
     "statement": "Qual é o símbolo químico do carbono?",
     "correct": "C",
     "proximal": "Ca",
@@ -26,6 +29,7 @@
   {
     "id": "qui-0004",
     "subject": "quimica",
+    "difficulty": "easy",
     "statement": "O que é uma molécula?",
     "correct": "A união de dois ou mais átomos",
     "proximal": "Um único átomo isolado",
@@ -34,6 +38,7 @@
   {
     "id": "qui-0005",
     "subject": "quimica",
+    "difficulty": "normal",
     "statement": "Qual gás as plantas absorvem do ar na fotossíntese?",
     "correct": "Gás carbônico (CO2)",
     "proximal": "Oxigênio (O2)",
@@ -42,6 +47,7 @@
   {
     "id": "qui-0006",
     "subject": "quimica",
+    "difficulty": "normal",
     "statement": "Qual é o pH aproximado de uma solução neutra?",
     "correct": "7",
     "proximal": "6",
@@ -50,6 +56,7 @@
   {
     "id": "qui-0007",
     "subject": "quimica",
+    "difficulty": "easy",
     "statement": "Quais são os três estados físicos mais comuns da matéria?",
     "correct": "Sólido, líquido e gasoso",
     "proximal": "Sólido, líquido, gasoso e plasma",
@@ -58,6 +65,7 @@
   {
     "id": "qui-0008",
     "subject": "quimica",
+    "difficulty": "normal",
     "statement": "Como se chama a passagem do estado líquido para o gasoso?",
     "correct": "Vaporização (evaporação)",
     "proximal": "Condensação",
@@ -66,6 +74,7 @@
   {
     "id": "qui-0009",
     "subject": "quimica",
+    "difficulty": "normal",
     "statement": "Qual é o símbolo químico do sódio?",
     "correct": "Na",
     "proximal": "So",
@@ -74,6 +83,7 @@
   {
     "id": "qui-0010",
     "subject": "quimica",
+    "difficulty": "easy",
     "statement": "A que temperatura a água ferve ao nível do mar?",
     "correct": "100 °C",
     "proximal": "90 °C",
@@ -82,6 +92,7 @@
   {
     "id": "qui-0011",
     "subject": "quimica",
+    "difficulty": "normal",
     "statement": "Qual destes é um elemento químico?",
     "correct": "Ferro",
     "proximal": "Aço",
@@ -90,9 +101,226 @@
   {
     "id": "qui-0012",
     "subject": "quimica",
+    "difficulty": "normal",
     "statement": "O número atômico de um elemento indica a quantidade de:",
     "correct": "Prótons",
     "proximal": "Nêutrons",
     "wrong": ["Moléculas", "Ligações"]
+  },
+  {
+    "id": "qui-0013",
+    "subject": "quimica",
+    "difficulty": "easy",
+    "statement": "Qual é o símbolo químico do hidrogênio?",
+    "correct": "H",
+    "proximal": "Hi",
+    "wrong": ["Hg", "He"]
+  },
+  {
+    "id": "qui-0014",
+    "subject": "quimica",
+    "difficulty": "easy",
+    "statement": "O gelo é a água no estado:",
+    "correct": "Sólido",
+    "proximal": "Líquido",
+    "wrong": ["Gasoso", "Plasma"]
+  },
+  {
+    "id": "qui-0015",
+    "subject": "quimica",
+    "difficulty": "easy",
+    "statement": "Qual gás respiramos e é essencial à vida?",
+    "correct": "Oxigênio",
+    "proximal": "Gás carbônico",
+    "wrong": ["Hélio", "Nitrogênio"]
+  },
+  {
+    "id": "qui-0016",
+    "subject": "quimica",
+    "difficulty": "easy",
+    "statement": "Misturar água e sal de cozinha forma uma:",
+    "correct": "Mistura (solução)",
+    "proximal": "Substância pura",
+    "wrong": ["Reação nuclear", "Molécula nova"]
+  },
+  {
+    "id": "qui-0017",
+    "subject": "quimica",
+    "difficulty": "easy",
+    "statement": "Qual é o símbolo químico do ferro?",
+    "correct": "Fe",
+    "proximal": "Fr",
+    "wrong": ["Ir", "F"]
+  },
+  {
+    "id": "qui-0018",
+    "subject": "quimica",
+    "difficulty": "easy",
+    "statement": "A fumaça é um exemplo de qual estado físico predominante?",
+    "correct": "Gasoso",
+    "proximal": "Sólido",
+    "wrong": ["Líquido", "Plasma"]
+  },
+  {
+    "id": "qui-0019",
+    "subject": "quimica",
+    "difficulty": "normal",
+    "statement": "Qual é a fórmula química do gás carbônico?",
+    "correct": "CO2",
+    "proximal": "CO",
+    "wrong": ["C2O", "O2"]
+  },
+  {
+    "id": "qui-0020",
+    "subject": "quimica",
+    "difficulty": "normal",
+    "statement": "Quantos átomos de hidrogênio há em uma molécula de água (H2O)?",
+    "correct": "2",
+    "proximal": "1",
+    "wrong": ["3", "0"]
+  },
+  {
+    "id": "qui-0021",
+    "subject": "quimica",
+    "difficulty": "normal",
+    "statement": "Uma solução com pH 3 é classificada como:",
+    "correct": "Ácida",
+    "proximal": "Básica",
+    "wrong": ["Neutra", "Salgada"]
+  },
+  {
+    "id": "qui-0022",
+    "subject": "quimica",
+    "difficulty": "normal",
+    "statement": "Qual é o símbolo químico do potássio?",
+    "correct": "K",
+    "proximal": "P",
+    "wrong": ["Po", "Pt"]
+  },
+  {
+    "id": "qui-0023",
+    "subject": "quimica",
+    "difficulty": "normal",
+    "statement": "A passagem do estado sólido para o líquido chama-se:",
+    "correct": "Fusão",
+    "proximal": "Solidificação",
+    "wrong": ["Evaporação", "Sublimação"]
+  },
+  {
+    "id": "qui-0024",
+    "subject": "quimica",
+    "difficulty": "normal",
+    "statement": "Qual é o gás mais abundante na atmosfera terrestre?",
+    "correct": "Nitrogênio",
+    "proximal": "Oxigênio",
+    "wrong": ["Gás carbônico", "Hidrogênio"]
+  },
+  {
+    "id": "qui-0025",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Quantos prótons tem um átomo de carbono (número atômico 6)?",
+    "correct": "6",
+    "proximal": "12",
+    "wrong": ["3", "0"]
+  },
+  {
+    "id": "qui-0026",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Qual é a fórmula da molécula do gás oxigênio?",
+    "correct": "O2",
+    "proximal": "O",
+    "wrong": ["O3", "2O"]
+  },
+  {
+    "id": "qui-0027",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Na tabela periódica, os elementos de uma mesma coluna formam uma:",
+    "correct": "Família (grupo)",
+    "proximal": "Período",
+    "wrong": ["Camada", "Ligação"]
+  },
+  {
+    "id": "qui-0028",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Qual tipo de ligação ocorre entre um cátion e um ânion?",
+    "correct": "Iônica",
+    "proximal": "Covalente",
+    "wrong": ["Metálica", "Nuclear"]
+  },
+  {
+    "id": "qui-0029",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Quantos átomos no total há em uma molécula de água (H2O)?",
+    "correct": "3",
+    "proximal": "2",
+    "wrong": ["1", "4"]
+  },
+  {
+    "id": "qui-0030",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Qual é o símbolo químico do ouro?",
+    "correct": "Au",
+    "proximal": "Ag",
+    "wrong": ["Or", "Go"]
+  },
+  {
+    "id": "qui-0031",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Qual é o símbolo químico da prata?",
+    "correct": "Ag",
+    "proximal": "Au",
+    "wrong": ["Pr", "Pt"]
+  },
+  {
+    "id": "qui-0032",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Numa reação química, as substâncias que se transformam são chamadas:",
+    "correct": "Reagentes",
+    "proximal": "Produtos",
+    "wrong": ["Catalisadores", "Solventes"]
+  },
+  {
+    "id": "qui-0033",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Qual é o pH aproximado de uma solução fortemente básica?",
+    "correct": "14",
+    "proximal": "7",
+    "wrong": ["0", "1"]
+  },
+  {
+    "id": "qui-0034",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "A sublimação é a passagem direta do estado:",
+    "correct": "Sólido para gasoso",
+    "proximal": "Líquido para gasoso",
+    "wrong": ["Gasoso para líquido", "Sólido para líquido"]
+  },
+  {
+    "id": "qui-0035",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "Aproximadamente quantos elementos químicos há na tabela periódica atual?",
+    "correct": "118",
+    "proximal": "100",
+    "wrong": ["50", "200"]
+  },
+  {
+    "id": "qui-0036",
+    "subject": "quimica",
+    "difficulty": "hard",
+    "statement": "A água (H2O) é classificada como:",
+    "correct": "Substância composta",
+    "proximal": "Mistura",
+    "wrong": ["Elemento químico", "Substância simples"]
   }
 ]

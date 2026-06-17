@@ -81,9 +81,9 @@ describe('Game loop (e2e)', () => {
       { socket: c1, playerId: p1 },
       { socket: c2, playerId: p2 },
     ]);
-    // Tabuleiro agora é procedural (RF-06): tamanho em [20, 30].
-    expect(board.size).toBeGreaterThanOrEqual(20);
-    expect(board.size).toBeLessThanOrEqual(30);
+    // Tabuleiro procedural por dificuldade (RF-NEW-01): 'normal' ∈ [60, 70].
+    expect(board.size).toBeGreaterThanOrEqual(60);
+    expect(board.size).toBeLessThanOrEqual(70);
     let current = firstPlayerId;
 
     // Driver do loop: o jogador da vez rola; ao receber uma pergunta, responde

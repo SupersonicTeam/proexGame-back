@@ -51,7 +51,7 @@ interface PlayerView {
 }
 
 interface Board {
-  size: number;                                // N ∈ [20, 30]
+  size: number;                                // N por dificuldade: easy[30,45] normal[60,70] hard[65,85]
   tileTypeBySquare: Record<number, TileType>;  // só casas especiais; demais são 'normal'
   subjectBySquare: Record<number, string>;     // matéria das casas 'question'
 }
