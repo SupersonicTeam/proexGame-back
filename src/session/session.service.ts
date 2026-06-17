@@ -301,6 +301,12 @@ export class SessionService {
     return this.repo.findByCode(code);
   }
 
+  // Lista os códigos de todas as sessões vivas no Redis (passthrough do SCAN do
+  // repositório). Usado pela reconciliação de grace no boot (achado #2).
+  listSessionCodes(): Promise<string[]> {
+    return this.repo.scanCodes();
+  }
+
   private async requireSession(code: string): Promise<SessionState> {
     const state = await this.repo.findByCode(code);
     if (!state) throw new GameError(ErrorCode.SESSION_NOT_FOUND);

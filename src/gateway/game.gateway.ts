@@ -1,3 +1,4 @@
+import { OnApplicationBootstrap } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -31,7 +32,9 @@ import {
 // serviço e emite os resultados para a sala (= código da sessão). Toda a
 // lógica autoritativa vive nos serviços; o gateway não decide nada do jogo.
 @WebSocketGateway({ cors: { origin: resolveCorsOrigin() } })
-export class GameGateway implements OnGatewayDisconnect {
+export class GameGateway
+  implements OnGatewayDisconnect, OnApplicationBootstrap
+{
   @WebSocketServer()
   private server!: Server;
 
@@ -40,6 +43,24 @@ export class GameGateway implements OnGatewayDisconnect {
     private readonly games: GameService,
     private readonly reconnects: ReconnectService,
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    // Reconciliação pós-restart (achado #2): os timers de grace são in-process e
+    // se perdem no restart; os sockets também. Marca todos os jogadores das sessões
+    // ativas como desconectados e rearma o grace — quem reconectar cancela o seu,
+    // quem não voltar é expirado normalmente, evitando turno travado.
+    const codes = await this.sessions.listSessionCodes();
+    for (const code of codes) {
+      const state = await this.sessions.getState(code);
+      if (!state || state.status === 'finished') continue;
+      for (const player of state.players) {
+        await this.sessions.markDisconnected(code, player.id);
+        this.reconnects.arm(code, player.id, () =>
+          this.handleGraceExpired(code, player.id),
+        );
+      }
+    }
+  }
 
   @SubscribeMessage('createSession')
   async handleCreateSession(
