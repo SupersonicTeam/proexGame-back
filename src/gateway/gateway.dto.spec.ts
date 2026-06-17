@@ -2,6 +2,7 @@ import { ErrorCode } from '../common/errors/game-error';
 import { Board, Player, SessionState } from '../session/session.types';
 import {
   parseReconnect,
+  parseSetAppearance,
   parseSubmitAnswer,
   toGameState,
   toLobbyState,
@@ -35,6 +36,19 @@ describe('toPlayerView', () => {
       square: 5,
     });
     expect(view).not.toHaveProperty('socketId');
+  });
+
+  it('inclui color e emoji quando o jogador os escolheu (CONTRACT-S5)', () => {
+    const view = toPlayerView(
+      makePlayer({ id: 'a', color: '#ff8800', emoji: '🦊' }),
+    );
+    expect(view).toMatchObject({ color: '#ff8800', emoji: '🦊' });
+  });
+
+  it('omite color/emoji quando ausentes (fallback determinístico do front)', () => {
+    const view = toPlayerView(makePlayer({ id: 'a' }));
+    expect(view).not.toHaveProperty('color');
+    expect(view).not.toHaveProperty('emoji');
   });
 });
 
@@ -180,6 +194,52 @@ describe('parseReconnect', () => {
 
   it('rejeita playerId ausente com INVALID_PAYLOAD (P5)', () => {
     expect(() => parseReconnect({ code: '12345' })).toThrow(
+      expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
+    );
+  });
+});
+
+describe('parseSetAppearance (CONTRACT-S5)', () => {
+  it('aceita cor hex (qualquer caixa) e um único emoji', () => {
+    expect(parseSetAppearance({ color: '#1A2b3C', emoji: '🎩' })).toEqual({
+      color: '#1A2b3C',
+      emoji: '🎩',
+    });
+  });
+
+  it('aceita emoji composto (ZWJ / tom de pele) como 1 grafema', () => {
+    expect(parseSetAppearance({ color: '#000000', emoji: '👨‍👩‍👧' })).toEqual({
+      color: '#000000',
+      emoji: '👨‍👩‍👧',
+    });
+    expect(parseSetAppearance({ color: '#000000', emoji: '👋🏽' })).toEqual({
+      color: '#000000',
+      emoji: '👋🏽',
+    });
+  });
+
+  it('rejeita cor fora do padrão #rrggbb com INVALID_PAYLOAD', () => {
+    for (const color of ['ff0000', '#fff', '#gggggg', '#12345', 123, null]) {
+      expect(() => parseSetAppearance({ color, emoji: '😀' })).toThrow(
+        expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
+      );
+    }
+  });
+
+  it('rejeita emoji ausente, vazio, não-string ou com mais de um grafema', () => {
+    const bad = [undefined, '', '😀😀', 'ab', 42];
+    for (const emoji of bad) {
+      expect(() => parseSetAppearance({ color: '#000000', emoji })).toThrow(
+        expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
+      );
+    }
+  });
+
+  it('rejeita payload nulo/sem campos com INVALID_PAYLOAD', () => {
+    expect(() => parseSetAppearance(undefined)).toThrow(
+      expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
+    );
+    expect(() => parseSetAppearance({})).toThrow(
       expect.objectContaining({ code: ErrorCode.INVALID_PAYLOAD }),
     );
   });

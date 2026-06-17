@@ -18,6 +18,7 @@ import {
   CreateSessionDto,
   JoinSessionDto,
   parseReconnect,
+  parseSetAppearance,
   parseSubmitAnswer,
   SocketData,
   toGameState,
@@ -258,6 +259,36 @@ export class GameGateway implements OnGatewayDisconnect {
         throw new GameError(ErrorCode.NOT_IN_SESSION);
       }
       client.emit('gameState', toGameState(state));
+    } catch (err) {
+      this.emitError(client, err);
+    }
+  }
+
+  // Aparência cosmética do peão (CONTRACT-S5): o jogador escolhe cor + emoji e a
+  // sala inteira passa a enxergar a escolha. Lê o playerId do socket.data (anti-
+  // IDOR, como os demais comandos). Rebroadcast: lobbyState no lobby; gameState
+  // em ordering/playing (carrega players[] com os novos campos). Sem impacto em
+  // regras (RF-16): é só visual.
+  @SubscribeMessage('setAppearance')
+  async handleSetAppearance(
+    @MessageBody() body: unknown,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { code, playerId } = this.dataOf(client);
+    try {
+      if (!code || !playerId) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const dto = parseSetAppearance(body);
+      const state = await this.sessions.setAppearance(
+        code,
+        playerId,
+        dto.color,
+        dto.emoji,
+      );
+      if (state.status === 'lobby') {
+        this.server.to(code).emit('lobbyState', toLobbyState(state));
+      } else {
+        this.server.to(code).emit('gameState', toGameState(state));
+      }
     } catch (err) {
       this.emitError(client, err);
     }

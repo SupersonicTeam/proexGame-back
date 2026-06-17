@@ -66,7 +66,7 @@ docker run -d -p 6379:6379 redis:alpine
 
 ## Contrato WebSocket
 
-**client→server:** `createSession{name,difficulty}` · `joinSession{code,name}` · `startGame` · `rollForOrder` · `rollDice` · `submitAnswer{questionId,optionIndex}` · `leaveSession` · `reconnect{code,playerId}`
+**client→server:** `createSession{name,difficulty}` · `joinSession{code,name}` · `startGame` · `rollForOrder` · `rollDice` · `submitAnswer{questionId,optionIndex}` · `leaveSession` · `reconnect{code,playerId}` · `setAppearance{color,emoji}` (S5 — cosmético: cor hex + 1 emoji; rebroadcast `lobbyState`/`gameState`)
 
 **server→client:** `sessionCreated{code,playerId}` · `playerJoined` · `lobbyState` · `gameStarted{board}` · `orderResult` · `turnChanged{playerId}` · `diceResult{value,fromSquare,toSquare}` · `questionPrompt{questionId,statement,options}` · `answerResult{correct,errorType,movement,toSquare}` · `turnSkipped{playerId,remaining}` · `gameOver{winner,ranking}` · `playerDisconnected` · `playerReconnected` · `sessionClosed` · `error`
 
