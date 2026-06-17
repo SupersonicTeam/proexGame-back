@@ -106,5 +106,221 @@
     "correct": "escuro",
     "proximal": "nublado",
     "wrong": ["límpido", "transparente"]
+  },
+  {
+    "id": "por-0013",
+    "subject": "portugues",
+    "difficulty": "easy",
+    "statement": "Qual é o plural de \"flor\"?",
+    "correct": "flores",
+    "proximal": "flors",
+    "wrong": ["flor", "floras"]
+  },
+  {
+    "id": "por-0014",
+    "subject": "portugues",
+    "difficulty": "easy",
+    "statement": "Qual é o antônimo de \"grande\"?",
+    "correct": "pequeno",
+    "proximal": "médio",
+    "wrong": ["enorme", "alto"]
+  },
+  {
+    "id": "por-0015",
+    "subject": "portugues",
+    "difficulty": "easy",
+    "statement": "Qual é o feminino de \"menino\"?",
+    "correct": "menina",
+    "proximal": "menine",
+    "wrong": ["menino", "garoto"]
+  },
+  {
+    "id": "por-0016",
+    "subject": "portugues",
+    "difficulty": "easy",
+    "statement": "Quantas vogais existem no alfabeto?",
+    "correct": "5",
+    "proximal": "6",
+    "wrong": ["4", "26"]
+  },
+  {
+    "id": "por-0017",
+    "subject": "portugues",
+    "difficulty": "easy",
+    "statement": "Qual é o diminutivo de \"casa\"?",
+    "correct": "casinha",
+    "proximal": "casona",
+    "wrong": ["casão", "casabela"]
+  },
+  {
+    "id": "por-0018",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "Qual palavra está acentuada corretamente?",
+    "correct": "sofá",
+    "proximal": "sofa",
+    "wrong": ["sófa", "soffá"]
+  },
+  {
+    "id": "por-0019",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "A palavra \"cachorro\" é um substantivo:",
+    "correct": "comum",
+    "proximal": "próprio",
+    "wrong": ["abstrato", "coletivo"]
+  },
+  {
+    "id": "por-0020",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "Em \"Ela é muito inteligente\", a palavra \"muito\" é:",
+    "correct": "advérbio de intensidade",
+    "proximal": "adjetivo",
+    "wrong": ["substantivo", "verbo"]
+  },
+  {
+    "id": "por-0021",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "Qual é o coletivo de \"lobos\"?",
+    "correct": "alcateia",
+    "proximal": "matilha",
+    "wrong": ["cardume", "enxame"]
+  },
+  {
+    "id": "por-0022",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "Qual frase está no plural corretamente?",
+    "correct": "Os animais são bonitos",
+    "proximal": "Os animal são bonitos",
+    "wrong": ["O animais é bonito", "Os animais é bonitos"]
+  },
+  {
+    "id": "por-0023",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "Qual é o sinônimo de \"belo\"?",
+    "correct": "bonito",
+    "proximal": "agradável",
+    "wrong": ["feio", "grande"]
+  },
+  {
+    "id": "por-0024",
+    "subject": "portugues",
+    "difficulty": "normal",
+    "statement": "Quantas sílabas tem a palavra \"computador\"?",
+    "correct": "4",
+    "proximal": "3",
+    "wrong": ["5", "2"]
+  },
+  {
+    "id": "por-0025",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Em \"Choveu ontem\", qual é o sujeito da oração?",
+    "correct": "Oração sem sujeito (sujeito inexistente)",
+    "proximal": "Sujeito oculto",
+    "wrong": ["ontem", "choveu"]
+  },
+  {
+    "id": "por-0026",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Qual é a função sintática de \"de chocolate\" em \"bolo de chocolate\"?",
+    "correct": "Adjunto adnominal",
+    "proximal": "Objeto direto",
+    "wrong": ["Sujeito", "Predicado"]
+  },
+  {
+    "id": "por-0027",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "A oração \"que eu estudei\" em \"O livro que eu estudei\" é uma oração subordinada:",
+    "correct": "Adjetiva",
+    "proximal": "Substantiva",
+    "wrong": ["Coordenada", "Principal"]
+  },
+  {
+    "id": "por-0028",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Em \"Maria comprou flores\", qual é o objeto direto?",
+    "correct": "flores",
+    "proximal": "Maria",
+    "wrong": ["comprou", "comprou flores"]
+  },
+  {
+    "id": "por-0029",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Qual é o plural de \"guarda-chuva\"?",
+    "correct": "guarda-chuvas",
+    "proximal": "guardas-chuvas",
+    "wrong": ["guarda-chuva", "guardas-chuva"]
+  },
+  {
+    "id": "por-0030",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Qual é a figura de linguagem em \"chorei rios de lágrimas\"?",
+    "correct": "Hipérbole",
+    "proximal": "Metáfora",
+    "wrong": ["Ironia", "Antítese"]
+  },
+  {
+    "id": "por-0031",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Qual é a figura de linguagem em \"o sol sorriu para nós\"?",
+    "correct": "Personificação (prosopopeia)",
+    "proximal": "Metáfora",
+    "wrong": ["Hipérbole", "Eufemismo"]
+  },
+  {
+    "id": "por-0032",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Em \"Ela estava feliz\", a palavra \"feliz\" exerce a função de:",
+    "correct": "Predicativo do sujeito",
+    "proximal": "Adjunto adnominal",
+    "wrong": ["Objeto direto", "Sujeito"]
+  },
+  {
+    "id": "por-0033",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Qual é a classe da palavra \"porque\" em \"Não fui porque chovia\"?",
+    "correct": "Conjunção",
+    "proximal": "Advérbio",
+    "wrong": ["Substantivo", "Preposição"]
+  },
+  {
+    "id": "por-0034",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Na frase \"Vou a Roma\", o \"a\" recebe crase?",
+    "correct": "Não",
+    "proximal": "Sim",
+    "wrong": ["Sempre", "Apenas no plural"]
+  },
+  {
+    "id": "por-0035",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Qual é o antônimo de \"efêmero\"?",
+    "correct": "duradouro",
+    "proximal": "passageiro",
+    "wrong": ["breve", "rápido"]
+  },
+  {
+    "id": "por-0036",
+    "subject": "portugues",
+    "difficulty": "hard",
+    "statement": "Em \"Os alunos saíram cedo\", qual é o predicado?",
+    "correct": "saíram cedo",
+    "proximal": "Os alunos",
+    "wrong": ["saíram", "cedo"]
   }
 ]
