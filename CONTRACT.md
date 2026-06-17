@@ -46,6 +46,8 @@ interface PlayerView {
   connected: boolean;
   isHost: boolean;
   square: number; // 0 = início
+  color?: string; // S5: hex "#rrggbb" escolhido pelo jogador (ausente = sem escolha)
+  emoji?: string; // S5: 1 emoji escolhido pelo jogador (ausente = sem escolha)
 }
 
 interface Board {
@@ -73,10 +75,12 @@ interface RankingEntry { playerId: string; name: string; square: number; positio
 | `leaveSession` | _(nenhum)_ | — | `lobbyState` (ou, se na fase de ordem, reinício da ordem / volta ao lobby). |
 | `reconnect` | `{ code: string, playerId: string }` | `{ code, playerId }` | `playerReconnected` + `lobbyState` + [`turnChanged`/`orderPhase`] + `gameState` (ao autor). |
 | `requestState` | _(nenhum)_ | — | `gameState` (só ao autor). Resync sob demanda (pós-refresh). |
+| `setAppearance` | `{ color: string, emoji: string }` | — | `lobbyState` (no lobby) **ou** `gameState` (em ordering/playing). **S5 — cosmético.** |
 
 > **Identificação:** `startGame`, `rollForOrder`, `rollDice`, `submitAnswer`, `leaveSession`,
-> `requestState` **não** levam `code`/`playerId` no payload — o servidor os lê do `socket.data`
-> (vinculado em create/join/reconnect). Isso evita IDOR. Socket sem sessão → `error{NOT_IN_SESSION}`.
+> `requestState`, `setAppearance` **não** levam `code`/`playerId` no payload — o servidor os lê
+> do `socket.data` (vinculado em create/join/reconnect). Isso evita IDOR. Socket sem sessão →
+> `error{NOT_IN_SESSION}`.
 
 ---
 
@@ -207,8 +211,8 @@ reconnect{code,playerId} → playerReconnected → lobbyState
 `ORDER_NOT_ACTIVE` · `NOT_ROLLING_FOR_ORDER` · `ALREADY_ROLLED_FOR_ORDER` ·
 `INVALID_PAYLOAD` · `INTERNAL`
 
-> `INVALID_PAYLOAD` (S4): payload malformado de `submitAnswer`/`reconnect` (erro de transporte),
-> separado dos códigos de regra de jogo.
+> `INVALID_PAYLOAD` (S4): payload malformado de `submitAnswer`/`reconnect`/`setAppearance` (erro de
+> transporte), separado dos códigos de regra de jogo.
 > `ANSWER_PENDING` (S4): `rollDice` recebido enquanto o jogador tem uma pergunta pendente — precisa
 > responder (`submitAnswer`) antes de rolar de novo. Surge tipicamente no double-click em `rollDice`
 > quando a 1ª rolagem caiu em casa-pergunta (o turno não passou). O front pode ignorá-lo (UI já
@@ -225,5 +229,23 @@ reconnect{code,playerId} → playerReconnected → lobbyState
 - **`gameState` ganha o campo `ordering`** (≠ null só em `status:'ordering'`).
 - **Início da partida:** após `startGame`, o jogo entra em `ordering` (não vai direto para
   `playing`); o `turnChanged` inicial vem só após o `orderResult`.
+
+---
+
+## Mudanças da Sprint 5 (aparência do peão — CONTRACT-S5)
+
+Aditivo e **retrocompatível**: clientes antigos ignoram os campos novos. **Puramente cosmético** —
+não afeta movimento, ordem, perguntas nem prisão (sem impacto em RF-16).
+
+- **`PlayerView` ganha `color?` e `emoji?`** (opcionais). Propagados em `lobbyState`, `playerJoined`
+  e `gameState`. Ausentes = "sem escolha" → o front aplica o fallback determinístico por índice.
+- **Novo evento `setAppearance{color,emoji}`** (client→server): define a aparência do próprio peão
+  (lê o `playerId` do `socket.data`) e faz **rebroadcast** — `lobbyState` no lobby, `gameState` em
+  `ordering`/`playing`. Aceito em qualquer status.
+- **Validação (transporte):** `color` casa `^#[0-9a-fA-F]{6}$`; `emoji` é **1 grafema** (clusters
+  compostos com ZWJ/tom de pele/bandeira contam como 1, via `Intl.Segmenter`) com teto de 64 bytes.
+  Payload malformado → `error{INVALID_PAYLOAD}`. Sem paleta fixa no servidor (curadoria visual no front).
+- **Prisão:** nenhuma mudança de backend — a animação de "grade/preso" é 100% front, derivada de
+  `diceResult` (casa `prison` via `tileTypeBySquare`) + `turnSkipped{playerId,remaining}` já emitidos.
 - **Novos `ErrorCode`:** `ORDER_NOT_ACTIVE`, `NOT_ROLLING_FOR_ORDER`, `ALREADY_ROLLED_FOR_ORDER`,
   `INVALID_PAYLOAD`.

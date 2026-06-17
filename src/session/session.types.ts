@@ -41,6 +41,12 @@ export interface Player {
   // Pergunta pendente de resposta (estado autoritativo do servidor). null quando
   // não há pergunta aberta para o jogador.
   pendingQuestion: PendingQuestion | null;
+  // --- Sprint 5: aparência cosmética (CONTRACT-S5) ---
+  // Cor (hex "#rrggbb") e emoji escolhidos pelo jogador para o próprio peão.
+  // Opcionais e puramente cosméticos (não afetam regras / RF-16): ausentes
+  // significam "sem escolha" — o front cai no fallback determinístico por índice.
+  color?: string;
+  emoji?: string;
 }
 
 export interface Board {

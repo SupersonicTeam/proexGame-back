@@ -226,6 +226,30 @@ export class SessionService {
     });
   }
 
+  // Define a aparência cosmética do jogador (CONTRACT-S5): cor (hex) e emoji,
+  // propagados a todos via lobbyState/gameState. Puramente visual — não toca
+  // nenhuma regra (movimento/ordem/pergunta/prisão) nem RF-16. Funciona em
+  // qualquer status (lobby, ordering, playing). Sob lock por ser read-modify-
+  // write como as demais escritas (achado P2). NOT_IN_SESSION (em vez de
+  // SESSION_NOT_FOUND) para não revelar a existência da sessão a um não-membro.
+  async setAppearance(
+    code: string,
+    playerId: string,
+    color: string,
+    emoji: string,
+  ): Promise<SessionState> {
+    return this.lock.runExclusive(code, async () => {
+      const state = await this.repo.findByCode(code);
+      if (!state) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      const player = state.players.find((p) => p.id === playerId);
+      if (!player) throw new GameError(ErrorCode.NOT_IN_SESSION);
+      player.color = color;
+      player.emoji = emoji;
+      await this.repo.save(state);
+      return state;
+    });
+  }
+
   getState(code: string): Promise<SessionState | null> {
     return this.repo.findByCode(code);
   }

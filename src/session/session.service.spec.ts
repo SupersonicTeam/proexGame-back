@@ -334,6 +334,60 @@ describe('SessionService.reconnect', () => {
   });
 });
 
+describe('SessionService.setAppearance (CONTRACT-S5)', () => {
+  async function withTwoPlayers() {
+    const ctx = build([1, 2, 3, 4, 5]);
+    const host = await ctx.service.createSession('Ana', 'normal', 'sock-1');
+    const joiner = await ctx.service.joinSession(
+      host.state.code,
+      'Bia',
+      'sock-2',
+    );
+    return {
+      ...ctx,
+      code: host.state.code,
+      hostId: host.playerId,
+      joinerId: joiner.playerId,
+    };
+  }
+
+  it('grava cor e emoji do jogador e persiste no estado', async () => {
+    const { repo, service, code, joinerId } = await withTwoPlayers();
+    const state = await service.setAppearance(code, joinerId, '#ff8800', '🦊');
+    expect(state.players.find((p) => p.id === joinerId)!.color).toBe('#ff8800');
+    expect(state.players.find((p) => p.id === joinerId)!.emoji).toBe('🦊');
+    const stored = (await repo.findByCode(code))!.players.find(
+      (p) => p.id === joinerId,
+    )!;
+    expect(stored.color).toBe('#ff8800');
+    expect(stored.emoji).toBe('🦊');
+  });
+
+  it('funciona em jogo (status playing), não só no lobby', async () => {
+    const { repo, service, code, hostId } = await withTwoPlayers();
+    const seeded = (await repo.findByCode(code))!;
+    seeded.status = 'playing';
+    await repo.save(seeded);
+    const state = await service.setAppearance(code, hostId, '#00aa55', '🐸');
+    expect(state.status).toBe('playing');
+    expect(state.players.find((p) => p.id === hostId)!.emoji).toBe('🐸');
+  });
+
+  it('rejeita jogador fora da sessão com NOT_IN_SESSION', async () => {
+    const { service, code } = await withTwoPlayers();
+    await expect(
+      service.setAppearance(code, 'fantasma', '#000000', '😀'),
+    ).rejects.toMatchObject({ code: ErrorCode.NOT_IN_SESSION });
+  });
+
+  it('rejeita sessão inexistente com NOT_IN_SESSION (não vaza existência)', async () => {
+    const { service } = build();
+    await expect(
+      service.setAppearance('00000', 'x', '#000000', '😀'),
+    ).rejects.toMatchObject({ code: ErrorCode.NOT_IN_SESSION });
+  });
+});
+
 describe('SessionService.expireDisconnectedPlayer', () => {
   it('remove o jogador desconectado, mantendo a sessão se restarem outros', async () => {
     const { repo, service } = build();
