@@ -2,6 +2,7 @@
   {
     "id": "fis-0001",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Qual é a unidade de força no Sistema Internacional (SI)?",
     "correct": "Newton (N)",
     "proximal": "Joule (J)",
@@ -10,6 +11,7 @@
   {
     "id": "fis-0002",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Qual é a unidade de energia no Sistema Internacional (SI)?",
     "correct": "Joule (J)",
     "proximal": "Newton (N)",
@@ -18,6 +20,7 @@
   {
     "id": "fis-0003",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "A velocidade média é a razão entre:",
     "correct": "Distância e tempo",
     "proximal": "Distância e aceleração",
@@ -26,6 +29,7 @@
   {
     "id": "fis-0004",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Qual é a fórmula da velocidade média?",
     "correct": "v = distância ÷ tempo",
     "proximal": "v = tempo ÷ distância",
@@ -34,6 +38,7 @@
   {
     "id": "fis-0005",
     "subject": "fisica",
+    "difficulty": "easy",
     "statement": "O que um termômetro mede?",
     "correct": "Temperatura",
     "proximal": "Calor",
@@ -42,6 +47,7 @@
   {
     "id": "fis-0006",
     "subject": "fisica",
+    "difficulty": "easy",
     "statement": "Qual cientista formulou a Lei da Gravitação Universal?",
     "correct": "Isaac Newton",
     "proximal": "Albert Einstein",
@@ -50,6 +56,7 @@
   {
     "id": "fis-0007",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Qual é a unidade de potência no Sistema Internacional (SI)?",
     "correct": "Watt (W)",
     "proximal": "Joule (J)",
@@ -58,6 +65,7 @@
   {
     "id": "fis-0008",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Em queda livre (desprezando o ar), objetos de massas diferentes caem:",
     "correct": "Com a mesma aceleração",
     "proximal": "O mais pesado cai mais rápido",
@@ -66,6 +74,7 @@
   {
     "id": "fis-0009",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Qual é o valor aproximado da aceleração da gravidade na Terra?",
     "correct": "9,8 m/s²",
     "proximal": "8,9 m/s²",
@@ -74,6 +83,7 @@
   {
     "id": "fis-0010",
     "subject": "fisica",
+    "difficulty": "easy",
     "statement": "Qual tipo de energia está associada a um objeto em movimento?",
     "correct": "Energia cinética",
     "proximal": "Energia potencial",
@@ -82,6 +92,7 @@
   {
     "id": "fis-0011",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Qual é a unidade de corrente elétrica no Sistema Internacional (SI)?",
     "correct": "Ampère (A)",
     "proximal": "Volt (V)",
@@ -90,6 +101,7 @@
   {
     "id": "fis-0012",
     "subject": "fisica",
+    "difficulty": "normal",
     "statement": "Em qual meio o som se propaga mais rápido?",
     "correct": "Nos sólidos",
     "proximal": "No ar",

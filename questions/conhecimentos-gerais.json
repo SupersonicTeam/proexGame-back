@@ -2,6 +2,7 @@
   {
     "id": "ger-0001",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual é a capital do Brasil?",
     "correct": "Brasília",
     "proximal": "Rio de Janeiro",
@@ -10,6 +11,7 @@
   {
     "id": "ger-0002",
     "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
     "statement": "Quantos continentes existem (modelo adotado no Brasil)?",
     "correct": "6",
     "proximal": "5",
@@ -18,6 +20,7 @@
   {
     "id": "ger-0003",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual é o maior planeta do Sistema Solar?",
     "correct": "Júpiter",
     "proximal": "Saturno",
@@ -26,6 +29,7 @@
   {
     "id": "ger-0004",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Em que ano os portugueses chegaram ao Brasil?",
     "correct": "1500",
     "proximal": "1492",
@@ -34,6 +38,7 @@
   {
     "id": "ger-0005",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual oceano banha a costa leste do Brasil?",
     "correct": "Oceano Atlântico",
     "proximal": "Oceano Pacífico",
@@ -42,6 +47,7 @@
   {
     "id": "ger-0006",
     "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
     "statement": "Quem foi o primeiro presidente do Brasil?",
     "correct": "Deodoro da Fonseca",
     "proximal": "Getúlio Vargas",
@@ -50,6 +56,7 @@
   {
     "id": "ger-0007",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual é o idioma oficial do Brasil?",
     "correct": "Português",
     "proximal": "Espanhol",
@@ -58,6 +65,7 @@
   {
     "id": "ger-0008",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual é o rio mais volumoso do Brasil?",
     "correct": "Rio Amazonas",
     "proximal": "Rio São Francisco",
@@ -66,6 +74,7 @@
   {
     "id": "ger-0009",
     "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
     "statement": "Quantos dias tem um ano bissexto?",
     "correct": "366",
     "proximal": "365",
@@ -74,6 +83,7 @@
   {
     "id": "ger-0010",
     "subject": "conhecimentos-gerais",
+    "difficulty": "normal",
     "statement": "Qual é o menor número primo?",
     "correct": "2",
     "proximal": "1",
@@ -82,6 +92,7 @@
   {
     "id": "ger-0011",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual é a moeda oficial do Brasil?",
     "correct": "Real",
     "proximal": "Cruzeiro",
@@ -90,6 +101,7 @@
   {
     "id": "ger-0012",
     "subject": "conhecimentos-gerais",
+    "difficulty": "easy",
     "statement": "Qual planeta é conhecido como \"Planeta Vermelho\"?",
     "correct": "Marte",
     "proximal": "Júpiter",

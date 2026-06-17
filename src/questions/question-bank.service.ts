@@ -6,7 +6,14 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { RANDOM_SOURCE, RandomSource } from '../common/random/random.source';
-import { Question, Subject } from './question.types';
+import { Question, QuestionDifficulty, Subject } from './question.types';
+
+// Níveis válidos para o campo `difficulty` de uma pergunta (RF-NEW-03).
+const VALID_DIFFICULTIES: readonly QuestionDifficulty[] = [
+  'easy',
+  'normal',
+  'hard',
+];
 
 @Injectable()
 export class QuestionBankService implements OnModuleInit {
@@ -59,18 +66,22 @@ export class QuestionBankService implements OnModuleInit {
     return Array.from(this.bank.keys()).sort();
   }
 
-  // Sorteia uma pergunta da matéria que NÃO esteja em excludedIds.
-  // Usa `rng` para determinismo em testes. Retorna null se a matéria não
-  // existe ou todas as perguntas foram servidas.
+  // Sorteia uma pergunta da matéria, no nível `difficulty`, que NÃO esteja em
+  // excludedIds (RF-NEW-04). Usa `rng` para determinismo em testes. Retorna null
+  // se a matéria não existe ou não há pergunta do nível ainda não servida — o
+  // chamador trata isso como casa normal (sem softlock).
   pickQuestion(
     subject: Subject,
     excludedIds: Set<string>,
     rng: RandomSource,
+    difficulty: QuestionDifficulty,
   ): Question | null {
     const pool = this.bank.get(subject);
     if (!pool) return null;
 
-    const available = pool.filter((q) => !excludedIds.has(q.id));
+    const available = pool.filter(
+      (q) => q.difficulty === difficulty && !excludedIds.has(q.id),
+    );
     if (available.length === 0) return null;
 
     const index = rng.int(0, available.length - 1);
@@ -137,6 +148,17 @@ export class QuestionBankService implements OnModuleInit {
         );
       }
 
+      // Valida campo "difficulty": deve ser um dos níveis válidos (RF-NEW-03).
+      if (
+        !VALID_DIFFICULTIES.includes(obj['difficulty'] as QuestionDifficulty)
+      ) {
+        throw new Error(
+          `${prefix}: campo "difficulty" deve ser um de ${JSON.stringify(
+            VALID_DIFFICULTIES,
+          )} (encontrado: ${JSON.stringify(obj['difficulty'])}).`,
+        );
+      }
+
       // Valida campo "wrong": array com exatamente 2 strings.
       if (!Array.isArray(obj['wrong']) || obj['wrong'].length !== 2) {
         throw new Error(
@@ -155,6 +177,7 @@ export class QuestionBankService implements OnModuleInit {
       return {
         id: obj['id'] as string,
         subject: obj['subject'] as Subject,
+        difficulty: obj['difficulty'] as QuestionDifficulty,
         statement: obj['statement'] as string,
         correct: obj['correct'] as string,
         proximal: obj['proximal'] as string,

@@ -12,8 +12,9 @@ import { REDIS_CLIENT } from '../../src/redis/redis.constants';
 import { startMatch } from './helpers';
 
 // RNG roteirizado: int() devolve sempre o mínimo do intervalo → tabuleiro
-// determinístico (N=20, presídio na casa 1, perguntas nas casas 2..12, todas da
-// 1ª matéria). rollD6() consome uma fila controlada pelo teste.
+// determinístico. Com dificuldade 'easy' (RF-NEW-01) N=30, prisonCount(30)=1 →
+// presídio na casa 1 e perguntas nas casas 2..12 (todas da 1ª matéria).
+// rollD6() consome uma fila controlada pelo teste.
 class ScriptedRandom implements RandomSource {
   private rolls: number[];
   private fallbackTick = 0;
@@ -88,7 +89,7 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
     const c2 = connect();
     await Promise.all([once(c1, 'connect'), once(c2, 'connect')]);
 
-    c1.emit('createSession', { name: 'Ana', difficulty: 'normal' });
+    c1.emit('createSession', { name: 'Ana', difficulty: 'easy' });
     const created = await once<{ code: string; playerId: string }>(
       c1,
       'sessionCreated',

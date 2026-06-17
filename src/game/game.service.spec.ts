@@ -50,9 +50,13 @@ class FakeQuestionBank {
     subject: string,
     excludedIds: Set<string>,
     rng: RandomSource,
+    difficulty: Question['difficulty'],
   ): Question | null {
     const available = this.questions.filter(
-      (q) => q.subject === subject && !excludedIds.has(q.id),
+      (q) =>
+        q.subject === subject &&
+        q.difficulty === difficulty &&
+        !excludedIds.has(q.id),
     );
     if (available.length === 0) return null;
     return available[rng.int(0, available.length - 1)];
@@ -65,10 +69,13 @@ class FakeQuestionBank {
   }
 }
 
+// Nível 'normal' para casar com a dificuldade padrão de seedState (RF-NEW-04):
+// assim os testes de fluxo de pergunta continuam recebendo perguntas servidas.
 const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 'mat-0001',
     subject: 'matematica',
+    difficulty: 'normal',
     statement: '2 + 2?',
     correct: '4',
     proximal: '3',
@@ -77,6 +84,7 @@ const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 'mat-0002',
     subject: 'matematica',
+    difficulty: 'normal',
     statement: '3 + 3?',
     correct: '6',
     proximal: '5',
@@ -277,16 +285,16 @@ describe('GameService.rollForOrder (RF-04)', () => {
 });
 
 describe('GameService.setupBoard', () => {
-  it('gera tabuleiro procedural (20-30, com presídio e pergunta) e persiste', async () => {
-    // Fake int devolve o valor da fila: N=20, depois 0s → presídio na casa 1 e
-    // perguntas nas casas seguintes (suficiente p/ haver 'prison' e 'question').
-    const { repo, service } = build([20, ...Array<number>(60).fill(0)]);
+  it('gera tabuleiro procedural (faixa do normal, com presídio e pergunta) e persiste', async () => {
+    // Fake int devolve o valor da fila: N=60 (faixa normal), depois 0s → presídios
+    // e perguntas nas casas seguintes (suficiente p/ haver 'prison' e 'question').
+    const { repo, service } = build([60, ...Array<number>(200).fill(0)]);
     seedState(repo, [makePlayer({ id: 'a' }), makePlayer({ id: 'b' })], {
       difficulty: 'normal',
     });
     const state = await service.setupBoard('12345');
-    expect(state.board.size).toBeGreaterThanOrEqual(20);
-    expect(state.board.size).toBeLessThanOrEqual(30);
+    expect(state.board.size).toBeGreaterThanOrEqual(60);
+    expect(state.board.size).toBeLessThanOrEqual(70);
     const types = Object.values(state.board.tileTypeBySquare);
     expect(types).toContain('prison');
     expect(types).toContain('question');

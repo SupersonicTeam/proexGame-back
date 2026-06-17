@@ -39,9 +39,11 @@ docker run -d -p 6379:6379 redis:alpine
 
 **Question (JSON — em `/questions/<materia>.json`):**
 ```json
-{ "id": "mat-0001", "subject": "matematica", "statement": "...",
-  "correct": "...", "proximal": "...", "wrong": ["...", "..."] }
+{ "id": "mat-0001", "subject": "matematica", "difficulty": "easy|normal|hard",
+  "statement": "...", "correct": "...", "proximal": "...", "wrong": ["...", "..."] }
 ```
+`difficulty` é obrigatório (boot fail-fast). A partida só sorteia perguntas do
+nível da sessão (RF-NEW-04).
 
 **SessionState (Redis):**
 ```json
@@ -74,9 +76,16 @@ docker run -d -p 6379:6379 redis:alpine
 
 **Tipos de casa** (`tileTypeBySquare`): `normal | question | prison` — mutuamente exclusivos. Casa 0 = início, casa N = chegada.
 
+**Tamanho do tabuleiro por dificuldade** (RF-NEW-01 — sorteado em `BOARD_SIZE_RANGE`):
+| Dificuldade | Faixa de N |
+|---|---|
+| Fácil | [30, 45] |
+| Normal | [60, 70] |
+| Difícil | [65, 85] |
+
 **Geração do tabuleiro** (ordem obrigatória):
-1. Reservar casa 0 (início) e N (chegada)
-2. Alocar prisões: N∈[20,24]→1 presídio; N∈[25,30]→2 presídios
+1. Sortear N na faixa da dificuldade; reservar casa 0 (início) e N (chegada)
+2. Alocar prisões: `prisonCount(N) = max(1, round(N/25))` (~1 a cada 25 casas)
 3. Alocar casas-pergunta por densidade no pool restante (excluindo presídios)
 
 **Densidade de casas-pergunta** (% das casas não-terminais menos presídios):

@@ -441,6 +441,7 @@ export class GameService {
       subject,
       excluded,
       this.rng,
+      state.difficulty,
     );
     if (!question) return null;
 

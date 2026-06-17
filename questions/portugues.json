@@ -2,6 +2,7 @@
   {
     "id": "por-0001",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "Qual é o plural de \"pão\"?",
     "correct": "pães",
     "proximal": "pãos",
@@ -10,6 +11,7 @@
   {
     "id": "por-0002",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "O que é um substantivo?",
     "correct": "Palavra que nomeia seres, objetos e lugares",
     "proximal": "Palavra que expressa ação",
@@ -18,6 +20,7 @@
   {
     "id": "por-0003",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "Qual é o antônimo de \"feliz\"?",
     "correct": "triste",
     "proximal": "infeliz",
@@ -26,6 +29,7 @@
   {
     "id": "por-0004",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "O que é um verbo?",
     "correct": "Palavra que expressa ação, estado ou fenômeno",
     "proximal": "Palavra que nomeia seres",
@@ -34,6 +38,7 @@
   {
     "id": "por-0005",
     "subject": "portugues",
+    "difficulty": "normal",
     "statement": "Qual das alternativas está escrita corretamente?",
     "correct": "exceção",
     "proximal": "excessão",
@@ -42,6 +47,7 @@
   {
     "id": "por-0006",
     "subject": "portugues",
+    "difficulty": "normal",
     "statement": "Qual é o plural de \"cidadão\"?",
     "correct": "cidadãos",
     "proximal": "cidadões",
@@ -50,6 +56,7 @@
   {
     "id": "por-0007",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "Quantas sílabas tem a palavra \"casa\"?",
     "correct": "2",
     "proximal": "3",
@@ -58,6 +65,7 @@
   {
     "id": "por-0008",
     "subject": "portugues",
+    "difficulty": "normal",
     "statement": "Na frase \"Os meninos correram\", qual é o sujeito?",
     "correct": "Os meninos",
     "proximal": "correram",
@@ -66,6 +74,7 @@
   {
     "id": "por-0009",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "Qual é o feminino de \"ator\"?",
     "correct": "atriz",
     "proximal": "atora",
@@ -74,6 +83,7 @@
   {
     "id": "por-0010",
     "subject": "portugues",
+    "difficulty": "normal",
     "statement": "A palavra \"rapidamente\" é um:",
     "correct": "advérbio",
     "proximal": "adjetivo",
@@ -82,6 +92,7 @@
   {
     "id": "por-0011",
     "subject": "portugues",
+    "difficulty": "normal",
     "statement": "Qual frase está na ordem direta (sujeito + verbo + complemento)?",
     "correct": "O gato comeu o peixe",
     "proximal": "O peixe o gato comeu",
@@ -90,6 +101,7 @@
   {
     "id": "por-0012",
     "subject": "portugues",
+    "difficulty": "easy",
     "statement": "Qual é o antônimo de \"claro\"?",
     "correct": "escuro",
     "proximal": "nublado",
