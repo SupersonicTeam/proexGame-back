@@ -26,8 +26,17 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    # Persistência durável (achado #1 do code-review): AOF + volume nomeado para o
+    # estado de sessão sobreviver ao recreate do container a cada deploy (IMAGE_TAG).
+    command: ['redis-server', '--appendonly', 'yes', '--appendfsync', 'everysec']
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
+
+# Volume nomeado do Redis: persiste entre deploys e reboots da VPS (achado #1).
+volumes:
+  redis_data:
