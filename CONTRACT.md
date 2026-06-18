@@ -72,7 +72,7 @@ interface RankingEntry { playerId: string; name: string; square: number; positio
 | `rollForOrder` | _(nenhum)_ | — | `orderRoll` + (`orderResult`→`gameState`→`turnChanged` **ou** novo `orderPhase`). RF-04. |
 | `rollDice` | _(nenhum)_ | — | `diceResult` + (`gameOver` **ou** `questionPrompt`(ao autor) **ou** `turnChanged`[+`turnSkipped`]). |
 | `submitAnswer` | `{ questionId: string, optionIndex: number }` | — | `answerResult` + (`gameOver` **ou** `questionPrompt`(encadeamento) **ou** `turnChanged`). |
-| `leaveSession` | _(nenhum)_ | — | `lobbyState` (ou, se na fase de ordem, reinício da ordem / volta ao lobby). |
+| `leaveSession` | _(nenhum)_ | — | Depende do `status`: **lobby** → `lobbyState`; **ordering** → reinício da ordem (`orderPhase` round 1) ou volta ao lobby se sobrar <2; **playing** → `gameState`+`turnChanged` (a vez pode mudar de dono) **ou** `gameOver` se sobrar só 1 (abandono); sala vazia → `sessionClosed{host_left}`. |
 | `reconnect` | `{ code: string, playerId: string }` | `{ code, playerId }` | `playerReconnected` + `lobbyState` + [`turnChanged`/`orderPhase`] + `gameState` (ao autor). |
 | `requestState` | _(nenhum)_ | — | `gameState` (só ao autor). Resync sob demanda (pós-refresh). |
 | `setAppearance` | `{ color: string, emoji: string }` | — | `lobbyState` (no lobby) **ou** `gameState` (em ordering/playing). **S5 — cosmético.** |
@@ -157,7 +157,7 @@ ao completar a rodada:
 | `turnChanged` | `{ playerId: string }` | Início do turno de um jogador. |
 | `diceResult` | `{ playerId, value, fromSquare, toSquare }` | Após `rollDice`. `value` ∈ [1,6]. |
 | `turnSkipped` | `{ playerId, remaining: number }` | Presídio (RF-20): o jogador perde a vez; `remaining` = turnos a pular restantes. |
-| `gameOver` | `{ winner: string, ranking: RankingEntry[] }` | Vitória (chega-ou-passa, RF-12). |
+| `gameOver` | `{ winner: string, ranking: RankingEntry[] }` | Fim de jogo. Duas origens: **vitória** (chega-ou-passa, RF-12) **ou** **abandono** — em `playing`, se o nº de jogadores cai para 1 (via `leaveSession` ou expiração de grace), o restante é declarado vencedor. Sempre precedido de um `gameState{status:'finished'}`. |
 
 ### Fluxo de pergunta (RF-08/09/16)
 
@@ -249,3 +249,60 @@ não afeta movimento, ordem, perguntas nem prisão (sem impacto em RF-16).
   `diceResult` (casa `prison` via `tileTypeBySquare`) + `turnSkipped{playerId,remaining}` já emitidos.
 - **Novos `ErrorCode`:** `ORDER_NOT_ACTIVE`, `NOT_ROLLING_FOR_ORDER`, `ALREADY_ROLLED_FOR_ORDER`,
   `INVALID_PAYLOAD`.
+
+---
+
+## Mudanças pós-S5 — review-fixes-s4 (PRs #16–#17)
+
+> **Sem novos eventos nem mudança de shape.** São ajustes de **comportamento** do servidor que o
+> front precisa tratar. Nenhuma ação altera RF-16. Tudo aqui é retrocompatível com os tipos acima.
+
+### 1. `gameOver` agora também dispara por abandono (achado #3)
+
+Antes, `gameOver` só vinha pela chegada (chega-ou-passa). Agora, **durante `playing`**, se a sala cai
+para **1 jogador** — porque alguém deu `leaveSession` ou teve o grace de reconexão expirado — a partida
+**termina imediatamente** e o último restante é declarado `winner`.
+
+- Ordem de emissão: `gameState{status:'finished', winner}` → `gameOver{winner, ranking}`.
+- **No lobby e em `ordering` isso NÃO acontece**: lá a saída só reinicia a ordem ou volta ao lobby.
+- **Ação no front:** a tela de fim de jogo não pode assumir que o vencedor chegou ao fim do tabuleiro;
+  trate `gameOver` como "partida encerrada" e use `ranking` (já ordenado) para a tela final. O `winner`
+  pode estar em qualquer casa.
+
+### 2. `leaveSession`/expiração em `playing` reconciliam o turno (achados #3/#6)
+
+Quando um jogador sai (ou expira) e a partida **continua** (≥2 jogadores), o dono da vez pode mudar
+porque o `turnOrder` é recompactado. O servidor reemite **`gameState` + `turnChanged`** para a sala.
+
+- **Ação no front:** sempre derive "de quem é a vez" do último `turnChanged`/`gameState.currentTurnPlayerId`
+  — nunca de um índice local. Após qualquer `playerDisconnected`/saída, espere um `turnChanged` novo.
+- Detalhe de regra (sem impacto de UI): o cálculo de avanço por acerto (tiers) passou a **ignorar
+  jogadores desconectados** ao definir leader/middle/last. O front não calcula movimento, então só
+  reflete o `movement`/`toSquare` que vier no `answerResult`.
+
+### 3. Reconciliação pós-restart do backend (achado #2)
+
+No boot, o servidor marca **todos** os jogadores das sessões ativas como **desconectados** e rearma o
+grace de 5 min (os timers e sockets não sobrevivem a um restart). Consequência para o front:
+
+- Após uma queda/redeploy do backend, o socket cai e, ao reconectar o transporte, o cliente **deve
+  disparar `reconnect{code,playerId}`** (com os valores guardados em `localStorage`) para retomar a vez.
+- Quem **não** reenviar `reconnect` dentro do grace é expirado normalmente (e pode disparar o `gameOver`
+  por abandono do item 1). **Recomendação:** auto-`reconnect` no evento `connect` do socket sempre que
+  houver `code`+`playerId` salvos.
+
+### 4. Banco de perguntas: 8 matérias (PR #17)
+
+`subject` (em `questionPrompt` e em `board.subjectBySquare`) agora pode assumir **qualquer uma das 8**
+chaves abaixo. O front deve ter rótulo/ícone para cada uma, com **fallback genérico** para chaves novas:
+
+```
+conhecimentos-gerais · desenvolvimento-web · fisica · logica
+matematica · matematica-financeira · portugues · quimica
+```
+
+- São identificadores estáveis (slug em inglês/kebab, sem acento) — use-os como chave de i18n/ícone,
+  não para exibição direta. Ex.: `matematica-financeira` → "Matemática Financeira".
+- ⚠️ **Conteúdo de nível `hard`:** hoje só `matematica` tem perguntas de dificuldade alta; cobrir as
+  outras 7 matérias no nível `hard` é trabalho pendente. Sem impacto no contrato — apenas evite assumir
+  paridade de volume entre matérias na UI.
