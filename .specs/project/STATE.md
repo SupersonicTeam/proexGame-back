@@ -255,4 +255,4 @@ Feature `.specs/features/logica-programacao/` — 20/20 tasks + fixes do Verifie
 **PASS na iteração 2** (`validation.md`): back 296 unit + 17 e2e, front 128; 23/23 mutantes mortos; 288
 perguntas sem gabarito errado. Branches `feat/logica-programacao` (back e front) **não publicadas** — aguardando
 code review e autorização do usuário para push/PR. Lacuna pré-existente: reconexão não reenvia
-`questionPrompt` (tarefa separada sugerida). Lição: checar classes CSS por token (classList), nunca por substring.
+`questionPrompt` (tarefa separada sugerida). **Ordem de deploy obrigatória:** mergear/publicar o FRONT antes do BACK (front novo é compatível com o back antigo; back novo com front antigo esconde o `code` das perguntas). Lição: checar classes CSS por token (classList), nunca por substring.

@@ -32,7 +32,7 @@ O topo do arquivo é um **array JSON**. Cada item:
 | `subject` | string | Deve ser **igual ao nome do arquivo**. |
 | `difficulty` | string | **Obrigatório.** Um de `easy` \| `normal` \| `hard`. A partida só serve perguntas do nível da sessão (RF-NEW-04). |
 | `statement` | string | Não-vazio. O enunciado (texto público, vai no `questionPrompt`). |
-| `code` | string | **Opcional.** Pseudocódigo exibido abaixo do enunciado, em bloco monoespaçado. `\n` quebra linha; **≤ 15 linhas**, **≤ 44 caracteres por linha**, **sem tabulação** (indente com 2 espaços). `\r\n` é normalizado. Vai no `questionPrompt` só quando presente. |
+| `code` | string | **Opcional.** Pseudocódigo exibido abaixo do enunciado, em bloco monoespaçado. `\n` quebra linha; **≤ 15 linhas**, **≤ 44 caracteres por linha** (limite duro; **recomendado ≤ 37**, que é o que cabe sem rolagem no modal em celular de 375 px), **sem tabulação** (indente com 2 espaços). `\r\n` é normalizado. Vai no `questionPrompt` só quando presente. |
 | `correct` | string | Não-vazio. A alternativa correta. |
 | `proximal` | string | Não-vazio. O **distrator proximal** (ver abaixo). |
 | `wrong` | array | **Exatamente 2 strings.** Distratores totais (claramente errados). |

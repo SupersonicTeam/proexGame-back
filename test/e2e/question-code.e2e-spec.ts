@@ -81,10 +81,12 @@ describe('questionPrompt com pseudocódigo (e2e)', () => {
     url = `http://127.0.0.1:${address.port}`;
   });
 
+  // Limpa a env ANTES de fechar o app (que pode lançar se o beforeAll falhou):
+  // o banco-fixture não pode vazar para outras suítes do mesmo worker.
   afterAll(async () => {
-    await app.close();
     delete process.env.QUESTIONS_DIR;
     fs.rmSync(dir, { recursive: true, force: true });
+    await app?.close();
   });
 
   function connect(): Socket {

@@ -3,7 +3,8 @@
     "id": "xxx-0001",
     "subject": "NOME_DO_ARQUIVO_SEM_JSON",
     "difficulty": "easy",
-    "statement": "Enunciado claro da pergunta?",
+    "statement": "O que este algoritmo mostra? (o campo code é opcional)",
+    "code": "s <- 0\npara i de 1 ate 4 faca\n  s <- s + i\nfimpara\nescreva(s)",
     "correct": "Alternativa correta",
     "proximal": "Quase certa (distrator proximal — o erro de quem quase sabia)",
     "wrong": ["Claramente errada 1", "Claramente errada 2"]
