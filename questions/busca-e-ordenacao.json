@@ -1,0 +1,332 @@
+[
+  {
+    "id": "bus-0001",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "O que faz a busca linear (sequencial)?",
+    "correct": "Compara o valor procurado com cada elemento, do primeiro ao último",
+    "proximal": "Olha o meio da lista e descarta metade a cada passo",
+    "wrong": ["Coloca a lista em ordem", "Apaga os elementos repetidos"]
+  },
+  {
+    "id": "bus-0002",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Ordenar uma lista significa:",
+    "correct": "Colocar os elementos em uma ordem definida, como a crescente",
+    "proximal": "Remover os elementos repetidos",
+    "wrong": ["Embaralhar os elementos", "Somar os elementos"]
+  },
+  {
+    "id": "bus-0003",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Como fica a lista 7, 2, 9, 4 em ordem CRESCENTE?",
+    "correct": "2, 4, 7, 9",
+    "proximal": "9, 7, 4, 2",
+    "wrong": ["7, 2, 9, 4", "2, 7, 4, 9"]
+  },
+  {
+    "id": "bus-0004",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Na busca linear pelo 9 na lista 4, 9, 1, 7, quantas comparações são feitas até encontrá-lo?",
+    "correct": "2",
+    "proximal": "1",
+    "wrong": ["4", "9"]
+  },
+  {
+    "id": "bus-0005",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Para usar a busca binária, a lista precisa estar:",
+    "correct": "Ordenada",
+    "proximal": "Sem elementos repetidos",
+    "wrong": ["Com um número par de elementos", "Só com números positivos"]
+  },
+  {
+    "id": "bus-0006",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "No PIOR caso, quantas comparações a busca linear faz em uma lista de 100 elementos?",
+    "correct": "100",
+    "proximal": "50",
+    "wrong": ["7", "1"]
+  },
+  {
+    "id": "bus-0007",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Procurar uma palavra no dicionário abrindo perto do meio e indo para frente ou para trás lembra qual estratégia?",
+    "correct": "Busca binária",
+    "proximal": "Busca linear",
+    "wrong": ["Ordenação por bolha", "Laço infinito"]
+  },
+  {
+    "id": "bus-0008",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Qual é um bom primeiro passo para achar o MENOR valor de uma lista de números?",
+    "correct": "Supor que o primeiro elemento é o menor e comparar com os outros",
+    "proximal": "Supor que o menor vale 0 e comparar com os outros",
+    "wrong": ["Somar todos e dividir pela quantidade", "Escolher um elemento qualquer ao acaso"]
+  },
+  {
+    "id": "bus-0009",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Por que dicionários e listas de contatos ficam em ordem alfabética?",
+    "correct": "Para achar um nome rápido, sem olhar um por um",
+    "proximal": "Para ocupar menos espaço",
+    "wrong": ["Porque é obrigatório por lei", "Para deixar os nomes mais curtos"]
+  },
+  {
+    "id": "bus-0010",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Em uma lista em ordem DECRESCENTE, o primeiro elemento é:",
+    "correct": "O maior",
+    "proximal": "O menor",
+    "wrong": ["O do meio", "Sempre o zero"]
+  },
+  {
+    "id": "bus-0011",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "Como ficam \"uva\", \"banana\" e \"abacaxi\" em ordem alfabética?",
+    "correct": "abacaxi, banana, uva",
+    "proximal": "uva, banana, abacaxi",
+    "wrong": ["banana, abacaxi, uva", "abacaxi, uva, banana"]
+  },
+  {
+    "id": "bus-0012",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "easy",
+    "statement": "A busca linear percorreu a lista toda e não achou o valor. O que o algoritmo deve fazer?",
+    "correct": "Informar que o valor não está na lista",
+    "proximal": "Devolver a posição do último elemento",
+    "wrong": ["Repetir a busca para sempre", "Apagar a lista"]
+  },
+  {
+    "id": "bus-0013",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..4] guarda 3, 5, 8, 1. O que este algoritmo mostra?",
+    "code": "achou <- FALSO\npara i de 1 ate 4 faca\n  se v[i] = 5 entao\n    achou <- VERDADEIRO\n  fimse\nfimpara\nescreva(achou)",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["2", "5"]
+  },
+  {
+    "id": "bus-0014",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Na busca binária na lista 1, 3, 5, 7, 9, 11, 13, qual elemento é comparado PRIMEIRO?",
+    "correct": "7",
+    "proximal": "1",
+    "wrong": ["13", "5"]
+  },
+  {
+    "id": "bus-0015",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Busca binária pelo 11 em 1, 3, 5, 7, 9, 11, 13: depois de comparar com o 7, onde a busca continua?",
+    "correct": "Na metade da direita: 9, 11, 13",
+    "proximal": "Na metade da esquerda: 1, 3, 5",
+    "wrong": ["Recomeça do primeiro elemento", "Para, porque 7 é diferente de 11"]
+  },
+  {
+    "id": "bus-0016",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Depois de UMA passada do bubble sort (ordenação por bolha) crescente em 5, 1, 4, 2, como fica a lista?",
+    "correct": "1, 4, 2, 5",
+    "proximal": "1, 2, 4, 5",
+    "wrong": ["5, 4, 2, 1", "1, 5, 4, 2"]
+  },
+  {
+    "id": "bus-0017",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Após a 1ª passada do bubble sort crescente, qual elemento certamente já está na posição final?",
+    "correct": "O maior, na última posição",
+    "proximal": "O menor, na primeira posição",
+    "wrong": ["O do meio", "Nenhum elemento"]
+  },
+  {
+    "id": "bus-0018",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Na ordenação por seleção (selection sort), o que acontece a cada passo?",
+    "correct": "Acha o menor dos elementos restantes e o coloca na próxima posição",
+    "proximal": "Troca cada par de vizinhos que estiver fora de ordem",
+    "wrong": ["Divide a lista ao meio e descarta uma metade", "Soma os elementos e divide pela quantidade"]
+  },
+  {
+    "id": "bus-0019",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..5] guarda 4, 8, 6, 8, 2. O que este algoritmo mostra?",
+    "code": "p <- 0\ni <- 1\nenquanto (p = 0) E (i <= 5) faca\n  se v[i] = 8 entao\n    p <- i\n  fimse\n  i <- i + 1\nfimenquanto\nescreva(p)",
+    "correct": "2",
+    "proximal": "4",
+    "wrong": ["8", "0"]
+  },
+  {
+    "id": "bus-0020",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Na busca binária, a cada comparação sem sucesso, a parte da lista que ainda pode conter o valor:",
+    "correct": "Cai pela metade",
+    "proximal": "Diminui em 1 elemento",
+    "wrong": ["Dobra de tamanho", "Continua do mesmo tamanho"]
+  },
+  {
+    "id": "bus-0021",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Quantas trocas o bubble sort faz para ordenar a lista 1, 2, 3, 4?",
+    "correct": "0",
+    "proximal": "3",
+    "wrong": ["4", "6"]
+  },
+  {
+    "id": "bus-0022",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Com a = 9 e b = 4, o que este trecho mostra?",
+    "code": "se a > b entao\n  aux <- a\n  a <- b\n  b <- aux\nfimse\nescreva(a, \" \", b)",
+    "correct": "4 9",
+    "proximal": "9 4",
+    "wrong": ["4 4", "9 9"]
+  },
+  {
+    "id": "bus-0023",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Você vai procurar um nome UMA única vez em uma lista desordenada de 10 nomes. O que é mais sensato?",
+    "correct": "Fazer uma busca linear",
+    "proximal": "Ordenar a lista e depois fazer uma busca binária",
+    "wrong": ["Fazer busca binária na lista desordenada", "Ordenar a lista duas vezes"]
+  },
+  {
+    "id": "bus-0024",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "normal",
+    "statement": "Para achar o menor valor de uma lista com 10 elementos, comparando um a um, quantas comparações são necessárias?",
+    "correct": "9",
+    "proximal": "10",
+    "wrong": ["5", "45"]
+  },
+  {
+    "id": "bus-0025",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "No pior caso, aproximadamente quantas comparações a busca binária faz em uma lista ordenada de 1000 elementos?",
+    "correct": "10",
+    "proximal": "500",
+    "wrong": ["1000", "100"]
+  },
+  {
+    "id": "bus-0026",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "Se uma lista ordenada DOBRA de tamanho, quantas comparações a mais a busca binária precisa no pior caso?",
+    "correct": "Apenas 1",
+    "proximal": "O dobro de comparações",
+    "wrong": ["Nenhuma", "1000 a mais"]
+  },
+  {
+    "id": "bus-0027",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "Uma versão simples do bubble sort faz (n - 1) passadas com (n - 1) comparações cada. Para n = 5, quantas comparações ao todo?",
+    "correct": "16",
+    "proximal": "25",
+    "wrong": ["10", "4"]
+  },
+  {
+    "id": "bus-0028",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..7] guarda 1, 3, 5, 7, 9, 11, 13. Qual é o valor final de achou nesta busca binária?",
+    "code": "ini <- 1\nfim <- 7\nachou <- 0\nenquanto (ini <= fim) E (achou = 0) faca\n  m <- (ini + fim) div 2\n  se v[m] = 11 entao\n    achou <- m\n  senao\n    se v[m] < 11 entao\n      ini <- m + 1\n    senao\n      fim <- m - 1\n    fimse\n  fimse\nfimenquanto",
+    "correct": "6",
+    "proximal": "11",
+    "wrong": ["5", "0"]
+  },
+  {
+    "id": "bus-0029",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "Na ordenação por seleção crescente de 6, 3, 8, 1, como fica a lista depois do 1º passo?",
+    "correct": "1, 3, 8, 6",
+    "proximal": "1, 6, 3, 8",
+    "wrong": ["3, 6, 8, 1", "1, 3, 6, 8"]
+  },
+  {
+    "id": "bus-0030",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..4] guarda 4, 3, 2, 1. Quantas trocas este bubble sort faz?",
+    "code": "t <- 0\npara i de 1 ate 3 faca\n  para j de 1 ate 3 faca\n    se v[j] > v[j + 1] entao\n      aux <- v[j]\n      v[j] <- v[j + 1]\n      v[j + 1] <- aux\n      t <- t + 1\n    fimse\n  fimpara\nfimpara\nescreva(t)",
+    "correct": "6",
+    "proximal": "3",
+    "wrong": ["12", "4"]
+  },
+  {
+    "id": "bus-0031",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "Um algoritmo compara cada elemento com todos os outros. Se a lista passa de 100 para 200 elementos, o número de comparações fica aproximadamente:",
+    "correct": "4 vezes maior",
+    "proximal": "2 vezes maior",
+    "wrong": ["Igual", "100 vezes maior"]
+  },
+  {
+    "id": "bus-0032",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "Qual é a melhor estratégia para fazer MUITAS buscas em uma lista grande que quase não muda?",
+    "correct": "Ordenar uma vez e usar busca binária em cada procura",
+    "proximal": "Usar busca linear em cada procura",
+    "wrong": ["Ordenar de novo antes de cada procura", "Embaralhar a lista antes de cada procura"]
+  },
+  {
+    "id": "bus-0033",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "A ordenação por inserção (insertion sort) funciona como:",
+    "correct": "Organizar cartas na mão: cada nova carta entra na posição certa entre as já ordenadas",
+    "proximal": "Trocar sempre o primeiro elemento com o último",
+    "wrong": ["Dividir a lista ao meio e descartar uma metade", "Sortear elementos até a lista ficar ordenada"]
+  },
+  {
+    "id": "bus-0034",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "No bubble sort, se uma passada inteira não fizer NENHUMA troca, o que podemos concluir?",
+    "correct": "A lista já está ordenada e o algoritmo pode parar",
+    "proximal": "A lista está em ordem decrescente",
+    "wrong": ["Houve um erro no algoritmo", "É preciso fazer mais n passadas"]
+  },
+  {
+    "id": "bus-0035",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "Busca binária pelo 7 em 1, 2, 3, 4, 5, 6, 7, 8, com meio = (ini + fim) div 2. Quais elementos são comparados, em ordem?",
+    "correct": "4, 6, 7",
+    "proximal": "4, 5, 6, 7",
+    "wrong": ["7", "8, 7"]
+  },
+  {
+    "id": "bus-0036",
+    "subject": "busca-e-ordenacao",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..5] guarda 7, 2, 9, 4, 8. O algoritmo mostra a posição que v[1] vai ocupar depois de ordenar em ordem crescente. O que ele mostra?",
+    "code": "c <- 0\npara i de 1 ate 5 faca\n  se v[i] < v[1] entao\n    c <- c + 1\n  fimse\nfimpara\nescreva(c + 1)",
+    "correct": "3",
+    "proximal": "2",
+    "wrong": ["1", "5"]
+  }
+]

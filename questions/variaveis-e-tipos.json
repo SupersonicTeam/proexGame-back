@@ -1,0 +1,345 @@
+[
+  {
+    "id": "var-0001",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Para que serve uma variável em um algoritmo?",
+    "correct": "Guardar um valor na memória para usar depois",
+    "proximal": "Mostrar um valor na tela",
+    "wrong": ["Desligar o programa", "Repetir um trecho de código"]
+  },
+  {
+    "id": "var-0002",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 7\nescreva(x)",
+    "correct": "7",
+    "proximal": "x",
+    "wrong": ["0", "x <- 7"]
+  },
+  {
+    "id": "var-0003",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Qual tipo é mais adequado para guardar a idade de uma pessoa em anos completos?",
+    "correct": "inteiro",
+    "proximal": "real",
+    "wrong": ["logico", "caractere"]
+  },
+  {
+    "id": "var-0004",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Qual tipo é mais adequado para guardar um preço como 4.50?",
+    "correct": "real",
+    "proximal": "inteiro",
+    "wrong": ["logico", "vetor"]
+  },
+  {
+    "id": "var-0005",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Qual tipo é mais adequado para guardar o nome de um jogador?",
+    "correct": "caractere",
+    "proximal": "inteiro",
+    "wrong": ["real", "logico"]
+  },
+  {
+    "id": "var-0006",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Qual tipo é mais adequado para guardar se um aluno foi aprovado ou não?",
+    "correct": "logico",
+    "proximal": "caractere",
+    "wrong": ["real", "inteiro"]
+  },
+  {
+    "id": "var-0007",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "O que o símbolo <- significa em Portugol?",
+    "correct": "Atribuição: guarda o valor da direita na variável da esquerda",
+    "proximal": "Comparação: testa se os dois lados são iguais",
+    "wrong": ["Fim do algoritmo", "Leitura do teclado"]
+  },
+  {
+    "id": "var-0008",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 4\nx <- 9\nescreva(x)",
+    "correct": "9",
+    "proximal": "4",
+    "wrong": ["13", "4 9"]
+  },
+  {
+    "id": "var-0009",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Qual destes é um nome VÁLIDO de variável?",
+    "correct": "nota_final",
+    "proximal": "nota final",
+    "wrong": ["2nota", "%nota"]
+  },
+  {
+    "id": "var-0010",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Quanto vale 7 mod 2 (o resto da divisão de 7 por 2)?",
+    "correct": "1",
+    "proximal": "3",
+    "wrong": ["3.5", "0"]
+  },
+  {
+    "id": "var-0011",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "Quanto vale 7 div 2 (a divisão inteira de 7 por 2)?",
+    "correct": "3",
+    "proximal": "3.5",
+    "wrong": ["1", "14"]
+  },
+  {
+    "id": "var-0012",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 2\nb <- a + 1\nescreva(b)",
+    "correct": "3",
+    "proximal": "a + 1",
+    "wrong": ["2", "21"]
+  },
+  {
+    "id": "var-0013",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 10\ny <- x\nx <- 20\nescreva(y)",
+    "correct": "10",
+    "proximal": "20",
+    "wrong": ["30", "x"]
+  },
+  {
+    "id": "var-0014",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "Qual é o resultado da expressão 2 + 3 * 4?",
+    "correct": "14",
+    "proximal": "20",
+    "wrong": ["24", "9"]
+  },
+  {
+    "id": "var-0015",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "c <- 0\nc <- c + 1\nc <- c + 1\nc <- c + 1\nescreva(c)",
+    "correct": "3",
+    "proximal": "1",
+    "wrong": ["0", "c + 1"]
+  },
+  {
+    "id": "var-0016",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "Qual é o resultado da expressão 10 - 4 / 2?",
+    "correct": "8",
+    "proximal": "3",
+    "wrong": ["2", "7"]
+  },
+  {
+    "id": "var-0017",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "Qual expressão é verdadeira quando o inteiro n é PAR?",
+    "correct": "n mod 2 = 0",
+    "proximal": "n mod 2 = 1",
+    "wrong": ["n div 2 = 0", "n * 2 = 0"]
+  },
+  {
+    "id": "var-0018",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "seg <- 130\nm <- seg div 60\ns <- seg mod 60\nescreva(m, \"min \", s, \"s\")",
+    "correct": "2min 10s",
+    "proximal": "1min 30s",
+    "wrong": ["130min 0s", "2min 1s"]
+  },
+  {
+    "id": "var-0019",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "A variável idade é do tipo inteiro. Qual atribuição é INVÁLIDA?",
+    "correct": "idade <- \"quinze\"",
+    "proximal": "idade <- 15 + 1",
+    "wrong": ["idade <- 15", "idade <- idade + 1"]
+  },
+  {
+    "id": "var-0020",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 4729\nescreva(n mod 10)",
+    "correct": "9",
+    "proximal": "4",
+    "wrong": ["472", "47"]
+  },
+  {
+    "id": "var-0021",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O algoritmo converte Celsius para Fahrenheit. O que ele mostra?",
+    "code": "c <- 25\nf <- c * 9 / 5 + 32\nescreva(f)",
+    "correct": "77",
+    "proximal": "45",
+    "wrong": ["57", "25"]
+  },
+  {
+    "id": "var-0022",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "Qual a vantagem de guardar 3.14 em uma variável chamada PI em vez de repetir o número pelo código?",
+    "correct": "Se precisar mudar, muda em um só lugar e o código fica mais legível",
+    "proximal": "O programa passa a calcular o PI com mais casas sozinho",
+    "wrong": ["Ocupa menos espaço no monitor", "Deixa o programa sem variáveis"]
+  },
+  {
+    "id": "var-0023",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "total <- 0\ntotal <- total + 2.5\ntotal <- total * 2\nescreva(total)",
+    "correct": "5",
+    "proximal": "2.5",
+    "wrong": ["0", "25"]
+  },
+  {
+    "id": "var-0024",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "idade <- 16\npodeVotar <- idade >= 16\nescreva(podeVotar)",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["16", "idade >= 16"]
+  },
+  {
+    "id": "var-0025",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 3\nb <- 7\naux <- a\na <- b\nb <- aux\nescreva(a, \" \", b)",
+    "correct": "7 3",
+    "proximal": "7 7",
+    "wrong": ["3 7", "3 3"]
+  },
+  {
+    "id": "var-0026",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 1\nb <- 2\nc <- 3\naux <- a\na <- b\nb <- c\nc <- aux\nescreva(a, b, c)",
+    "correct": "231",
+    "proximal": "312",
+    "wrong": ["123", "321"]
+  },
+  {
+    "id": "var-0027",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 5\nx <- x * x - x\nescreva(x)",
+    "correct": "20",
+    "proximal": "0",
+    "wrong": ["25", "5"]
+  },
+  {
+    "id": "var-0028",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 47\nu <- n mod 10\nd <- n div 10\nescreva(u * 10 + d)",
+    "correct": "74",
+    "proximal": "47",
+    "wrong": ["11", "7"]
+  },
+  {
+    "id": "var-0029",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 7\ny <- 2\nescreva(x div y * y + x mod y)",
+    "correct": "7",
+    "proximal": "6",
+    "wrong": ["8", "3.5"]
+  },
+  {
+    "id": "var-0030",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 2\nb <- a\na <- a + b\nb <- a + b\nescreva(a, \" \", b)",
+    "correct": "4 6",
+    "proximal": "4 4",
+    "wrong": ["2 4", "6 4"]
+  },
+  {
+    "id": "var-0031",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "Troco de 87 centavos em moedas de 25 e de 10. O que o algoritmo mostra?",
+    "code": "v <- 87\nn25 <- v div 25\nv <- v mod 25\nn10 <- v div 10\nescreva(n25, \" \", n10)",
+    "correct": "3 1",
+    "proximal": "3 8",
+    "wrong": ["3 12", "8 3"]
+  },
+  {
+    "id": "var-0032",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "Qual é o tipo do resultado da expressão (idade >= 18) E temCNH?",
+    "correct": "logico",
+    "proximal": "inteiro",
+    "wrong": ["real", "caractere"]
+  },
+  {
+    "id": "var-0033",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "Uma variável foi declarada mas nunca recebeu valor. Por que usá-la em um cálculo é perigoso?",
+    "correct": "Dependendo da linguagem, o valor inicial é indefinido (lixo de memória)",
+    "proximal": "Não é perigoso: em qualquer linguagem toda variável começa valendo zero",
+    "wrong": ["O computador desliga", "Ela vira uma constante automaticamente"]
+  },
+  {
+    "id": "var-0034",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "Qual é o resultado da expressão 10 + 7 mod 3?",
+    "correct": "11",
+    "proximal": "2",
+    "wrong": ["17", "3"]
+  },
+  {
+    "id": "var-0035",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 7\nb <- 8\nc <- 8\nm <- (a + b + c) div 3\nescreva(m)",
+    "correct": "7",
+    "proximal": "8",
+    "wrong": ["23", "21"]
+  },
+  {
+    "id": "var-0036",
+    "subject": "variaveis-e-tipos",
+    "difficulty": "hard",
+    "statement": "Depois destas linhas, quanto vale y?",
+    "code": "x <- 3\ny <- x * 2\nx <- y + x\ny <- x - y",
+    "correct": "3",
+    "proximal": "6",
+    "wrong": ["9", "0"]
+  }
+]

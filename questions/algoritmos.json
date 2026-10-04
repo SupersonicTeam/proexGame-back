@@ -1,0 +1,361 @@
+[
+  {
+    "id": "alg-0001",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "O que é um algoritmo?",
+    "correct": "Uma sequência finita e ordenada de passos para resolver um problema",
+    "proximal": "Um programa escrito em uma linguagem de programação",
+    "wrong": ["Um tipo de computador", "Um erro que aparece no programa"]
+  },
+  {
+    "id": "alg-0002",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Qual é a ordem correta para trocar uma lâmpada queimada?",
+    "correct": "Desligar o interruptor → tirar a queimada → colocar a nova → ligar",
+    "proximal": "Tirar a queimada → desligar o interruptor → colocar a nova → ligar",
+    "wrong": [
+      "Ligar o interruptor → colocar a nova → tirar a queimada → desligar",
+      "Colocar a nova → ligar → tirar a queimada → desligar"
+    ]
+  },
+  {
+    "id": "alg-0003",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Quais são as três partes básicas de quase todo algoritmo?",
+    "correct": "Entrada, processamento e saída",
+    "proximal": "Leitura, escrita e repetição",
+    "wrong": ["Hardware, software e internet", "Teclado, mouse e monitor"]
+  },
+  {
+    "id": "alg-0004",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Qual palavra este algoritmo mostra PRIMEIRO na tela?",
+    "code": "escreva(\"Olá\")\nescreva(\"Mundo\")",
+    "correct": "Olá",
+    "proximal": "Mundo",
+    "wrong": ["Nada é mostrado", "escreva"]
+  },
+  {
+    "id": "alg-0005",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Em um algoritmo que calcula a média de duas notas, qual é a ENTRADA?",
+    "correct": "As duas notas",
+    "proximal": "A média calculada",
+    "wrong": ["O boletim impresso", "A cor da tela"]
+  },
+  {
+    "id": "alg-0006",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "No algoritmo da média de duas notas, qual passo é o PROCESSAMENTO?",
+    "correct": "Somar as notas e dividir por 2",
+    "proximal": "Ler as duas notas digitadas",
+    "wrong": ["Desligar o computador", "Escolher a fonte do texto"]
+  },
+  {
+    "id": "alg-0007",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Se o usuário digitar 5, o que este algoritmo mostra?",
+    "code": "leia(x)\nescreva(x * 2)",
+    "correct": "10",
+    "proximal": "x * 2",
+    "wrong": ["7", "25"]
+  },
+  {
+    "id": "alg-0008",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Em Portugol, qual comando MOSTRA uma informação na tela?",
+    "correct": "escreva",
+    "proximal": "leia",
+    "wrong": ["fimse", "senao"]
+  },
+  {
+    "id": "alg-0009",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Em Portugol, qual comando RECEBE um valor digitado pelo usuário?",
+    "correct": "leia",
+    "proximal": "escreva",
+    "wrong": ["retorne", "fimpara"]
+  },
+  {
+    "id": "alg-0010",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Um algoritmo correto precisa obrigatoriamente:",
+    "correct": "Terminar depois de um número finito de passos",
+    "proximal": "Ser escrito em uma linguagem de programação",
+    "wrong": ["Rodar sempre em menos de 1 segundo", "Ter exatamente 10 passos"]
+  },
+  {
+    "id": "alg-0011",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "Em um fluxograma, o que o losango representa?",
+    "correct": "Uma decisão (uma condição a ser testada)",
+    "proximal": "Um processamento (um cálculo)",
+    "wrong": ["Uma impressora", "Um comentário do programador"]
+  },
+  {
+    "id": "alg-0012",
+    "subject": "algoritmos",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 3\nb <- 4\nescreva(a + b)",
+    "correct": "7",
+    "proximal": "34",
+    "wrong": ["12", "a + b"]
+  },
+  {
+    "id": "alg-0013",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 2\nx <- x + 3\nx <- x * 2\nx <- x - 1\nescreva(x)",
+    "correct": "9",
+    "proximal": "10",
+    "wrong": ["7", "11"]
+  },
+  {
+    "id": "alg-0014",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "Qual ordem de instruções calcula e mostra a área de um retângulo corretamente?",
+    "correct": "leia(b), leia(h), area <- b * h, escreva(area)",
+    "proximal": "leia(b), area <- b * h, leia(h), escreva(area)",
+    "wrong": [
+      "escreva(area), leia(b), leia(h), area <- b * h",
+      "area <- b * h, escreva(area), leia(b), leia(h)"
+    ]
+  },
+  {
+    "id": "alg-0015",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "A ideia era trocar os valores de a e b. O que o algoritmo mostra de verdade?",
+    "code": "a <- 5\nb <- 8\na <- b\nb <- a\nescreva(a, \" \", b)",
+    "correct": "8 8",
+    "proximal": "8 5",
+    "wrong": ["5 8", "5 5"]
+  },
+  {
+    "id": "alg-0016",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "Qual é o melhor primeiro passo para resolver um problema grande, como criar um sistema de biblioteca?",
+    "correct": "Dividir em problemas menores (cadastrar livro, emprestar, devolver)",
+    "proximal": "Escolher primeiro a linguagem de programação",
+    "wrong": [
+      "Começar digitando o código sem planejar",
+      "Desenhar apenas a tela final"
+    ]
+  },
+  {
+    "id": "alg-0017",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "O que é fazer um \"teste de mesa\" de um algoritmo?",
+    "correct": "Executá-lo à mão, anotando o valor das variáveis a cada passo",
+    "proximal": "Rodar o programa no computador para ver se ele abre",
+    "wrong": [
+      "Testar se a mesa aguenta o computador",
+      "Apagar o algoritmo e escrever de novo"
+    ]
+  },
+  {
+    "id": "alg-0018",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "17 alunos serão divididos em grupos de 5. O que o algoritmo mostra?",
+    "code": "total <- 17\ngrupos <- total div 5\nsobra <- total mod 5\nescreva(grupos, \" \", sobra)",
+    "correct": "3 2",
+    "proximal": "2 3",
+    "wrong": ["5 17", "3 5"]
+  },
+  {
+    "id": "alg-0019",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "preco <- 50\ndesconto <- preco * 0.1\npreco <- preco - desconto\nescreva(preco)",
+    "correct": "45",
+    "proximal": "5",
+    "wrong": ["50", "0.1"]
+  },
+  {
+    "id": "alg-0020",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "Em um algoritmo de receita de bolo, o que acontece se trocarmos a ordem de \"quebrar os ovos\" e \"bater a massa\"?",
+    "correct": "O resultado muda, porque a ordem das instruções importa",
+    "proximal": "Nada muda, o computador reorganiza os passos sozinho",
+    "wrong": ["O algoritmo fica mais rápido", "Os ovos viram variáveis"]
+  },
+  {
+    "id": "alg-0021",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "O usuário digita 6 e depois 8. O que este algoritmo mostra?",
+    "code": "leia(n1)\nleia(n2)\nmedia <- n1 + n2 / 2\nescreva(media)",
+    "correct": "10",
+    "proximal": "7",
+    "wrong": ["14", "3"]
+  },
+  {
+    "id": "alg-0022",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "Esta linha deveria calcular a média de n1 e n2, mas está errada. Qual é a correção?",
+    "code": "media <- n1 + n2 / 2",
+    "correct": "media <- (n1 + n2) / 2",
+    "proximal": "media <- n1 + (n2 / 2)",
+    "wrong": ["media <- n1 * n2 / 2", "media <- n1 + n2 * 2"]
+  },
+  {
+    "id": "alg-0023",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "nome <- \"Ana\"\nidade <- 15\nescreva(nome, \" tem \", idade)",
+    "correct": "Ana tem 15",
+    "proximal": "nome tem idade",
+    "wrong": ["Ana15", "15 tem Ana"]
+  },
+  {
+    "id": "alg-0024",
+    "subject": "algoritmos",
+    "difficulty": "normal",
+    "statement": "Qual destas instruções é vaga demais para fazer parte de um algoritmo?",
+    "correct": "Coloque um pouco de sal",
+    "proximal": "Repita 3 vezes: mexa a massa",
+    "wrong": ["Ligue o forno a 180 °C", "Asse por 30 minutos"]
+  },
+  {
+    "id": "alg-0025",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 1\npara i de 1 ate 4 faca\n  x <- x * 2\nfimpara\nescreva(x)",
+    "correct": "16",
+    "proximal": "8",
+    "wrong": ["4", "10"]
+  },
+  {
+    "id": "alg-0026",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "Com a = 4, b = 9 e c = 7, qual é o valor final de maior?",
+    "code": "maior <- a\nse b > maior entao\n  maior <- b\nfimse\nse c > maior entao\n  maior <- c\nfimse",
+    "correct": "9",
+    "proximal": "7",
+    "wrong": ["4", "20"]
+  },
+  {
+    "id": "alg-0027",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "Em uma sala com 30 pessoas, cada uma aperta a mão de todas as outras uma única vez. Quantos apertos de mão acontecem?",
+    "correct": "435",
+    "proximal": "870",
+    "wrong": ["30", "900"]
+  },
+  {
+    "id": "alg-0028",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 10\nc <- 0\nenquanto n > 1 faca\n  n <- n div 2\n  c <- c + 1\nfimenquanto\nescreva(c)",
+    "correct": "3",
+    "proximal": "4",
+    "wrong": ["5", "10"]
+  },
+  {
+    "id": "alg-0029",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "Um algoritmo soma 1 + 2 + ... + n usando um laço. Qual fórmula dá o mesmo resultado sem laço?",
+    "correct": "n * (n + 1) / 2",
+    "proximal": "n * (n - 1) / 2",
+    "wrong": ["n * n", "2 * n + 1"]
+  },
+  {
+    "id": "alg-0030",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "Em um algoritmo de troco, o cliente pagou MENOS que o valor da compra. O que um bom algoritmo deve fazer?",
+    "correct": "Verificar antes se pago >= compra e avisar que falta dinheiro",
+    "proximal": "Calcular troco <- pago - compra e mostrar o valor negativo",
+    "wrong": [
+      "Encerrar sem mostrar nada",
+      "Trocar os valores de lugar para o troco ficar positivo"
+    ]
+  },
+  {
+    "id": "alg-0031",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 3 faca\n  para j de 1 ate 4 faca\n    c <- c + 1\n  fimpara\nfimpara\nescreva(c)",
+    "correct": "12",
+    "proximal": "7",
+    "wrong": ["4", "3"]
+  },
+  {
+    "id": "alg-0032",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 352\ns <- 0\nenquanto n > 0 faca\n  s <- s + n mod 10\n  n <- n div 10\nfimenquanto\nescreva(s)",
+    "correct": "10",
+    "proximal": "253",
+    "wrong": ["352", "3"]
+  },
+  {
+    "id": "alg-0033",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "Para saber se n é primo, um algoritmo testa os divisores de 2 até n - 1. Qual mudança continua correta e testa MENOS divisores?",
+    "correct": "Testar divisores só até a raiz quadrada de n",
+    "proximal": "Testar só os divisores 2 e 3",
+    "wrong": ["Testar divisores até 2 * n", "Testar apenas se n é ímpar"]
+  },
+  {
+    "id": "alg-0034",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 1\nb <- 1\npara i de 1 ate 5 faca\n  c <- a + b\n  a <- b\n  b <- c\nfimpara\nescreva(b)",
+    "correct": "13",
+    "proximal": "8",
+    "wrong": ["5", "21"]
+  },
+  {
+    "id": "alg-0035",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "Qual destas tarefas NÃO pode virar um algoritmo do jeito que está descrita?",
+    "correct": "Escolher a música \"mais bonita\" do mundo",
+    "proximal": "Ordenar 1 milhão de nomes em ordem alfabética",
+    "wrong": [
+      "Calcular a média de notas de uma turma",
+      "Converter graus Celsius para Fahrenheit"
+    ]
+  },
+  {
+    "id": "alg-0036",
+    "subject": "algoritmos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 5\ny <- 3\nx <- x + y\ny <- x - y\nx <- x - y\nescreva(x, \" \", y)",
+    "correct": "3 5",
+    "proximal": "5 3",
+    "wrong": ["8 5", "8 3"]
+  }
+]

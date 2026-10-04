@@ -13,12 +13,14 @@ vira uma **matéria** (`subject`) carregada em memória no boot pelo
 ## Como um arquivo vira matéria
 
 - **1 arquivo = 1 matéria.** O nome do arquivo (sem `.json`) é o `subject`.
-  Ex.: `historia.json` → `subject: "historia"`.
+  Ex.: `vetores.json` → `subject: "vetores"`.
 - O campo `subject` de **toda** pergunta dentro do arquivo **precisa ser idêntico**
   ao nome do arquivo, senão o boot falha (fail-fast).
 - A geração do tabuleiro sorteia, para cada casa-pergunta, uma matéria **uniformemente
-  entre todas as carregadas** (`board.rules.generateBoard`). Logo, **todas as 10
-  matérias devem existir e ter perguntas suficientes** — veja "Volume" abaixo.
+  entre todas as carregadas** (`board.rules.generateBoard`). Logo, **todas as
+  matérias carregadas devem ter perguntas suficientes** — veja "Volume" abaixo.
+- Só os `*.json` **da raiz** deste diretório são carregados. Subpastas (como
+  `_arquivo/`) são ignoradas.
 
 ## Schema (validado no boot — `validateFile`)
 
@@ -30,9 +32,13 @@ O topo do arquivo é um **array JSON**. Cada item:
 | `subject` | string | Deve ser **igual ao nome do arquivo**. |
 | `difficulty` | string | **Obrigatório.** Um de `easy` \| `normal` \| `hard`. A partida só serve perguntas do nível da sessão (RF-NEW-04). |
 | `statement` | string | Não-vazio. O enunciado (texto público, vai no `questionPrompt`). |
+| `code` | string | **Opcional.** Pseudocódigo exibido abaixo do enunciado, em bloco monoespaçado. `\n` quebra linha; **≤ 15 linhas**, **≤ 44 caracteres por linha** (limite duro; **recomendado ≤ 37**, que é o que cabe sem rolagem no modal em celular de 375 px), **sem tabulação** (indente com 2 espaços). `\r\n` é normalizado. Vai no `questionPrompt` só quando presente. |
 | `correct` | string | Não-vazio. A alternativa correta. |
 | `proximal` | string | Não-vazio. O **distrator proximal** (ver abaixo). |
 | `wrong` | array | **Exatamente 2 strings.** Distratores totais (claramente errados). |
+
+As 4 alternativas (`correct`, `proximal`, `wrong[0]`, `wrong[1]`) devem ser
+**distintas** (comparação após `trim`) — senão o boot falha.
 
 > **Segurança (RF-16):** `correct`/`proximal`/`wrong` **nunca** são enviados juntos ao
 > client. Ao servir, o servidor embaralha as 4 opções e só guarda os índices da correta
@@ -51,8 +57,13 @@ Portanto a `proximal` deve ser a alternativa **plausível / quase-certa** — o 
 parecido). As duas `wrong` devem ser distratores **claramente errados**. Capricho aqui
 é o que dá valor pedagógico ao jogo.
 
-**Exemplo bom:** "Quanto é 7 × 8?" → `correct: "56"`, `proximal: "54"` (erro comum de
-tabuada), `wrong: ["48", "63"]`.
+**Exemplo bom:** "O que este algoritmo mostra?" com `code` somando de 1 a 4 →
+`correct: "10"`, `proximal: "6"` (esqueceu a última volta — off-by-one),
+`wrong: ["4", "1234"]`.
+
+Erros clássicos do iniciante que dão bons `proximal`: off-by-one em laços, `=` × `<-`,
+`E` × `OU`, `>` × `>=`, esquecer de incrementar, divisão inteira × real, precedência
+de operadores, trocar valores sem variável auxiliar.
 
 ## Volume recomendado
 
@@ -66,25 +77,48 @@ Para uma matéria não "esgotar" um nível no meio da partida (`pickQuestion` re
 nível** (`easy`/`normal`/`hard`). O fallback evita softlock, mas pools magros tornam o
 modo afetado pobre em perguntas.
 
-> **Status da expansão:** concluída — as 8 matérias têm os 3 níveis preenchidos
-> (ver `.specs/features/difficulty-scaling/spec.md`).
+## As categorias (lógica de programação — iniciantes 14+)
 
-## As matérias (turma do 2º ano — curso de programação)
+O jogo treina **lógica de programação antes da linguagem**: o foco é pensar no passo a
+passo e escolher o algoritmo. Todas as categorias têm **36 perguntas (12 easy / 12 normal
+/ 12 hard)**, travadas pelo content spec `src/questions/question-bank.content.spec.ts`.
 
-Conjunto definido para o público (2º ano do ensino médio, curso de programação).
-Meta por nível: **~12 perguntas por matéria por dificuldade**. Exceto `matematica`
-(24 perguntas), todas têm 36 (12 easy / 12 normal / 12 hard).
-
-| Matéria (`subject` / nome do arquivo) | Prefixo de `id` | Status |
+| Categoria (`subject` / arquivo) | Prefixo de `id` | Conteúdo |
 |---|---|---|
-| `matematica` | `mat` | ✅ 24 (8 / 8 / 8) |
-| `desenvolvimento-web` (HTML + CSS + JS básico) | `web` | ✅ 36 (12 / 12 / 12) |
-| `logica` | `log` | ✅ 36 (12 / 12 / 12) |
-| `quimica` | `qui` | ✅ 36 (12 / 12 / 12) |
-| `fisica` | `fis` | ✅ 36 (12 / 12 / 12) |
-| `matematica-financeira` | `fin` | ✅ 36 (12 / 12 / 12) |
-| `conhecimentos-gerais` | `ger` | ✅ 36 (12 / 12 / 12) |
-| `portugues` | `por` | ✅ 36 (12 / 12 / 12) |
+| `algoritmos` | `alg` | sequência de passos, entrada → processamento → saída, teste de mesa, decomposição |
+| `variaveis-e-tipos` | `var` | atribuição, tipos, `div`/`mod`, precedência, troca de valores |
+| `condicionais` | `cond` | `se/senao`, aninhamento, `escolha/caso`, limites de faixa |
+| `operadores-logicos` | `oplog` | relacionais, `E`/`OU`/`NAO`, intervalos, De Morgan, tabela-verdade |
+| `lacos-de-repeticao` | `laco` | `para`/`enquanto`/`repita`, contador, acumulador, laços aninhados |
+| `vetores` | `vet` | índices, percorrer, soma/média, maior/menor, deslocamento, matrizes |
+| `funcoes` | `func` | parâmetros, retorno, função × procedimento, escopo, recursão |
+| `busca-e-ordenacao` | `bus` | busca linear × binária, bubble/seleção/inserção, eficiência |
+
+**Critério de nível (relativo à categoria):**
+
+- **easy** — o conceito central da categoria ou um rastreio curto e direto.
+- **normal** — rastreio de várias linhas ou combinação de dois conceitos da categoria.
+- **hard** — rastreio com armadilha (ordem, limite, precedência, aninhamento),
+  recursão, ou escolher/avaliar um algoritmo.
+
+Ex.: em `condicionais`, um `se/senao` simples é easy e uma cadeia de `se` com a ordem
+dos testes como armadilha é hard — sem precisar de laço.
+
+**Dialeto do pseudocódigo (Portugol estilo VisuAlg, só ASCII):** `<-` atribuição;
+`escreva`/`leia`; `se ... entao ... senao ... fimse`; `escolha/caso/outrocaso/fimescolha`;
+`para i de 1 ate n [passo k] faca ... fimpara`; `enquanto ... faca ... fimenquanto`;
+`repita ... ate`; `funcao nome(p: tipo): tipo ... retorne ... fimfuncao`;
+`procedimento ... fimprocedimento`; `E`/`OU`/`NAO`; `mod`/`div`; `VERDADEIRO`/`FALSO`.
+Sem boilerplate (`algoritmo`/`var`/`inicio`) salvo quando a pergunta trata disso.
+`retorne` encerra a função na hora (linhas depois dele não executam).
+Vetores declaram o intervalo no enunciado (`v[1..5]`); se omitido, base 1.
+
+**Respostas de rastreamento** ("o que o algoritmo mostra?") devem ser conferidas à mão
+(teste de mesa) antes do commit — um gabarito errado ensina errado.
+
+As antigas matérias escolares (`matematica`, `fisica`, `quimica`, `portugues`,
+`desenvolvimento-web`, `logica`, `matematica-financeira`, `conhecimentos-gerais`) estão
+preservadas em `_arquivo/` e **não são carregadas**.
 
 ## Como validar o que você escreveu
 

@@ -512,3 +512,196 @@ describe('QuestionBankService — pickQuestion filtra por dificuldade (RF-NEW-04
     expect(q!.id).toBe('mat-n2');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Campo opcional `code` (pseudocódigo) e alternativas distintas
+// (feature logica-programacao — PROG-04/05/06).
+// ---------------------------------------------------------------------------
+
+// Pergunta-base válida com `code`; cada teste sobrescreve só o que exercita.
+function withCode(overrides: Record<string, unknown>): Record<string, unknown> {
+  return {
+    id: 'laco-0001',
+    subject: 'lacos',
+    difficulty: 'easy',
+    statement: 'O que este algoritmo escreve?',
+    code: 's <- 0\npara i de 1 ate 3 faca\n  s <- s + i\nfimpara\nescreva(s)',
+    correct: '6',
+    proximal: '3',
+    wrong: ['0', '123'],
+    ...overrides,
+  };
+}
+
+// Carrega um arquivo `lacos.json` com as perguntas dadas (sem engolir erros).
+async function loadLacos(items: unknown[]): Promise<{
+  service: QuestionBankService;
+  dir: string;
+}> {
+  const dir = createTempDir({ 'lacos.json': items });
+  process.env.QUESTIONS_DIR = dir;
+  const service = new QuestionBankService(new FakeRandomSource([0]));
+  try {
+    await service.onModuleInit();
+  } catch (err) {
+    removeTempDir(dir);
+    throw err;
+  }
+  return { service, dir };
+}
+
+describe('QuestionBankService — campo opcional code', () => {
+  let dir: string | undefined;
+
+  afterEach(() => {
+    if (dir) removeTempDir(dir);
+    dir = undefined;
+    delete process.env.QUESTIONS_DIR;
+  });
+
+  it('pergunta sem code continua válida e não ganha a chave', async () => {
+    const noCode = withCode({});
+    delete noCode.code;
+    const result = await loadLacos([noCode]);
+    dir = result.dir;
+    const q = result.service.getById('laco-0001');
+    expect(q).toBeDefined();
+    expect('code' in q!).toBe(false);
+  });
+
+  it('carrega code válido com o texto idêntico ao do arquivo', async () => {
+    const result = await loadLacos([withCode({})]);
+    dir = result.dir;
+    expect(result.service.getById('laco-0001')!.code).toBe(
+      's <- 0\npara i de 1 ate 3 faca\n  s <- s + i\nfimpara\nescreva(s)',
+    );
+  });
+
+  it('normaliza \r\n para \n no code', async () => {
+    const result = await loadLacos([
+      withCode({ code: 'x <- 1\r\nescreva(x)' }),
+    ]);
+    dir = result.dir;
+    expect(result.service.getById('laco-0001')!.code).toBe(
+      'x <- 1\nescreva(x)',
+    );
+  });
+
+  it('aceita code com exatamente 15 linhas e linha de exatamente 44 caracteres', async () => {
+    const lines = Array.from({ length: 15 }, (_, i) => `escreva(${i})`);
+    lines[0] = 'a'.repeat(44);
+    const result = await loadLacos([withCode({ code: lines.join('\n') })]);
+    dir = result.dir;
+    expect(result.service.getById('laco-0001')!.code!.split('\n')).toHaveLength(
+      15,
+    );
+  });
+
+  it('falha quando code tem 16 linhas', async () => {
+    const code = Array.from({ length: 16 }, (_, i) => `escreva(${i})`).join(
+      '\n',
+    );
+    await expect(loadLacos([withCode({ code })])).rejects.toThrow(
+      /lacos\.json"\[0\].*"code".*15 linhas/,
+    );
+  });
+
+  it('falha quando uma linha do code tem 45 caracteres', async () => {
+    const code = `x <- 1\n${'b'.repeat(45)}`;
+    await expect(loadLacos([withCode({ code })])).rejects.toThrow(
+      /\[0\].*"code".*44 caracteres/,
+    );
+  });
+
+  it('conta o limite de linhas depois de normalizar \r\n', async () => {
+    const code = Array.from({ length: 16 }, () => 'x').join('\r\n');
+    await expect(loadLacos([withCode({ code })])).rejects.toThrow(
+      /"code".*15 linhas/,
+    );
+  });
+
+  it('falha quando code contém tabulação', async () => {
+    await expect(
+      loadLacos([withCode({ code: 'se x > 0 entao\n\tescreva(x)\nfimse' })]),
+    ).rejects.toThrow(/\[0\].*"code".*tabula/);
+  });
+
+  it('falha quando code é string vazia ou só espaços', async () => {
+    await expect(loadLacos([withCode({ code: '' })])).rejects.toThrow(
+      /\[0\].*"code"/,
+    );
+    await expect(loadLacos([withCode({ code: '   \n  ' })])).rejects.toThrow(
+      /\[0\].*"code"/,
+    );
+  });
+
+  it('falha quando code não é string', async () => {
+    await expect(loadLacos([withCode({ code: 42 })])).rejects.toThrow(
+      /\[0\].*"code"/,
+    );
+  });
+
+  it('aponta o índice da pergunta inválida', async () => {
+    const ok = withCode({ id: 'laco-0001' });
+    const bad = withCode({ id: 'laco-0002', code: 'x\ty' });
+    await expect(loadLacos([ok, bad])).rejects.toThrow(/\[1\].*"code"/);
+  });
+});
+
+describe('QuestionBankService — alternativas distintas', () => {
+  afterEach(() => {
+    delete process.env.QUESTIONS_DIR;
+  });
+
+  it('falha quando proximal é igual à correta', async () => {
+    await expect(
+      loadLacos([withCode({ correct: '6', proximal: '6' })]),
+    ).rejects.toThrow(/\[0\].*alternativas.*distintas/);
+  });
+
+  it('falha quando um wrong é igual à correta', async () => {
+    await expect(loadLacos([withCode({ wrong: ['6', '0'] })])).rejects.toThrow(
+      /\[0\].*alternativas.*distintas/,
+    );
+  });
+
+  it('falha quando os dois wrong são iguais', async () => {
+    await expect(loadLacos([withCode({ wrong: ['0', '0'] })])).rejects.toThrow(
+      /\[0\].*alternativas.*distintas/,
+    );
+  });
+
+  it('falha quando wrong repete a proximal', async () => {
+    await expect(loadLacos([withCode({ wrong: ['3', '0'] })])).rejects.toThrow(
+      /\[0\].*alternativas.*distintas/,
+    );
+  });
+
+  it('compara após trim (espaço extra não disfarça repetição)', async () => {
+    await expect(loadLacos([withCode({ proximal: ' 6 ' })])).rejects.toThrow(
+      /\[0\].*alternativas.*distintas/,
+    );
+  });
+});
+
+describe('QuestionBankService — subdiretórios não são carregados', () => {
+  afterEach(() => {
+    delete process.env.QUESTIONS_DIR;
+  });
+
+  it('ignora *.json dentro de subdiretórios (ex.: questions/_arquivo)', async () => {
+    const dir = createTempDir({ 'matematica.json': VALID_MATEMATICA });
+    fs.mkdirSync(path.join(dir, '_arquivo'));
+    fs.writeFileSync(
+      path.join(dir, '_arquivo', 'portugues.json'),
+      JSON.stringify(VALID_PORTUGUES),
+      'utf-8',
+    );
+    process.env.QUESTIONS_DIR = dir;
+    const service = new QuestionBankService(new FakeRandomSource([0]));
+    await service.onModuleInit();
+    expect(service.subjects()).toEqual(['matematica']);
+    expect(service.getById('por-0001')).toBeUndefined();
+    removeTempDir(dir);
+  });
+});

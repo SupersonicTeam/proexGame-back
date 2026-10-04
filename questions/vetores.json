@@ -1,0 +1,352 @@
+[
+  {
+    "id": "vet-0001",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Para que serve um vetor?",
+    "correct": "Guardar vários valores do mesmo tipo sob um único nome, acessados por índice",
+    "proximal": "Guardar um único valor que pode mudar de tipo",
+    "wrong": ["Repetir um trecho de código", "Desenhar setas na tela"]
+  },
+  {
+    "id": "vet-0002",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Com v: vetor[1..3] de inteiro, o que este algoritmo mostra?",
+    "code": "v[1] <- 10\nv[2] <- 20\nv[3] <- 30\nescreva(v[2])",
+    "correct": "20",
+    "proximal": "10",
+    "wrong": ["30", "2"]
+  },
+  {
+    "id": "vet-0003",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Quantos elementos cabem em v: vetor[1..5] de inteiro?",
+    "correct": "5",
+    "proximal": "4",
+    "wrong": ["6", "1"]
+  },
+  {
+    "id": "vet-0004",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Em v[3] <- 8, o que é o número 3?",
+    "correct": "O índice (a posição no vetor)",
+    "proximal": "O valor guardado no vetor",
+    "wrong": ["O tamanho do vetor", "O tipo do vetor"]
+  },
+  {
+    "id": "vet-0005",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Com v: vetor[1..3] de inteiro, o que este algoritmo mostra?",
+    "code": "v[1] <- 4\nv[2] <- 6\nescreva(v[1] + v[2])",
+    "correct": "10",
+    "proximal": "46",
+    "wrong": ["3", "v[1] + v[2]"]
+  },
+  {
+    "id": "vet-0006",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Qual é a melhor forma de guardar as notas dos 30 alunos de uma turma?",
+    "correct": "Um vetor com 30 posições",
+    "proximal": "30 variáveis separadas: nota1, nota2, ..., nota30",
+    "wrong": ["Uma única variável inteira", "Uma variável lógica"]
+  },
+  {
+    "id": "vet-0007",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Com v: vetor[1..2] de inteiro, o que este algoritmo mostra?",
+    "code": "v[1] <- 5\nv[1] <- 9\nescreva(v[1])",
+    "correct": "9",
+    "proximal": "5",
+    "wrong": ["14", "5 9"]
+  },
+  {
+    "id": "vet-0008",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Em v: vetor[1..10] de inteiro, qual é o índice do ÚLTIMO elemento?",
+    "correct": "10",
+    "proximal": "9",
+    "wrong": ["11", "1"]
+  },
+  {
+    "id": "vet-0009",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "O que acontece ao tentar acessar v[7] se o vetor foi declarado como vetor[1..5]?",
+    "correct": "Erro: o índice está fora dos limites do vetor",
+    "proximal": "Retorna o último elemento, v[5]",
+    "wrong": ["O vetor cresce sozinho para 7 posições", "Retorna o número 7"]
+  },
+  {
+    "id": "vet-0010",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Com nomes: vetor[1..3] de caractere, o que este algoritmo mostra?",
+    "code": "nomes[1] <- \"Ana\"\nnomes[2] <- \"Bia\"\nnomes[3] <- \"Caio\"\nescreva(nomes[3])",
+    "correct": "Caio",
+    "proximal": "Bia",
+    "wrong": ["Ana", "3"]
+  },
+  {
+    "id": "vet-0011",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Qual estrutura é usada para percorrer todos os elementos de um vetor, um por um?",
+    "correct": "Um laço, como para i de 1 ate n faca",
+    "proximal": "Um se ... entao para cada posição",
+    "wrong": ["Uma única atribuição", "Um escolha ... caso"]
+  },
+  {
+    "id": "vet-0012",
+    "subject": "vetores",
+    "difficulty": "easy",
+    "statement": "Com v: vetor[1..3] de inteiro, o que este algoritmo mostra?",
+    "code": "i <- 2\nv[i] <- 7\nescreva(v[2])",
+    "correct": "7",
+    "proximal": "2",
+    "wrong": ["i", "0"]
+  },
+  {
+    "id": "vet-0013",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "Com v: vetor[1..4] de inteiro, o que este algoritmo mostra?",
+    "code": "para i de 1 ate 4 faca\n  v[i] <- i * 10\nfimpara\nescreva(v[3])",
+    "correct": "30",
+    "proximal": "40",
+    "wrong": ["3", "100"]
+  },
+  {
+    "id": "vet-0014",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..4] guarda 3, 8, 2, 5. O que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 4 faca\n  s <- s + v[i]\nfimpara\nescreva(s)",
+    "correct": "18",
+    "proximal": "10",
+    "wrong": ["4", "3825"]
+  },
+  {
+    "id": "vet-0015",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..5] guarda 4, 9, 1, 7, 3. O que este algoritmo mostra?",
+    "code": "m <- v[1]\npara i de 2 ate 5 faca\n  se v[i] > m entao\n    m <- v[i]\n  fimse\nfimpara\nescreva(m)",
+    "correct": "9",
+    "proximal": "7",
+    "wrong": ["3", "4"]
+  },
+  {
+    "id": "vet-0016",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..5] guarda 2, 7, 4, 7, 1. O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 5 faca\n  se v[i] = 7 entao\n    c <- c + 1\n  fimse\nfimpara\nescreva(c)",
+    "correct": "2",
+    "proximal": "1",
+    "wrong": ["7", "4"]
+  },
+  {
+    "id": "vet-0017",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..4] guarda 6, 8, 5, 9. O que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 4 faca\n  s <- s + v[i]\nfimpara\nescreva(s / 4)",
+    "correct": "7",
+    "proximal": "28",
+    "wrong": ["4", "6.5"]
+  },
+  {
+    "id": "vet-0018",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..4] guarda 1, 2, 3, 4. O que este algoritmo mostra?",
+    "code": "para i de 4 ate 1 passo -1 faca\n  escreva(v[i])\nfimpara",
+    "correct": "4321",
+    "proximal": "1234",
+    "wrong": ["4", "10"]
+  },
+  {
+    "id": "vet-0019",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "Este trecho deveria somar v[1..5]. Qual é o erro?",
+    "code": "s <- 0\npara i de 1 ate 6 faca\n  s <- s + v[i]\nfimpara",
+    "correct": "O laço vai até 6 e acessa uma posição que não existe",
+    "proximal": "s deveria começar valendo 1",
+    "wrong": ["O laço deveria começar em 2", "Não dá para somar elementos de vetor"]
+  },
+  {
+    "id": "vet-0020",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..5] guarda 3, 6, 9, 12, 15. O que este algoritmo mostra?",
+    "code": "para i de 1 ate 5 faca\n  se v[i] mod 2 = 0 entao\n    escreva(v[i], \" \")\n  fimse\nfimpara",
+    "correct": "6 12",
+    "proximal": "3 9 15",
+    "wrong": ["2 4", "6 9 12"]
+  },
+  {
+    "id": "vet-0021",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..3] guarda 5, 1, 8. O que este algoritmo mostra?",
+    "code": "aux <- v[1]\nv[1] <- v[3]\nv[3] <- aux\nescreva(v[1], v[2], v[3])",
+    "correct": "815",
+    "proximal": "518",
+    "wrong": ["885", "158"]
+  },
+  {
+    "id": "vet-0022",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..5] guarda 4, 4, 4, 4, 4. O que este algoritmo mostra?",
+    "code": "para i de 2 ate 5 faca\n  v[i] <- v[i - 1] + v[i]\nfimpara\nescreva(v[5])",
+    "correct": "20",
+    "proximal": "8",
+    "wrong": ["4", "16"]
+  },
+  {
+    "id": "vet-0023",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "Para mostrar só os elementos nas posições PARES de v[1..10], qual laço usar?",
+    "correct": "para i de 2 ate 10 passo 2 faca",
+    "proximal": "para i de 1 ate 10 passo 2 faca",
+    "wrong": ["para i de 1 ate 10 faca", "para i de 10 ate 2 faca"]
+  },
+  {
+    "id": "vet-0024",
+    "subject": "vetores",
+    "difficulty": "normal",
+    "statement": "O vetor v[1..4] guarda 7, 3, 9, 3. O que este algoritmo mostra?",
+    "code": "p <- 0\npara i de 1 ate 4 faca\n  se v[i] = 3 entao\n    p <- i\n  fimse\nfimpara\nescreva(p)",
+    "correct": "4",
+    "proximal": "2",
+    "wrong": ["3", "0"]
+  },
+  {
+    "id": "vet-0025",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..5] guarda 1, 2, 3, 4, 5. Depois do laço, o que é mostrado?",
+    "code": "para i de 1 ate 2 faca\n  aux <- v[i]\n  v[i] <- v[6 - i]\n  v[6 - i] <- aux\nfimpara\nescreva(v[1], v[2], v[3], v[4], v[5])",
+    "correct": "54321",
+    "proximal": "12345",
+    "wrong": ["52341", "54345"]
+  },
+  {
+    "id": "vet-0026",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "Com m: vetor[1..2, 1..3] de inteiro, o que este algoritmo mostra?",
+    "code": "para i de 1 ate 2 faca\n  para j de 1 ate 3 faca\n    m[i, j] <- i * j\n  fimpara\nfimpara\nescreva(m[2, 3])",
+    "correct": "6",
+    "proximal": "5",
+    "wrong": ["3", "23"]
+  },
+  {
+    "id": "vet-0027",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "Quantos elementos tem a matriz m: vetor[1..3, 1..4] de inteiro?",
+    "correct": "12",
+    "proximal": "7",
+    "wrong": ["4", "34"]
+  },
+  {
+    "id": "vet-0028",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..5] guarda 3, 1, 4, 1, 5. O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 4 faca\n  se v[i] > v[i + 1] entao\n    c <- c + 1\n  fimse\nfimpara\nescreva(c)",
+    "correct": "2",
+    "proximal": "3",
+    "wrong": ["1", "5"]
+  },
+  {
+    "id": "vet-0029",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..4] guarda 1, 2, 3, 4. O que este algoritmo mostra?",
+    "code": "aux <- v[1]\npara i de 1 ate 3 faca\n  v[i] <- v[i + 1]\nfimpara\nv[4] <- aux\nescreva(v[1], v[2], v[3], v[4])",
+    "correct": "2341",
+    "proximal": "4123",
+    "wrong": ["2344", "1234"]
+  },
+  {
+    "id": "vet-0030",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "Este trecho deveria deslocar v[1..4] uma posição para a DIREITA. O que ele faz com 1, 2, 3, 4?",
+    "code": "para i de 2 ate 4 faca\n  v[i] <- v[i - 1]\nfimpara\nescreva(v[1], v[2], v[3], v[4])",
+    "correct": "1111",
+    "proximal": "1123",
+    "wrong": ["4123", "2341"]
+  },
+  {
+    "id": "vet-0031",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "Com m: vetor[1..3, 1..3] de inteiro guardando os números de 1 a 9 linha por linha, o que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 3 faca\n  s <- s + m[i, i]\nfimpara\nescreva(s)",
+    "correct": "15",
+    "proximal": "6",
+    "wrong": ["45", "12"]
+  },
+  {
+    "id": "vet-0032",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..6] guarda 5, 3, 5, 2, 3, 5. O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 6 faca\n  rep <- FALSO\n  para j de 1 ate i - 1 faca\n    se v[j] = v[i] entao\n      rep <- VERDADEIRO\n    fimse\n  fimpara\n  se NAO rep entao\n    c <- c + 1\n  fimse\nfimpara\nescreva(c)",
+    "correct": "3",
+    "proximal": "6",
+    "wrong": ["5", "2"]
+  },
+  {
+    "id": "vet-0033",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "Os vetores a[1..3] = 1, 2, 3 e b[1..3] = 4, 5, 6. O que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 3 faca\n  s <- s + a[i] * b[i]\nfimpara\nescreva(s)",
+    "correct": "32",
+    "proximal": "21",
+    "wrong": ["90", "6"]
+  },
+  {
+    "id": "vet-0034",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..5] guarda 8, 3, 6, 1, 9. O que este algoritmo mostra?",
+    "code": "p <- 1\npara i de 2 ate 5 faca\n  se v[i] < v[p] entao\n    p <- i\n  fimse\nfimpara\nescreva(p)",
+    "correct": "4",
+    "proximal": "1",
+    "wrong": ["2", "9"]
+  },
+  {
+    "id": "vet-0035",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "Por que, em muitas linguagens, o primeiro índice de um vetor é 0 e não 1?",
+    "correct": "O índice indica quantas posições andar a partir do início do vetor",
+    "proximal": "Porque o zero é o menor número inteiro",
+    "wrong": ["Para economizar uma posição de memória", "Porque vetores sempre começam vazios"]
+  },
+  {
+    "id": "vet-0036",
+    "subject": "vetores",
+    "difficulty": "hard",
+    "statement": "O vetor v[1..5] guarda 2, 4, 6, 8, 10. O que este algoritmo mostra?",
+    "code": "i <- 1\nenquanto (i <= 5) E (v[i] < 7) faca\n  i <- i + 1\nfimenquanto\nescreva(i)",
+    "correct": "4",
+    "proximal": "3",
+    "wrong": ["6", "8"]
+  }
+]

@@ -163,7 +163,7 @@ ao completar a rodada:
 
 | Evento | Payload | Quando |
 | --- | --- | --- |
-| `questionPrompt` | `{ questionId, subject, statement, options: string[] }` | Aterrissou em casa-pergunta (via dado ou avanço de acerto). **Só ao jogador da vez.** Sem qualquer pista da correta. |
+| `questionPrompt` | `{ questionId, subject, statement, code?: string, options: string[] }` | Aterrissou em casa-pergunta (via dado ou avanço de acerto). **Só ao jogador da vez.** Sem qualquer pista da correta. `code` (pseudocódigo Portugol, `\n` como quebra, ≤ 15 linhas × 44 chars) só vem quando a pergunta tem — senão a chave é omitida. Mudança aditiva: clients antigos ignoram. |
 | `answerResult` (autor) | `{ playerId, correct, errorType, movement, fromSquare, toSquare, correctIndex }` | Após `submitAnswer`, **só ao autor**. `correctIndex` é o índice da correta em `options` (revelação pós-submissão). |
 | `answerResult` (sala) | `{ playerId, correct, errorType, movement, fromSquare, toSquare }` | Mesmo evento aos demais, **sem `correctIndex`**. |
 

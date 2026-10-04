@@ -15,6 +15,11 @@ const VALID_DIFFICULTIES: readonly QuestionDifficulty[] = [
   'hard',
 ];
 
+// Limites do campo opcional `code` — cabe no modal de pergunta em celular de
+// 375 px sem quebrar a indentação do pseudocódigo.
+export const CODE_MAX_LINES = 15;
+export const CODE_MAX_LINE_LENGTH = 44;
+
 @Injectable()
 export class QuestionBankService implements OnModuleInit {
   // Mapa imutável após o boot: Subject → lista congelada de perguntas.
@@ -100,6 +105,36 @@ export class QuestionBankService implements OnModuleInit {
     return process.env.QUESTIONS_DIR ?? path.join(process.cwd(), 'questions');
   }
 
+  // Valida o campo opcional `code` e devolve-o normalizado (`\r\n` → `\n`), ou
+  // undefined se ausente. Lança Error descritivo em qualquer violação.
+  private validateCode(raw: unknown, prefix: string): string | undefined {
+    if (raw === undefined) return undefined;
+    if (typeof raw !== 'string' || raw.trim() === '') {
+      throw new Error(
+        `${prefix}: campo "code", quando presente, deve ser uma string não-vazia.`,
+      );
+    }
+    const code = raw.replace(/\r\n/g, '\n');
+    if (code.includes('\t')) {
+      throw new Error(
+        `${prefix}: campo "code" não pode conter tabulação (indente com espaços).`,
+      );
+    }
+    const lines = code.split('\n');
+    if (lines.length > CODE_MAX_LINES) {
+      throw new Error(
+        `${prefix}: campo "code" tem ${lines.length} linhas (máximo ${CODE_MAX_LINES} linhas).`,
+      );
+    }
+    const longLine = lines.findIndex((l) => l.length > CODE_MAX_LINE_LENGTH);
+    if (longLine !== -1) {
+      throw new Error(
+        `${prefix}: campo "code", linha ${longLine + 1}, passa de ${CODE_MAX_LINE_LENGTH} caracteres.`,
+      );
+    }
+    return code;
+  }
+
   // Valida o array de perguntas de um arquivo e retorna a lista tipada.
   // Lança Error descritivo em qualquer violação de schema.
   private validateFile(
@@ -174,11 +209,27 @@ export class QuestionBankService implements OnModuleInit {
         }
       }
 
+      // As 4 alternativas devem ser distintas (comparação após trim): opção
+      // repetida tornaria a pergunta ambígua ou a classificação do erro errada.
+      const options = [
+        obj['correct'],
+        obj['proximal'],
+        ...(obj['wrong'] as string[]),
+      ].map((o) => (o as string).trim());
+      if (new Set(options).size !== options.length) {
+        throw new Error(
+          `${prefix}: as 4 alternativas (correct, proximal, wrong) devem ser distintas.`,
+        );
+      }
+
+      const code = this.validateCode(obj['code'], prefix);
+
       return {
         id: obj['id'] as string,
         subject: obj['subject'] as Subject,
         difficulty: obj['difficulty'] as QuestionDifficulty,
         statement: obj['statement'] as string,
+        ...(code !== undefined && { code }),
         correct: obj['correct'] as string,
         proximal: obj['proximal'] as string,
         wrong: obj['wrong'] as [string, string],

@@ -118,12 +118,20 @@ describe('Fluxo de pergunta + segurança (e2e)', () => {
 
     // SEGURANÇA (RF-16): o payload tem questionId/subject/statement/options e
     // NUNCA expõe qual alternativa é a correta.
-    expect(Object.keys(prompt).sort()).toEqual([
-      'options',
-      'questionId',
-      'statement',
-      'subject',
-    ]);
+    // Chaves obrigatórias + `code` opcional (pseudocódigo público). Qualquer
+    // outra chave é vazamento potencial e reprova o teste.
+    const keys = Object.keys(prompt);
+    expect(keys).toEqual(
+      expect.arrayContaining(['options', 'questionId', 'statement', 'subject']),
+    );
+    expect(
+      keys.filter(
+        (k) =>
+          !['code', 'options', 'questionId', 'statement', 'subject'].includes(
+            k,
+          ),
+      ),
+    ).toEqual([]);
     expect(prompt.options).toHaveLength(4);
     expect(typeof prompt.subject).toBe('string');
     const serialized = JSON.stringify(prompt);
