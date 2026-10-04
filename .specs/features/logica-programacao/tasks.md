@@ -134,7 +134,7 @@ Depends on: T1, T3. Requirement: PROG-02, PROG-03 (+PROG-04/05 via boot).
 
 ### Fase 4 — FRONT núcleo
 
-**T14 — Tipos + mapeamento do socket** · FRONT · PROG-07, PROG-10 (parcial)
+**T14 ✅ — Tipos + mapeamento do socket** · FRONT · PROG-07, PROG-10 (parcial)
 - What: `Question.code?`, `QuestionPromptEvent.code?`, `RawQuestionPrompt.code?`; `BACKEND_SUBJECTS` = 8 slugs novos; `SocketGameClient` repassa `code`.
 - Where: `src/game/types.ts`, `src/game/client/SocketGameClient.ts`
 - Depends on: — (contrato do design)
@@ -142,7 +142,7 @@ Depends on: T1, T3. Requirement: PROG-02, PROG-03 (+PROG-04/05 via boot).
 - Done when: quick gate FRONT passa.
 - Commit: `feat(client): recebe code do questionPrompt e novas categorias`
 
-**T15 [P] — `SUBJECT_META` das 8 categorias** · FRONT · PROG-10
+**T15 ✅ [P] — `SUBJECT_META` das 8 categorias** · FRONT · PROG-10
 - What: entradas da tabela do design; remove antigas e legadas.
 - Where: `src/features/board/theme.ts`
 - Depends on: T14
@@ -150,7 +150,7 @@ Depends on: T1, T3. Requirement: PROG-02, PROG-03 (+PROG-04/05 via boot).
 - Done when: quick gate FRONT passa.
 - Commit: `feat(board): nomes, icones e cores das categorias de logica`
 
-**T16 — `CodeBlock` no `QuestionModal`** · FRONT · PROG-09
+**T16 ✅ — `CodeBlock` no `QuestionModal`** · FRONT · PROG-09
 - What: bloco `<pre><code>` monoespaçado com rolagem horizontal entre enunciado e alternativas.
 - Where: `src/features/play/QuestionModal.tsx`
 - Depends on: T14
@@ -160,23 +160,23 @@ Depends on: T1, T3. Requirement: PROG-02, PROG-03 (+PROG-04/05 via boot).
 
 ### Fase 5 — FRONT conteúdo e textos
 
-**T17 — Banco da demo** · FRONT · PROG-11
+**T17 ✅ — Banco da demo** · FRONT · PROG-11
 - What: 8 JSON (≥ 3 cada, copiados do back com `code`); remove os 10 legados; `index.ts`; `engine/board.ts` `SUBJECTS`; `MockGameClient` envia `code`; atualizar `board.test.ts`, `questionPool.test.ts`, `PlayScreen.test.tsx`.
 - Depends on: T14, T15, T4–T11
 - Tests: unit — demo serve só as 8 categorias e propaga `code`. Gate: quick FRONT.
 - Commit: `feat(demo): banco de demonstracao com logica de programacao`
 
-**T18 — Subtítulo da Home** · FRONT · PROG-12
+**T18 ✅ — Subtítulo da Home** · FRONT · PROG-12
 - What: "Treine lógica de programação — pense, resolva e avance!"
 - Depends on: T17 · Tests: none · Gate: Build FRONT
 - Commit: `feat(lobby): subtitulo para o novo publico`
 
-**T19 — Docs do front** · FRONT · PROG-13
+**T19 ✅ — Docs do front** · FRONT · PROG-13
 - What: `README.md` (público, conteúdo), `CONTRACT.md` (+ `Contratos/CONTRACT.md`) com `code?`.
 - Depends on: T18 · Tests: none · Gate: Build FRONT
 - Commit: `docs: logica de programacao e campo code`
 
-**T20 (P3, opcional) — Cenário temático** · FRONT · PROG-14
+**T20 ✅ (P3) — Cenário temático** · FRONT · PROG-14
 - What: props de `BoardScenery` → `{ }`, `</>`, chip, terminal.
 - Depends on: T19 · Tests: none · Gate: Build FRONT
 - Commit: `feat(board): cenario com tema de programacao`

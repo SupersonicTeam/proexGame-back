@@ -116,7 +116,7 @@ O conteúdo é a parte grossa (≥ 288 perguntas); o código é ~6 pontos de con
 | `condicionais` | Condicionais | Se | 🔀 |
 | `operadores-logicos` | Operadores Lógicos | E/OU | 🧩 |
 | `lacos-de-repeticao` | Laços de Repetição | Laço | 🔁 |
-| `vetores` | Vetores | Vetor | 📚 |
+| `vetores` | Vetores | Vetor | 🗃️ (📚 é o ícone de fallback) |
 | `funcoes` | Funções | Func | 🧱 |
 | `busca-e-ordenacao` | Busca e Ordenação | Busca | 🔍 |
 
