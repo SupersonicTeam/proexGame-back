@@ -1,0 +1,335 @@
+[
+  {
+    "id": "oplog-0001",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Qual é o resultado de VERDADEIRO E FALSO?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["Depende do computador", "Dá erro"]
+  },
+  {
+    "id": "oplog-0002",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Qual é o resultado de VERDADEIRO OU FALSO?",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["Depende do computador", "Dá erro"]
+  },
+  {
+    "id": "oplog-0003",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Qual é o resultado de NAO VERDADEIRO?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["NAO", "Dá erro"]
+  },
+  {
+    "id": "oplog-0004",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "O operador E só resulta em VERDADEIRO quando:",
+    "correct": "As duas condições são verdadeiras",
+    "proximal": "Pelo menos uma condição é verdadeira",
+    "wrong": ["As duas condições são falsas", "A primeira condição é falsa"]
+  },
+  {
+    "id": "oplog-0005",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "O operador OU só resulta em FALSO quando:",
+    "correct": "As duas condições são falsas",
+    "proximal": "As duas condições são verdadeiras",
+    "wrong": [
+      "Uma condição é verdadeira e a outra falsa",
+      "A primeira condição é verdadeira"
+    ]
+  },
+  {
+    "id": "oplog-0006",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Qual é o resultado de 5 > 3?",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["2", "8"]
+  },
+  {
+    "id": "oplog-0007",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Qual é o resultado de 4 <> 4?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["0", "8"]
+  },
+  {
+    "id": "oplog-0008",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Para ir no brinquedo é preciso (altura >= 1.40) E (idade >= 10). Ana tem 1.50 m e 9 anos. Ela pode ir?",
+    "correct": "Não, porque a condição da idade é falsa",
+    "proximal": "Sim, porque a altura é suficiente",
+    "wrong": ["Sim, porque 9 está perto de 10", "Não, porque 1.50 é maior que 1.40"]
+  },
+  {
+    "id": "oplog-0009",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Há desconto para quem é estudante OU idoso. Pedro é estudante e não é idoso. Ele ganha o desconto?",
+    "correct": "Sim, basta uma das condições ser verdadeira",
+    "proximal": "Não, porque ele não é idoso",
+    "wrong": ["Só se pagar em dinheiro", "Não, porque OU exige as duas condições"]
+  },
+  {
+    "id": "oplog-0010",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 7\nescreva((x > 5) E (x < 10))",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["7", "x"]
+  },
+  {
+    "id": "oplog-0011",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Qual operador inverte um valor lógico (troca VERDADEIRO por FALSO e vice-versa)?",
+    "correct": "NAO",
+    "proximal": "OU",
+    "wrong": ["E", "mod"]
+  },
+  {
+    "id": "oplog-0012",
+    "subject": "operadores-logicos",
+    "difficulty": "easy",
+    "statement": "Quantas linhas tem a tabela-verdade de uma expressão com duas variáveis lógicas, A e B?",
+    "correct": "4",
+    "proximal": "2",
+    "wrong": ["8", "3"]
+  },
+  {
+    "id": "oplog-0013",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 3\nb <- 8\nescreva((a > 5) OU (b > 5))",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["8", "3"]
+  },
+  {
+    "id": "oplog-0014",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Qual é a negação de x > 5?",
+    "correct": "x <= 5",
+    "proximal": "x < 5",
+    "wrong": ["x >= 5", "x > -5"]
+  },
+  {
+    "id": "oplog-0015",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "A expressão NAO (A E B) é equivalente a:",
+    "correct": "(NAO A) OU (NAO B)",
+    "proximal": "(NAO A) E (NAO B)",
+    "wrong": ["A OU B", "A E (NAO B)"]
+  },
+  {
+    "id": "oplog-0016",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Qual condição testa se n está entre 1 e 10, incluindo o 1 e o 10?",
+    "correct": "(n >= 1) E (n <= 10)",
+    "proximal": "(n > 1) E (n < 10)",
+    "wrong": ["(n >= 1) OU (n <= 10)", "(n = 1) E (n = 10)"]
+  },
+  {
+    "id": "oplog-0017",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Qual condição testa se n está FORA do intervalo de 1 a 10?",
+    "correct": "(n < 1) OU (n > 10)",
+    "proximal": "(n < 1) E (n > 10)",
+    "wrong": ["(n >= 1) E (n <= 10)", "n <> 5"]
+  },
+  {
+    "id": "oplog-0018",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "chuva <- VERDADEIRO\nfrio <- FALSO\nescreva(chuva E NAO frio)",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["chuva", "Dá erro"]
+  },
+  {
+    "id": "oplog-0019",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Qual é o valor de (VERDADEIRO OU FALSO) E FALSO?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["Depende do computador", "Dá erro"]
+  },
+  {
+    "id": "oplog-0020",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo de login mostra?",
+    "code": "user <- \"ana\"\nsenha <- 99\nok <- (user = \"ana\") E (senha = 123)\nescreva(ok)",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["ana", "123"]
+  },
+  {
+    "id": "oplog-0021",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Uma loja dá frete grátis se a compra for de 200 ou mais OU se o cliente for VIP. Qual expressão representa isso?",
+    "correct": "(compra >= 200) OU vip",
+    "proximal": "(compra >= 200) E vip",
+    "wrong": ["(compra < 200) OU vip", "NAO vip"]
+  },
+  {
+    "id": "oplog-0022",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Qual é o resultado de NAO (3 > 2)?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["1", "Dá erro"]
+  },
+  {
+    "id": "oplog-0023",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Das 4 combinações possíveis de A e B, em quantas a expressão A OU B é verdadeira?",
+    "correct": "3",
+    "proximal": "1",
+    "wrong": ["4", "2"]
+  },
+  {
+    "id": "oplog-0024",
+    "subject": "operadores-logicos",
+    "difficulty": "normal",
+    "statement": "Qual é o resultado de (5 = 5) E (2 > 7)?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["5", "7"]
+  },
+  {
+    "id": "oplog-0025",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "A expressão NAO (A OU B) é equivalente a:",
+    "correct": "(NAO A) E (NAO B)",
+    "proximal": "(NAO A) OU (NAO B)",
+    "wrong": ["A E B", "(NAO A) OU B"]
+  },
+  {
+    "id": "oplog-0026",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "Qual é a negação de (idade >= 18) E temIngresso?",
+    "correct": "(idade < 18) OU (NAO temIngresso)",
+    "proximal": "(idade < 18) E (NAO temIngresso)",
+    "wrong": ["(idade <= 18) OU temIngresso", "(idade >= 18) OU (NAO temIngresso)"]
+  },
+  {
+    "id": "oplog-0027",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "Sem parênteses, o E tem prioridade sobre o OU. Qual é o valor de VERDADEIRO OU FALSO E FALSO?",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["Dá erro", "Depende da ordem de execução"]
+  },
+  {
+    "id": "oplog-0028",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "Qual expressão é verdadeira quando EXATAMENTE uma entre A e B é verdadeira?",
+    "correct": "(A OU B) E NAO (A E B)",
+    "proximal": "A OU B",
+    "wrong": ["A E B", "(NAO A) E (NAO B)"]
+  },
+  {
+    "id": "oplog-0029",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "A expressão (x > 5) E (x > 10) é equivalente a:",
+    "correct": "x > 10",
+    "proximal": "x > 5",
+    "wrong": ["x > 15", "(x > 5) OU (x > 10)"]
+  },
+  {
+    "id": "oplog-0030",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "A expressão (x > 5) OU (x > 10) é equivalente a:",
+    "correct": "x > 5",
+    "proximal": "x > 10",
+    "wrong": ["x > 15", "x < 5"]
+  },
+  {
+    "id": "oplog-0031",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "Em muitas linguagens, em (n <> 0) E (10 / n > 1) a segunda parte nem é avaliada quando n = 0. Por que isso é útil?",
+    "correct": "Evita uma divisão por zero",
+    "proximal": "Deixa o resultado sempre verdadeiro",
+    "wrong": ["Faz o programa repetir a conta", "Transforma n em um número real"]
+  },
+  {
+    "id": "oplog-0032",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- VERDADEIRO\nb <- FALSO\nc <- VERDADEIRO\nescreva(NAO (a E b) E (b OU c))",
+    "correct": "VERDADEIRO",
+    "proximal": "FALSO",
+    "wrong": ["Dá erro", "c"]
+  },
+  {
+    "id": "oplog-0033",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "Qual expressão é SEMPRE verdadeira, não importa o valor de A?",
+    "correct": "A OU (NAO A)",
+    "proximal": "A E (NAO A)",
+    "wrong": ["A E A", "NAO A"]
+  },
+  {
+    "id": "oplog-0034",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "No Brasil, o voto é opcional para quem tem 16 ou 17 anos, ou 70 anos ou mais. Qual expressão representa isso?",
+    "correct": "((idade >= 16) E (idade < 18)) OU (idade >= 70)",
+    "proximal": "(idade >= 16) E (idade < 18) E (idade >= 70)",
+    "wrong": ["(idade >= 16) OU (idade < 18)", "(idade < 16) OU (idade > 70)"]
+  },
+  {
+    "id": "oplog-0035",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "Quantas linhas tem a tabela-verdade de uma expressão com 3 variáveis lógicas?",
+    "correct": "8",
+    "proximal": "6",
+    "wrong": ["3", "9"]
+  },
+  {
+    "id": "oplog-0036",
+    "subject": "operadores-logicos",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 12\nr <- (x mod 2 = 0) E (x mod 3 = 0)\nr <- r E NAO (x > 10)\nescreva(r)",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["12", "Dá erro"]
+  }
+]
