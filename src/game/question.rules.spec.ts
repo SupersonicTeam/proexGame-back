@@ -123,3 +123,74 @@ describe('toQuestionPrompt — projeção SEGURA (RF-16)', () => {
     expect(payload).not.toHaveProperty('correct');
   });
 });
+
+// Campo opcional `code` (feature logica-programacao — PROG-07/08).
+describe('code — do banco até o questionPrompt', () => {
+  const CODE = 's <- 0\npara i de 1 ate 3 faca\n  s <- s + i\nfimpara';
+  const WITH_CODE: Question = { ...QUESTION, code: CODE };
+
+  it('PendingQuestion guarda o code idêntico ao do banco', () => {
+    const pending = buildPendingQuestion(
+      WITH_CODE,
+      new FakeRandomSource([0, 1, 0]),
+    );
+    expect(pending.code).toBe(CODE);
+  });
+
+  it('PendingQuestion sem code não ganha a chave', () => {
+    const pending = buildPendingQuestion(
+      QUESTION,
+      new FakeRandomSource([0, 1, 0]),
+    );
+    expect('code' in pending).toBe(false);
+  });
+
+  it('code sobrevive à serialização JSON do Redis', () => {
+    const pending = buildPendingQuestion(
+      WITH_CODE,
+      new FakeRandomSource([0, 1, 0]),
+    );
+    const restored = JSON.parse(JSON.stringify(pending)) as typeof pending;
+    expect(toQuestionPrompt(restored).code).toBe(CODE);
+  });
+
+  it('não altera o embaralhamento (mesmo rng → mesmos índices)', () => {
+    const a = buildPendingQuestion(QUESTION, new FakeRandomSource([2, 0, 1]));
+    const b = buildPendingQuestion(WITH_CODE, new FakeRandomSource([2, 0, 1]));
+    expect(b.options).toEqual(a.options);
+    expect(b.correctIndex).toBe(a.correctIndex);
+    expect(b.proximalIndex).toBe(a.proximalIndex);
+  });
+
+  it('prompt inclui code com o texto idêntico quando a pergunta tem', () => {
+    const view = toQuestionPrompt(
+      buildPendingQuestion(WITH_CODE, new FakeRandomSource([0, 1, 0])),
+    );
+    expect(view.code).toBe(CODE);
+    expect(Object.keys(view).sort()).toEqual([
+      'code',
+      'options',
+      'questionId',
+      'statement',
+      'subject',
+    ]);
+  });
+
+  it('prompt omite a chave code quando a pergunta não tem', () => {
+    const view = toQuestionPrompt(
+      buildPendingQuestion(QUESTION, new FakeRandomSource([0, 1, 0])),
+    );
+    expect('code' in view).toBe(false);
+  });
+
+  it('prompt com code continua sem revelar correta/proximal (RF-16)', () => {
+    const payload = toQuestionPrompt(
+      buildPendingQuestion(WITH_CODE, new FakeRandomSource([0, 1, 0])),
+    ) as unknown as Record<string, unknown>;
+    const serialized = JSON.stringify(payload);
+    expect(serialized).not.toContain('correctIndex');
+    expect(serialized).not.toContain('proximalIndex');
+    expect(payload).not.toHaveProperty('correct');
+    expect(payload).not.toHaveProperty('proximal');
+  });
+});

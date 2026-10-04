@@ -40,6 +40,7 @@ export function buildPendingQuestion(
     questionId: q.id,
     subject: q.subject,
     statement: q.statement,
+    ...(q.code !== undefined && { code: q.code }),
     options: labeled.map((l) => l.text),
     correctIndex: labeled.findIndex((l) => l.role === 'correct'),
     proximalIndex: labeled.findIndex((l) => l.role === 'proximal'),
@@ -63,12 +64,13 @@ export interface QuestionPromptView {
   questionId: string;
   subject: string;
   statement: string;
+  code?: string;
   options: string[];
 }
 
 /**
  * Projeta a pergunta pendente para o client. Por construção, expõe apenas
- * questionId, subject, statement e options embaralhadas — nunca os índices da
+ * questionId, subject, statement, code (se houver) e options embaralhadas — nunca os índices da
  * correta/proximal (RF-16). Toda emissão de questionPrompt DEVE passar por aqui.
  */
 export function toQuestionPrompt(pending: PendingQuestion): QuestionPromptView {
@@ -76,6 +78,7 @@ export function toQuestionPrompt(pending: PendingQuestion): QuestionPromptView {
     questionId: pending.questionId,
     subject: pending.subject,
     statement: pending.statement,
+    ...(pending.code !== undefined && { code: pending.code }),
     options: pending.options,
   };
 }

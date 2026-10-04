@@ -35,6 +35,7 @@ export interface PendingQuestion {
   questionId: string;
   subject: Subject;
   statement: string; // público (vai no prompt) — não é segredo
+  code?: string; // pseudocódigo público, quando a pergunta tem
   options: string[]; // 4 alternativas embaralhadas
   correctIndex: number; // segredo do servidor
   proximalIndex: number; // segredo do servidor
