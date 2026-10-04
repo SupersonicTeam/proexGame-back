@@ -1,0 +1,358 @@
+[
+  {
+    "id": "cond-0001",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 8\nse x > 5 entao\n  escreva(\"grande\")\nfimse",
+    "correct": "grande",
+    "proximal": "Nada é mostrado",
+    "wrong": ["8", "x > 5"]
+  },
+  {
+    "id": "cond-0002",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 3\nse x > 5 entao\n  escreva(\"grande\")\nfimse",
+    "correct": "Nada é mostrado",
+    "proximal": "grande",
+    "wrong": ["3", "pequeno"]
+  },
+  {
+    "id": "cond-0003",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Para que serve o comando se ... entao?",
+    "correct": "Executar um trecho só quando uma condição é verdadeira",
+    "proximal": "Repetir um trecho várias vezes",
+    "wrong": ["Guardar um valor na memória", "Encerrar o programa"]
+  },
+  {
+    "id": "cond-0004",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "nota <- 5\nse nota >= 6 entao\n  escreva(\"aprovado\")\nsenao\n  escreva(\"reprovado\")\nfimse",
+    "correct": "reprovado",
+    "proximal": "aprovado",
+    "wrong": ["aprovado reprovado", "Nada é mostrado"]
+  },
+  {
+    "id": "cond-0005",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Em Portugol, qual palavra fecha um bloco se?",
+    "correct": "fimse",
+    "proximal": "senao",
+    "wrong": ["fimpara", "fimalgoritmo"]
+  },
+  {
+    "id": "cond-0006",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Quando o bloco senao é executado?",
+    "correct": "Quando a condição do se é falsa",
+    "proximal": "Sempre, logo depois do bloco entao",
+    "wrong": ["Quando a condição do se é verdadeira", "Nunca"]
+  },
+  {
+    "id": "cond-0007",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Qual condição testa se idade é MAIOR OU IGUAL a 18?",
+    "correct": "idade >= 18",
+    "proximal": "idade > 18",
+    "wrong": ["idade <= 18", "idade = 18"]
+  },
+  {
+    "id": "cond-0008",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "senha <- 1234\nse senha = 1234 entao\n  escreva(\"ok\")\nsenao\n  escreva(\"erro\")\nfimse",
+    "correct": "ok",
+    "proximal": "erro",
+    "wrong": ["1234", "ok erro"]
+  },
+  {
+    "id": "cond-0009",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Em Portugol, qual símbolo significa \"diferente de\"?",
+    "correct": "<>",
+    "proximal": "!=",
+    "wrong": ["=", "<-"]
+  },
+  {
+    "id": "cond-0010",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Um app só deixa entrar quem tem 13 anos ou mais. De que estrutura o algoritmo precisa?",
+    "correct": "Uma condição: se idade >= 13 entao ...",
+    "proximal": "Um laço que repete 13 vezes",
+    "wrong": ["Uma variável do tipo real", "Nenhuma: basta escrever na tela"]
+  },
+  {
+    "id": "cond-0011",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "t <- 25\nse t > 25 entao\n  escreva(\"calor\")\nsenao\n  escreva(\"frio\")\nfimse",
+    "correct": "frio",
+    "proximal": "calor",
+    "wrong": ["25", "calor frio"]
+  },
+  {
+    "id": "cond-0012",
+    "subject": "condicionais",
+    "difficulty": "easy",
+    "statement": "Qual é o resultado da condição 7 < 3?",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["4", "7"]
+  },
+  {
+    "id": "cond-0013",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 15\nse n < 10 entao\n  escreva(\"A\")\nsenao\n  se n < 20 entao\n    escreva(\"B\")\n  senao\n    escreva(\"C\")\n  fimse\nfimse",
+    "correct": "B",
+    "proximal": "C",
+    "wrong": ["A", "AB"]
+  },
+  {
+    "id": "cond-0014",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "nota <- 6\nse nota >= 9 entao\n  escreva(\"Ótimo\")\nsenao\n  se nota >= 6 entao\n    escreva(\"Bom\")\n  senao\n    escreva(\"Ruim\")\n  fimse\nfimse",
+    "correct": "Bom",
+    "proximal": "Ruim",
+    "wrong": ["Ótimo", "Bom Ruim"]
+  },
+  {
+    "id": "cond-0015",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 10\nse x > 5 entao\n  escreva(\"A\")\nfimse\nse x > 8 entao\n  escreva(\"B\")\nfimse",
+    "correct": "AB",
+    "proximal": "A",
+    "wrong": ["B", "Nada é mostrado"]
+  },
+  {
+    "id": "cond-0016",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 4\nse x < 5 entao\n  x <- x + 3\nfimse\nse x < 5 entao\n  x <- x + 10\nfimse\nescreva(x)",
+    "correct": "7",
+    "proximal": "17",
+    "wrong": ["4", "14"]
+  },
+  {
+    "id": "cond-0017",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "d <- 3\nescolha d\n  caso 1\n    escreva(\"dom\")\n  caso 2\n    escreva(\"seg\")\n  caso 3\n    escreva(\"ter\")\n  outrocaso\n    escreva(\"?\")\nfimescolha",
+    "correct": "ter",
+    "proximal": "?",
+    "wrong": ["dom", "seg"]
+  },
+  {
+    "id": "cond-0018",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 9\nse n mod 2 = 0 entao\n  escreva(\"par\")\nsenao\n  escreva(\"ímpar\")\nfimse",
+    "correct": "ímpar",
+    "proximal": "par",
+    "wrong": ["1", "9"]
+  },
+  {
+    "id": "cond-0019",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "Este trecho deveria mostrar \"positivo\" apenas para n maior que zero. Qual é o erro?",
+    "code": "se n >= 0 entao\n  escreva(\"positivo\")\nfimse",
+    "correct": "Zero é tratado como positivo; a condição deveria ser n > 0",
+    "proximal": "Falta o bloco senao",
+    "wrong": [
+      "O fimse deveria ser fimpara",
+      "escreva não funciona dentro de um se"
+    ]
+  },
+  {
+    "id": "cond-0020",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 12\nb <- 30\nse a > b entao\n  escreva(a)\nsenao\n  escreva(b)\nfimse",
+    "correct": "30",
+    "proximal": "12",
+    "wrong": ["42", "a > b"]
+  },
+  {
+    "id": "cond-0021",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "Qual ordem de testes classifica corretamente a idade em criança (< 12), adolescente (< 18) e adulto?",
+    "correct": "Testar idade < 12, depois idade < 18, senão adulto",
+    "proximal": "Testar idade < 18, depois idade < 12, senão adulto",
+    "wrong": ["Testar apenas idade < 18", "Testar idade = 12 e depois idade = 18"]
+  },
+  {
+    "id": "cond-0022",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "Compras acima de 100 ganham 20 de desconto. O que o algoritmo mostra?",
+    "code": "v <- 120\nse v > 100 entao\n  v <- v - 20\nfimse\nescreva(v)",
+    "correct": "100",
+    "proximal": "120",
+    "wrong": ["20", "80"]
+  },
+  {
+    "id": "cond-0023",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- -7\nse x < 0 entao\n  x <- -x\nfimse\nescreva(x)",
+    "correct": "7",
+    "proximal": "-7",
+    "wrong": ["0", "14"]
+  },
+  {
+    "id": "cond-0024",
+    "subject": "condicionais",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 5\nse x > 3 entao\n  escreva(\"A\")\nsenao\n  se x > 1 entao\n    escreva(\"B\")\n  fimse\nfimse",
+    "correct": "A",
+    "proximal": "AB",
+    "wrong": ["B", "Nada é mostrado"]
+  },
+  {
+    "id": "cond-0025",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O algoritmo testa se um ano é bissexto. O que ele mostra?",
+    "code": "a <- 1900\nse (a mod 4 = 0) E (a mod 100 <> 0) entao\n  escreva(\"bissexto\")\nsenao\n  se a mod 400 = 0 entao\n    escreva(\"bissexto\")\n  senao\n    escreva(\"comum\")\n  fimse\nfimse",
+    "correct": "comum",
+    "proximal": "bissexto",
+    "wrong": ["1900", "Nada é mostrado"]
+  },
+  {
+    "id": "cond-0026",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 5\nb <- 5\nc <- 8\nse (a = b) E (b = c) entao\n  escreva(\"equilátero\")\nsenao\n  se (a = b) OU (b = c) OU (a = c) entao\n    escreva(\"isósceles\")\n  senao\n    escreva(\"escaleno\")\n  fimse\nfimse",
+    "correct": "isósceles",
+    "proximal": "escaleno",
+    "wrong": ["equilátero", "Nada é mostrado"]
+  },
+  {
+    "id": "cond-0027",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "Qual trecho é equivalente a \"se x > 10 entao A senao B\"?",
+    "correct": "se x <= 10 entao B senao A",
+    "proximal": "se x < 10 entao B senao A",
+    "wrong": ["se x > 10 entao B senao A", "se x <= 10 entao A senao B"]
+  },
+  {
+    "id": "cond-0028",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "nota <- 9\nse nota >= 6 entao\n  r <- \"Bom\"\nfimse\nse nota >= 9 entao\n  r <- \"Ótimo\"\nfimse\nse nota < 6 entao\n  r <- \"Ruim\"\nfimse\nescreva(r)",
+    "correct": "Ótimo",
+    "proximal": "Bom",
+    "wrong": ["Ruim", "BomÓtimo"]
+  },
+  {
+    "id": "cond-0029",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 8\nb <- 3\nc <- 5\nse a < b entao\n  m <- a\nsenao\n  m <- b\nfimse\nse c < m entao\n  m <- c\nfimse\nescreva(m)",
+    "correct": "3",
+    "proximal": "5",
+    "wrong": ["8", "16"]
+  },
+  {
+    "id": "cond-0030",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "Por que este trecho NUNCA mostra \"Ótimo\"?",
+    "code": "se nota >= 6 entao\n  escreva(\"Bom\")\nsenao\n  se nota >= 9 entao\n    escreva(\"Ótimo\")\n  fimse\nfimse",
+    "correct": "Quem tem nota >= 9 já entra no primeiro se e nunca chega ao segundo",
+    "proximal": "Porque falta um senao no segundo se",
+    "wrong": [
+      "Porque nota não foi declarada como real",
+      "Porque escreva não aceita acentos"
+    ]
+  },
+  {
+    "id": "cond-0031",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo de frete mostra?",
+    "code": "peso <- 3\ndist <- 50\nfrete <- 10\nse peso > 2 entao\n  frete <- frete + 5\nfimse\nse dist > 100 entao\n  frete <- frete * 2\nfimse\nescreva(frete)",
+    "correct": "15",
+    "proximal": "30",
+    "wrong": ["10", "20"]
+  },
+  {
+    "id": "cond-0032",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "Com x = 0, o que este trecho mostra?",
+    "code": "se x > 0 entao\n  escreva(\"positivo\")\nsenao\n  se x < 0 entao\n    escreva(\"negativo\")\n  senao\n    escreva(\"zero\")\n  fimse\nfimse",
+    "correct": "zero",
+    "proximal": "negativo",
+    "wrong": ["positivo", "Nada é mostrado"]
+  },
+  {
+    "id": "cond-0033",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 15\nse n mod 3 = 0 entao\n  escreva(\"Fizz\")\nsenao\n  se n mod 15 = 0 entao\n    escreva(\"FizzBuzz\")\n  fimse\nfimse",
+    "correct": "Fizz",
+    "proximal": "FizzBuzz",
+    "wrong": ["15", "FizzFizzBuzz"]
+  },
+  {
+    "id": "cond-0034",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "Qual condição única substitui os dois se aninhados sem mudar o resultado?",
+    "code": "se x > 0 entao\n  se x < 10 entao\n    escreva(\"ok\")\n  fimse\nfimse",
+    "correct": "se (x > 0) E (x < 10) entao",
+    "proximal": "se (x > 0) OU (x < 10) entao",
+    "wrong": ["se x > 10 entao", "se (x < 0) E (x > 10) entao"]
+  },
+  {
+    "id": "cond-0035",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "Para classificar um valor em 4 faixas usando se/senao encadeados, quantos testes de condição são necessários, no mínimo?",
+    "correct": "3",
+    "proximal": "4",
+    "wrong": ["1", "8"]
+  },
+  {
+    "id": "cond-0036",
+    "subject": "condicionais",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "luz <- FALSO\nse NAO luz entao\n  luz <- VERDADEIRO\nfimse\nse luz entao\n  escreva(\"acesa\")\nsenao\n  escreva(\"apagada\")\nfimse",
+    "correct": "acesa",
+    "proximal": "apagada",
+    "wrong": ["FALSO", "Nada é mostrado"]
+  }
+]
