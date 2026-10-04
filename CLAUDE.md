@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Jogo de tabuleiro educativo multiplayer (até 4 jogadores, mobile + desktop), turnos alternados, competitivo. Evento único — ≤ 20 usuários simultâneos no pico. Prazo: 4 sprints (1 mês). Dev principal: Murilo Weiss.
 
+**Conteúdo (desde 2026-10):** lógica de programação para iniciantes (14+) — 8 categorias por conceito (`algoritmos`, `variaveis-e-tipos`, `condicionais`, `operadores-logicos`, `lacos-de-repeticao`, `vetores`, `funcoes`, `busca-e-ordenacao`), pseudocódigo Portugol/VisuAlg. As matérias escolares antigas estão em `questions/_arquivo/` (não carregadas). Spec: `.specs/features/logica-programacao/`.
+
 **Regra fundamental:** toda lógica autoritativa é no servidor. A alternativa correta NUNCA é enviada ao client antes da submissão (RF-16).
 
 ## Stack
@@ -39,11 +41,12 @@ docker run -d -p 6379:6379 redis:alpine
 
 **Question (JSON — em `/questions/<materia>.json`):**
 ```json
-{ "id": "mat-0001", "subject": "matematica", "difficulty": "easy|normal|hard",
-  "statement": "...", "correct": "...", "proximal": "...", "wrong": ["...", "..."] }
+{ "id": "laco-0001", "subject": "lacos-de-repeticao", "difficulty": "easy|normal|hard",
+  "statement": "...", "code": "...(opcional)", "correct": "...", "proximal": "...", "wrong": ["...", "..."] }
 ```
 `difficulty` é obrigatório (boot fail-fast). A partida só sorteia perguntas do
-nível da sessão (RF-NEW-04).
+nível da sessão (RF-NEW-04). `code` é opcional (≤ 15 linhas, ≤ 44 chars/linha,
+sem tabulação); as 4 alternativas devem ser distintas. Ver `questions/README.md`.
 
 **SessionState (Redis):**
 ```json
@@ -70,7 +73,7 @@ nível da sessão (RF-NEW-04).
 
 **client→server:** `createSession{name,difficulty}` · `joinSession{code,name}` · `startGame` · `rollForOrder` · `rollDice` · `submitAnswer{questionId,optionIndex}` · `leaveSession` · `reconnect{code,playerId}` · `setAppearance{color,emoji}` (S5 — cosmético: cor hex + 1 emoji; rebroadcast `lobbyState`/`gameState`)
 
-**server→client:** `sessionCreated{code,playerId}` · `playerJoined` · `lobbyState` · `gameStarted{board}` · `orderResult` · `turnChanged{playerId}` · `diceResult{value,fromSquare,toSquare}` · `questionPrompt{questionId,statement,options}` · `answerResult{correct,errorType,movement,toSquare}` · `turnSkipped{playerId,remaining}` · `gameOver{winner,ranking}` · `playerDisconnected` · `playerReconnected` · `sessionClosed` · `error`
+**server→client:** `sessionCreated{code,playerId}` · `playerJoined` · `lobbyState` · `gameStarted{board}` · `orderResult` · `turnChanged{playerId}` · `diceResult{value,fromSquare,toSquare}` · `questionPrompt{questionId,subject,statement,code?,options}` · `answerResult{correct,errorType,movement,toSquare}` · `turnSkipped{playerId,remaining}` · `gameOver{winner,ranking}` · `playerDisconnected` · `playerReconnected` · `sessionClosed` · `error`
 
 ## Regras de jogo críticas
 
@@ -124,7 +127,8 @@ nível da sessão (RF-NEW-04).
 - **Sprint 1:** Setup, Gateway + Redis, lobby, rolagem de ordem, movimento simples, chega-ou-passa.
 - **Sprint 2:** Reconexão (5 min grace), tabuleiro procedural 20–30, casas de presídio, banco de perguntas JSON, fluxo de pergunta.
 - **Sprint 3:** Tabela de dificuldade + tiers + nudge, tabuleiro SVG responsivo, telas de pergunta.
-- **Sprint 4:** Conteúdo (10 matérias), testes unitários e e2e, hardening (RF-16), deploy VPS.
+- **Sprint 4:** Conteúdo (matérias escolares), testes unitários e e2e, hardening (RF-16), deploy VPS.
+- **Lógica de programação (2026-10):** troca do conteúdo para 8 categorias de lógica de programação + campo `code` (pseudocódigo).
 
 ## Convenções
 

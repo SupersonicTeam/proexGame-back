@@ -15,6 +15,13 @@ Memória persistente: decisões, blockers, lições, todos.
 - **2026-06-03 — Movimento na S1 = valor do dado** (sem tiers/nudge/dificuldade). Avanço fica
   isolado em `computeAdvance` para a Sprint 3 injetar a regra completa sem refator estrutural.
 
+- **AD-001 — 2026-10-01 — Conteúdo do jogo = lógica de programação** (status: active). Público:
+  iniciantes 14+ que querem programar. 8 categorias por conceito (`algoritmos`, `variaveis-e-tipos`,
+  `condicionais`, `operadores-logicos`, `lacos-de-repeticao`, `vetores`, `funcoes`,
+  `busca-e-ordenacao`), pseudocódigo Portugol/VisuAlg ASCII no campo opcional `code` (≤ 15 linhas ×
+  44 chars). Matérias escolares arquivadas em `questions/_arquivo/`. Spec:
+  `.specs/features/logica-programacao/`.
+
 ## Versionamento / CI (2026-06-04)
 
 - **GitHub Actions** configurado em `.github/workflows/`:
@@ -241,3 +248,11 @@ perguntas JSON + fluxo de pergunta (RF-08/09). Pontos de extensão já preparado
 ## Preferências
 
 - Validações, updates de estado e handoffs de sessão rodam bem em modelos mais rápidos/baratos.
+
+## LÓGICA DE PROGRAMAÇÃO — EM ANDAMENTO (2026-10-04)
+
+Feature `.specs/features/logica-programacao/` (spec/context/design/tasks). Branch
+`feat/logica-programacao` (back e front, não publicadas). Back concluído (T1–T13): campo `code`
+validado no boot + propagado ao `questionPrompt`, 288 perguntas novas (8 × 36), matérias antigas
+arquivadas. Front (T14–T20) pendente. Lacuna pré-existente registrada: reconexão não reenvia
+`questionPrompt` (sugerida como tarefa separada).
