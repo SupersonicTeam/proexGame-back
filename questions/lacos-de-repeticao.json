@@ -1,0 +1,356 @@
+[
+  {
+    "id": "laco-0001",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "Para que serve um laço de repetição?",
+    "correct": "Executar um trecho várias vezes sem copiar o código",
+    "proximal": "Escolher entre dois caminhos possíveis",
+    "wrong": ["Guardar um valor na memória", "Encerrar o programa"]
+  },
+  {
+    "id": "laco-0002",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "Quantas vezes \"oi\" aparece na tela?",
+    "code": "para i de 1 ate 3 faca\n  escreva(\"oi \")\nfimpara",
+    "correct": "3",
+    "proximal": "2",
+    "wrong": ["1", "4"]
+  },
+  {
+    "id": "laco-0003",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "para i de 1 ate 5 faca\n  escreva(i)\nfimpara",
+    "correct": "12345",
+    "proximal": "1234",
+    "wrong": ["5", "i"]
+  },
+  {
+    "id": "laco-0004",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "Em Portugol, qual palavra fecha um laço para?",
+    "correct": "fimpara",
+    "proximal": "fimenquanto",
+    "wrong": ["fimse", "senao"]
+  },
+  {
+    "id": "laco-0005",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "O laço enquanto continua repetindo enquanto a sua condição for:",
+    "correct": "Verdadeira",
+    "proximal": "Falsa",
+    "wrong": ["Um número par", "Igual a zero"]
+  },
+  {
+    "id": "laco-0006",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "i <- 1\nenquanto i <= 3 faca\n  escreva(i)\n  i <- i + 1\nfimenquanto",
+    "correct": "123",
+    "proximal": "1234",
+    "wrong": ["3", "111"]
+  },
+  {
+    "id": "laco-0007",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "O que é um laço infinito?",
+    "correct": "Um laço cuja condição de parada nunca é atingida",
+    "proximal": "Um laço que repete muitas vezes, mas termina",
+    "wrong": ["Um laço sem nenhuma instrução dentro", "Um laço que roda só uma vez"]
+  },
+  {
+    "id": "laco-0008",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "Quantas vezes o bloco de \"para i de 1 ate 10 faca\" é executado?",
+    "correct": "10",
+    "proximal": "9",
+    "wrong": ["11", "1"]
+  },
+  {
+    "id": "laco-0009",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "para i de 1 ate 4 faca\n  escreva(\"*\")\nfimpara",
+    "correct": "****",
+    "proximal": "***",
+    "wrong": ["*", "4"]
+  },
+  {
+    "id": "laco-0010",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "Em um laço, como se chama a variável que aumenta de 1 em 1 para contar as repetições?",
+    "correct": "Contador",
+    "proximal": "Acumulador",
+    "wrong": ["Constante", "Vetor"]
+  },
+  {
+    "id": "laco-0011",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "Qual laço é o mais indicado quando você JÁ SABE quantas vezes vai repetir?",
+    "correct": "para",
+    "proximal": "enquanto",
+    "wrong": ["se", "escolha"]
+  },
+  {
+    "id": "laco-0012",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "para i de 3 ate 1 passo -1 faca\n  escreva(i)\nfimpara",
+    "correct": "321",
+    "proximal": "123",
+    "wrong": ["3", "Nada é mostrado"]
+  },
+  {
+    "id": "laco-0013",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 5 faca\n  s <- s + i\nfimpara\nescreva(s)",
+    "correct": "15",
+    "proximal": "10",
+    "wrong": ["5", "12345"]
+  },
+  {
+    "id": "laco-0014",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "para i de 0 ate 10 passo 2 faca\n  escreva(i, \" \")\nfimpara",
+    "correct": "0 2 4 6 8 10",
+    "proximal": "0 2 4 6 8",
+    "wrong": ["1 3 5 7 9", "0 10"]
+  },
+  {
+    "id": "laco-0015",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 5\nenquanto n > 0 faca\n  n <- n - 2\nfimenquanto\nescreva(n)",
+    "correct": "-1",
+    "proximal": "1",
+    "wrong": ["0", "5"]
+  },
+  {
+    "id": "laco-0016",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "f <- 1\npara i de 1 ate 4 faca\n  f <- f * i\nfimpara\nescreva(f)",
+    "correct": "24",
+    "proximal": "10",
+    "wrong": ["4", "0"]
+  },
+  {
+    "id": "laco-0017",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 10 faca\n  se i mod 2 = 0 entao\n    c <- c + 1\n  fimse\nfimpara\nescreva(c)",
+    "correct": "5",
+    "proximal": "4",
+    "wrong": ["10", "30"]
+  },
+  {
+    "id": "laco-0018",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "Qual é o problema deste algoritmo?",
+    "code": "i <- 1\nenquanto i <= 5 faca\n  escreva(i)\nfimenquanto",
+    "correct": "i nunca muda, então o laço nunca termina",
+    "proximal": "A condição deveria ser i < 5",
+    "wrong": [
+      "escreva não pode ficar dentro de um laço",
+      "Falta um fimse no final"
+    ]
+  },
+  {
+    "id": "laco-0019",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 10\nrepita\n  x <- x + 1\nate x > 5\nescreva(x)",
+    "correct": "11",
+    "proximal": "10",
+    "wrong": ["6", "5"]
+  },
+  {
+    "id": "laco-0020",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "x <- 10\nenquanto x < 5 faca\n  x <- x + 1\nfimenquanto\nescreva(x)",
+    "correct": "10",
+    "proximal": "11",
+    "wrong": ["5", "6"]
+  },
+  {
+    "id": "laco-0021",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 7\npara i de 1 ate 3 faca\n  escreva(n * i, \" \")\nfimpara",
+    "correct": "7 14 21",
+    "proximal": "14 21 28",
+    "wrong": ["21", "1 2 3"]
+  },
+  {
+    "id": "laco-0022",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "Qual é a principal diferença entre enquanto e repita ... ate?",
+    "correct": "repita executa o bloco pelo menos uma vez; enquanto pode não executar nenhuma",
+    "proximal": "enquanto executa o bloco pelo menos uma vez; repita pode não executar nenhuma",
+    "wrong": ["Não há diferença alguma", "repita só funciona com números inteiros"]
+  },
+  {
+    "id": "laco-0023",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "c <- 0\ni <- 1\nenquanto i < 100 faca\n  i <- i * 2\n  c <- c + 1\nfimenquanto\nescreva(c)",
+    "correct": "7",
+    "proximal": "6",
+    "wrong": ["50", "100"]
+  },
+  {
+    "id": "laco-0024",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 9 passo 2 faca\n  s <- s + i\nfimpara\nescreva(s)",
+    "correct": "25",
+    "proximal": "16",
+    "wrong": ["45", "9"]
+  },
+  {
+    "id": "laco-0025",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "para i de 1 ate 3 faca\n  para j de 1 ate i faca\n    escreva(\"*\")\n  fimpara\n  escreva(\" \")\nfimpara",
+    "correct": "* ** ***",
+    "proximal": "*** *** ***",
+    "wrong": ["***", "* * *"]
+  },
+  {
+    "id": "laco-0026",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "s <- 0\npara i de 1 ate 3 faca\n  para j de 1 ate 3 faca\n    s <- s + i * j\n  fimpara\nfimpara\nescreva(s)",
+    "correct": "36",
+    "proximal": "9",
+    "wrong": ["18", "6"]
+  },
+  {
+    "id": "laco-0027",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "Quantos passos este algoritmo leva até n chegar a 1?",
+    "code": "n <- 6\nc <- 0\nenquanto n <> 1 faca\n  se n mod 2 = 0 entao\n    n <- n div 2\n  senao\n    n <- 3 * n + 1\n  fimse\n  c <- c + 1\nfimenquanto\nescreva(c)",
+    "correct": "8",
+    "proximal": "7",
+    "wrong": ["6", "3"]
+  },
+  {
+    "id": "laco-0028",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "Um laço começa com i <- 0 e faz i <- i + 1 no fim de cada volta. Qual condição faz o bloco rodar EXATAMENTE 10 vezes?",
+    "correct": "enquanto i < 10 faca",
+    "proximal": "enquanto i <= 10 faca",
+    "wrong": ["enquanto i > 10 faca", "enquanto i = 10 faca"]
+  },
+  {
+    "id": "laco-0029",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 50321\nc <- 0\nrepita\n  n <- n div 10\n  c <- c + 1\nate n = 0\nescreva(c)",
+    "correct": "5",
+    "proximal": "4",
+    "wrong": ["6", "11"]
+  },
+  {
+    "id": "laco-0030",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 21\nprimo <- VERDADEIRO\npara d de 2 ate n - 1 faca\n  se n mod d = 0 entao\n    primo <- FALSO\n  fimse\nfimpara\nescreva(primo)",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["21", "3"]
+  },
+  {
+    "id": "laco-0031",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "b <- 2\ne <- 5\nr <- 1\nenquanto e > 0 faca\n  r <- r * b\n  e <- e - 1\nfimenquanto\nescreva(r)",
+    "correct": "32",
+    "proximal": "16",
+    "wrong": ["10", "25"]
+  },
+  {
+    "id": "laco-0032",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 4 faca\n  para j de i ate 4 faca\n    c <- c + 1\n  fimpara\nfimpara\nescreva(c)",
+    "correct": "10",
+    "proximal": "16",
+    "wrong": ["4", "6"]
+  },
+  {
+    "id": "laco-0033",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "a <- 0\nb <- 1\nenquanto b < 50 faca\n  t <- b\n  b <- a + b\n  a <- t\nfimenquanto\nescreva(b)",
+    "correct": "55",
+    "proximal": "34",
+    "wrong": ["50", "89"]
+  },
+  {
+    "id": "laco-0034",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "A ideia era somar os números de 1 a 5. O que o algoritmo mostra de verdade?",
+    "code": "para i de 1 ate 5 faca\n  s <- 0\n  s <- s + i\nfimpara\nescreva(s)",
+    "correct": "5",
+    "proximal": "15",
+    "wrong": ["0", "1"]
+  },
+  {
+    "id": "laco-0035",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "n <- 123\nr <- 0\nenquanto n > 0 faca\n  r <- r * 10 + n mod 10\n  n <- n div 10\nfimenquanto\nescreva(r)",
+    "correct": "321",
+    "proximal": "6",
+    "wrong": ["123", "0"]
+  },
+  {
+    "id": "laco-0036",
+    "subject": "lacos-de-repeticao",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "c <- 0\npara i de 1 ate 30 faca\n  se (i mod 3 = 0) OU (i mod 5 = 0) entao\n    c <- c + 1\n  fimse\nfimpara\nescreva(c)",
+    "correct": "14",
+    "proximal": "16",
+    "wrong": ["2", "30"]
+  }
+]
