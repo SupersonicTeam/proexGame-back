@@ -94,12 +94,15 @@ passo e escolher o algoritmo. Todas as categorias têm **36 perguntas (12 easy /
 | `funcoes` | `func` | parâmetros, retorno, função × procedimento, escopo, recursão |
 | `busca-e-ordenacao` | `bus` | busca linear × binária, bubble/seleção/inserção, eficiência |
 
-**Critério de nível:**
+**Critério de nível (relativo à categoria):**
 
-- **easy** — conceito ou trecho de até 4 linhas, sem laço.
-- **normal** — rastrear 5–10 linhas, com 1 laço ou condição composta.
-- **hard** — laço aninhado, vetor + laço, função/recursão, ou escolher o algoritmo
-  adequado a um problema.
+- **easy** — o conceito central da categoria ou um rastreio curto e direto.
+- **normal** — rastreio de várias linhas ou combinação de dois conceitos da categoria.
+- **hard** — rastreio com armadilha (ordem, limite, precedência, aninhamento),
+  recursão, ou escolher/avaliar um algoritmo.
+
+Ex.: em `condicionais`, um `se/senao` simples é easy e uma cadeia de `se` com a ordem
+dos testes como armadilha é hard — sem precisar de laço.
 
 **Dialeto do pseudocódigo (Portugol estilo VisuAlg, só ASCII):** `<-` atribuição;
 `escreva`/`leia`; `se ... entao ... senao ... fimse`; `escolha/caso/outrocaso/fimescolha`;
@@ -107,6 +110,7 @@ passo e escolher o algoritmo. Todas as categorias têm **36 perguntas (12 easy /
 `repita ... ate`; `funcao nome(p: tipo): tipo ... retorne ... fimfuncao`;
 `procedimento ... fimprocedimento`; `E`/`OU`/`NAO`; `mod`/`div`; `VERDADEIRO`/`FALSO`.
 Sem boilerplate (`algoritmo`/`var`/`inicio`) salvo quando a pergunta trata disso.
+`retorne` encerra a função na hora (linhas depois dele não executam).
 Vetores declaram o intervalo no enunciado (`v[1..5]`); se omitido, base 1.
 
 **Respostas de rastreamento** ("o que o algoritmo mostra?") devem ser conferidas à mão

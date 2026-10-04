@@ -310,7 +310,7 @@
     "difficulty": "hard",
     "statement": "Uma variável foi declarada mas nunca recebeu valor. Por que usá-la em um cálculo é perigoso?",
     "correct": "Dependendo da linguagem, o valor inicial é indefinido (lixo de memória)",
-    "proximal": "Não é perigoso: toda variável começa valendo zero",
+    "proximal": "Não é perigoso: em qualquer linguagem toda variável começa valendo zero",
     "wrong": ["O computador desliga", "Ela vira uma constante automaticamente"]
   },
   {

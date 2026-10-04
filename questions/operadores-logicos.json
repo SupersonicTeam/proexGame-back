@@ -72,7 +72,7 @@
     "statement": "Para ir no brinquedo é preciso (altura >= 1.40) E (idade >= 10). Ana tem 1.50 m e 9 anos. Ela pode ir?",
     "correct": "Não, porque a condição da idade é falsa",
     "proximal": "Sim, porque a altura é suficiente",
-    "wrong": ["Sim, porque 9 está perto de 10", "Não, porque 1.50 é maior que 1.40"]
+    "wrong": ["Sim, porque 9 está perto de 10", "Só se ela estiver acompanhada de um adulto"]
   },
   {
     "id": "oplog-0009",
