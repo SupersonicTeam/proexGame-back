@@ -19,6 +19,10 @@ export interface Question {
   // (RF-NEW-04). Obrigatório — o boot falha (fail-fast) se ausente/ inválido.
   difficulty: QuestionDifficulty;
   statement: string;
+  // Pseudocódigo opcional exibido abaixo do enunciado (Portugol, `\n` como
+  // quebra). Validado no boot: ≤ CODE_MAX_LINES linhas, ≤ CODE_MAX_LINE_LENGTH
+  // caracteres por linha, sem tabulação. Público — não é segredo.
+  code?: string;
   correct: string;
   proximal: string;
   wrong: [string, string]; // exatamente 2 distratores totais
