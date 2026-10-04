@@ -1,0 +1,354 @@
+[
+  {
+    "id": "func-0001",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Para que serve uma função em um algoritmo?",
+    "correct": "Agrupar instruções sob um nome para reutilizá-las",
+    "proximal": "Repetir um trecho até uma condição ficar falsa",
+    "wrong": ["Guardar vários valores com o mesmo nome", "Encerrar o programa"]
+  },
+  {
+    "id": "func-0002",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao dobro(x: inteiro): inteiro\n  retorne x * 2\nfimfuncao\nescreva(dobro(4))",
+    "correct": "8",
+    "proximal": "4",
+    "wrong": ["16", "dobro(4)"]
+  },
+  {
+    "id": "func-0003",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "O que o comando retorne faz dentro de uma função?",
+    "correct": "Devolve um valor para quem chamou a função",
+    "proximal": "Mostra um valor na tela",
+    "wrong": ["Reinicia o programa", "Volta para a primeira linha do algoritmo"]
+  },
+  {
+    "id": "func-0004",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Em funcao soma(a, b: inteiro): inteiro, o que são a e b?",
+    "correct": "Parâmetros: os valores que a função recebe",
+    "proximal": "Os valores que a função retorna",
+    "wrong": ["Constantes do programa", "Nomes de vetores"]
+  },
+  {
+    "id": "func-0005",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao quadrado(n: inteiro): inteiro\n  retorne n * n\nfimfuncao\nescreva(quadrado(5))",
+    "correct": "25",
+    "proximal": "10",
+    "wrong": ["5", "55"]
+  },
+  {
+    "id": "func-0006",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Qual é a diferença entre uma função e um procedimento?",
+    "correct": "A função retorna um valor; o procedimento só executa ações",
+    "proximal": "O procedimento retorna um valor; a função não",
+    "wrong": ["Não há diferença", "A função não pode ter parâmetros"]
+  },
+  {
+    "id": "func-0007",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Qual é uma vantagem de usar funções?",
+    "correct": "Evitar repetir o mesmo código em vários lugares",
+    "proximal": "Fazer o programa não precisar de variáveis",
+    "wrong": ["Deixar o computador sempre mais rápido", "Dispensar testes"]
+  },
+  {
+    "id": "func-0008",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao soma(a, b: inteiro): inteiro\n  retorne a + b\nfimfuncao\nescreva(soma(2, 3))",
+    "correct": "5",
+    "proximal": "23",
+    "wrong": ["6", "a + b"]
+  },
+  {
+    "id": "func-0009",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Na chamada area(3, 4), o que são o 3 e o 4?",
+    "correct": "Argumentos passados para os parâmetros da função",
+    "proximal": "O valor que a função retorna",
+    "wrong": ["Índices de um vetor", "Números de linha do código"]
+  },
+  {
+    "id": "func-0010",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Quantas vezes \"Oi!\" aparece na tela?",
+    "code": "procedimento ola()\n  escreva(\"Oi!\")\nfimprocedimento\nola()\nola()",
+    "correct": "2",
+    "proximal": "1",
+    "wrong": ["0", "3"]
+  },
+  {
+    "id": "func-0011",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "Qual nome de função descreve melhor o que ela faz?",
+    "correct": "calcularMedia",
+    "proximal": "funcao1",
+    "wrong": ["x", "abc"]
+  },
+  {
+    "id": "func-0012",
+    "subject": "funcoes",
+    "difficulty": "easy",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao maior(a, b: inteiro): inteiro\n  se a > b entao\n    retorne a\n  fimse\n  retorne b\nfimfuncao\nescreva(maior(3, 9))",
+    "correct": "9",
+    "proximal": "3",
+    "wrong": ["12", "6"]
+  },
+  {
+    "id": "func-0013",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao dobro(x: inteiro): inteiro\n  retorne x * 2\nfimfuncao\nescreva(dobro(3) + dobro(4))",
+    "correct": "14",
+    "proximal": "7",
+    "wrong": ["24", "10"]
+  },
+  {
+    "id": "func-0014",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao dobro(x: inteiro): inteiro\n  retorne x * 2\nfimfuncao\nescreva(dobro(dobro(3)))",
+    "correct": "12",
+    "proximal": "6",
+    "wrong": ["9", "36"]
+  },
+  {
+    "id": "func-0015",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O parâmetro x é passado por valor (a função recebe uma cópia). O que é mostrado?",
+    "code": "procedimento muda(x: inteiro)\n  x <- 100\nfimprocedimento\na <- 5\nmuda(a)\nescreva(a)",
+    "correct": "5",
+    "proximal": "100",
+    "wrong": ["105", "0"]
+  },
+  {
+    "id": "func-0016",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "Uma variável declarada DENTRO de uma função (variável local) pode ser usada fora dela?",
+    "correct": "Não, ela só existe enquanto a função está executando",
+    "proximal": "Sim, depois que a função for chamada pelo menos uma vez",
+    "wrong": ["Sim, sempre", "Só se ela for do tipo inteiro"]
+  },
+  {
+    "id": "func-0017",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao ePar(n: inteiro): logico\n  retorne n mod 2 = 0\nfimfuncao\nescreva(ePar(7))",
+    "correct": "FALSO",
+    "proximal": "VERDADEIRO",
+    "wrong": ["1", "7"]
+  },
+  {
+    "id": "func-0018",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao f(x: inteiro): inteiro\n  retorne x + 1\n  retorne x + 2\nfimfuncao\nescreva(f(5))",
+    "correct": "6",
+    "proximal": "7",
+    "wrong": ["13", "6 7"]
+  },
+  {
+    "id": "func-0019",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao triplo(x: inteiro): inteiro\n  retorne 3 * x\nfimfuncao\ns <- 0\npara i de 1 ate 3 faca\n  s <- s + triplo(i)\nfimpara\nescreva(s)",
+    "correct": "18",
+    "proximal": "6",
+    "wrong": ["9", "27"]
+  },
+  {
+    "id": "func-0020",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "Qual cabeçalho serve para uma função que recebe a base e a altura de um retângulo e devolve a área?",
+    "correct": "funcao area(b, h: real): real",
+    "proximal": "procedimento area(b, h: real)",
+    "wrong": ["funcao area(): real", "funcao area(b, h: real): logico"]
+  },
+  {
+    "id": "func-0021",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao abs(x: inteiro): inteiro\n  se x < 0 entao\n    retorne -x\n  fimse\n  retorne x\nfimfuncao\nescreva(abs(-4) + abs(4))",
+    "correct": "8",
+    "proximal": "0",
+    "wrong": ["-8", "4"]
+  },
+  {
+    "id": "func-0022",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao sub(a, b: inteiro): inteiro\n  retorne a - b\nfimfuncao\nescreva(sub(3, 10))",
+    "correct": "-7",
+    "proximal": "7",
+    "wrong": ["13", "-13"]
+  },
+  {
+    "id": "func-0023",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "Por que y <- dobro(5) NÃO guarda 10 em y com esta função?",
+    "code": "funcao dobro(x: inteiro): inteiro\n  escreva(x * 2)\nfimfuncao",
+    "correct": "A função mostra o valor na tela, mas não o retorna",
+    "proximal": "Faltou declarar x como real",
+    "wrong": ["O nome dobro é reservado", "A função precisa de dois parâmetros"]
+  },
+  {
+    "id": "func-0024",
+    "subject": "funcoes",
+    "difficulty": "normal",
+    "statement": "O x declarado dentro de p é local. O que é mostrado?",
+    "code": "x <- 1\nprocedimento p()\n  var x: inteiro\n  x <- 50\nfimprocedimento\np()\nescreva(x)",
+    "correct": "1",
+    "proximal": "50",
+    "wrong": ["51", "0"]
+  },
+  {
+    "id": "func-0025",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao fat(n: inteiro): inteiro\n  se n <= 1 entao\n    retorne 1\n  fimse\n  retorne n * fat(n - 1)\nfimfuncao\nescreva(fat(5))",
+    "correct": "120",
+    "proximal": "24",
+    "wrong": ["15", "5"]
+  },
+  {
+    "id": "func-0026",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao s(n: inteiro): inteiro\n  se n = 0 entao\n    retorne 0\n  fimse\n  retorne n + s(n - 1)\nfimfuncao\nescreva(s(4))",
+    "correct": "10",
+    "proximal": "6",
+    "wrong": ["4", "24"]
+  },
+  {
+    "id": "func-0027",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que acontece com uma função recursiva que NÃO tem caso base?",
+    "correct": "Ela chama a si mesma sem parar até estourar a memória (pilha)",
+    "proximal": "Ela executa uma única vez e para",
+    "wrong": ["Ela retorna zero automaticamente", "Ela vira um laço para"]
+  },
+  {
+    "id": "func-0028",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao pot(b, e: inteiro): inteiro\n  se e = 0 entao\n    retorne 1\n  fimse\n  retorne b * pot(b, e - 1)\nfimfuncao\nescreva(pot(3, 3))",
+    "correct": "27",
+    "proximal": "9",
+    "wrong": ["6", "1"]
+  },
+  {
+    "id": "func-0029",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "Quantas vezes fat é chamada, contando a primeira chamada, ao executar fat(4)?",
+    "code": "funcao fat(n: inteiro): inteiro\n  se n <= 1 entao\n    retorne 1\n  fimse\n  retorne n * fat(n - 1)\nfimfuncao",
+    "correct": "4",
+    "proximal": "3",
+    "wrong": ["24", "5"]
+  },
+  {
+    "id": "func-0030",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao fib(n: inteiro): inteiro\n  se n <= 2 entao\n    retorne 1\n  fimse\n  retorne fib(n - 1) + fib(n - 2)\nfimfuncao\nescreva(fib(6))",
+    "correct": "8",
+    "proximal": "5",
+    "wrong": ["13", "6"]
+  },
+  {
+    "id": "func-0031",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "procedimento p(n: inteiro)\n  se n > 0 entao\n    p(n - 1)\n    escreva(n)\n  fimse\nfimprocedimento\np(3)",
+    "correct": "123",
+    "proximal": "321",
+    "wrong": ["3", "111"]
+  },
+  {
+    "id": "func-0032",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "Por que é melhor ter uma função ehPrimo(n) do que repetir o mesmo teste de primo em 5 lugares do programa?",
+    "correct": "Se houver um erro no teste, ele é corrigido em um só lugar",
+    "proximal": "Porque funções sempre rodam mais rápido que código repetido",
+    "wrong": [
+      "Porque o programa não funciona com código repetido",
+      "Porque funções não precisam ser testadas"
+    ]
+  },
+  {
+    "id": "func-0033",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao inc(x: inteiro): inteiro\n  retorne x + 1\nfimfuncao\nfuncao dob(x: inteiro): inteiro\n  retorne 2 * x\nfimfuncao\nescreva(dob(inc(3)), \" \", inc(dob(3)))",
+    "correct": "8 7",
+    "proximal": "7 8",
+    "wrong": ["8 8", "7 7"]
+  },
+  {
+    "id": "func-0034",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao mdc(a, b: inteiro): inteiro\n  se b = 0 entao\n    retorne a\n  fimse\n  retorne mdc(b, a mod b)\nfimfuncao\nescreva(mdc(48, 18))",
+    "correct": "6",
+    "proximal": "3",
+    "wrong": ["18", "864"]
+  },
+  {
+    "id": "func-0035",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "A variável c é global. O que este algoritmo mostra?",
+    "code": "c <- 0\nfuncao f(x: inteiro): inteiro\n  c <- c + 1\n  retorne x * x\nfimfuncao\ny <- f(2) + f(3)\nescreva(y, \" \", c)",
+    "correct": "13 2",
+    "proximal": "13 1",
+    "wrong": ["25 2", "13 0"]
+  },
+  {
+    "id": "func-0036",
+    "subject": "funcoes",
+    "difficulty": "hard",
+    "statement": "O que este algoritmo mostra?",
+    "code": "funcao d(n: inteiro): inteiro\n  se n < 10 entao\n    retorne 1\n  fimse\n  retorne 1 + d(n div 10)\nfimfuncao\nescreva(d(40721))",
+    "correct": "5",
+    "proximal": "4",
+    "wrong": ["14", "1"]
+  }
+]
