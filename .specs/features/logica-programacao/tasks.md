@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/logica-programacao/design.md`
-**Status**: In Progress
+**Status**: Done
 
 Repos: **BACK** = `D:\Trilha do Saber\back\proexGame-back` · **FRONT** = `D:\Trilha do Saber\Front\proexGame-front`.
 Branch de trabalho em cada repo: `feat/logica-programacao` (a partir de `main`). Commits Conventional, um por task, no repo da task.

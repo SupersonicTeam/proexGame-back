@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/logica-programacao/spec.md`
 **Context**: `.specs/features/logica-programacao/context.md`
-**Status**: In Progress
+**Status**: Done
 
 ---
 

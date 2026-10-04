@@ -249,10 +249,10 @@ perguntas JSON + fluxo de pergunta (RF-08/09). Pontos de extensão já preparado
 
 - Validações, updates de estado e handoffs de sessão rodam bem em modelos mais rápidos/baratos.
 
-## LÓGICA DE PROGRAMAÇÃO — EM ANDAMENTO (2026-10-04)
+## LÓGICA DE PROGRAMAÇÃO — CONCLUÍDA ✅ (2026-10-04)
 
-Feature `.specs/features/logica-programacao/` (spec/context/design/tasks). Branch
-`feat/logica-programacao` (back e front, não publicadas). Back concluído (T1–T13): campo `code`
-validado no boot + propagado ao `questionPrompt`, 288 perguntas novas (8 × 36), matérias antigas
-arquivadas. Front (T14–T20) pendente. Lacuna pré-existente registrada: reconexão não reenvia
-`questionPrompt` (sugerida como tarefa separada).
+Feature `.specs/features/logica-programacao/` — 20/20 tasks + fixes do Verifier. Verifier (author ≠ verifier)
+**PASS na iteração 2** (`validation.md`): back 296 unit + 17 e2e, front 128; 23/23 mutantes mortos; 288
+perguntas sem gabarito errado. Branches `feat/logica-programacao` (back e front) **não publicadas** — aguardando
+code review e autorização do usuário para push/PR. Lacuna pré-existente: reconexão não reenvia
+`questionPrompt` (tarefa separada sugerida). Lição: checar classes CSS por token (classList), nunca por substring.
