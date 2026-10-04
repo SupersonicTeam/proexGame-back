@@ -683,3 +683,25 @@ describe('QuestionBankService — alternativas distintas', () => {
     );
   });
 });
+
+describe('QuestionBankService — subdiretórios não são carregados', () => {
+  afterEach(() => {
+    delete process.env.QUESTIONS_DIR;
+  });
+
+  it('ignora *.json dentro de subdiretórios (ex.: questions/_arquivo)', async () => {
+    const dir = createTempDir({ 'matematica.json': VALID_MATEMATICA });
+    fs.mkdirSync(path.join(dir, '_arquivo'));
+    fs.writeFileSync(
+      path.join(dir, '_arquivo', 'portugues.json'),
+      JSON.stringify(VALID_PORTUGUES),
+      'utf-8',
+    );
+    process.env.QUESTIONS_DIR = dir;
+    const service = new QuestionBankService(new FakeRandomSource([0]));
+    await service.onModuleInit();
+    expect(service.subjects()).toEqual(['matematica']);
+    expect(service.getById('por-0001')).toBeUndefined();
+    removeTempDir(dir);
+  });
+});

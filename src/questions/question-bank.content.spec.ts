@@ -96,3 +96,29 @@ describe('Banco real — categorias de lógica de programação', () => {
     ) as { id: string; difficulty: QuestionDifficulty }[];
   }
 });
+
+describe('Banco real — conjunto exato de matérias (PROG-01)', () => {
+  it('carrega exatamente as 8 categorias de lógica de programação', async () => {
+    delete process.env.QUESTIONS_DIR;
+    const service = new QuestionBankService(noRng);
+    await service.onModuleInit();
+    expect(service.subjects()).toEqual(Object.keys(CATEGORY_PREFIX).sort());
+  });
+
+  it('as matérias escolares antigas ficam arquivadas, fora do carregamento', () => {
+    const archived = fs
+      .readdirSync(path.join(QUESTIONS_DIR, '_arquivo'))
+      .filter((f) => f.endsWith('.json'))
+      .sort();
+    expect(archived).toEqual([
+      'conhecimentos-gerais.json',
+      'desenvolvimento-web.json',
+      'fisica.json',
+      'logica.json',
+      'matematica-financeira.json',
+      'matematica.json',
+      'portugues.json',
+      'quimica.json',
+    ]);
+  });
+});
